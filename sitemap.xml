@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://divinerapier.github.io/2021/03/19/docker-container-exitcode-137-without-oomkilled-flag-set/</loc>
+    
+    <lastmod>2021-04-01</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://divinerapier.github.io/2021/03/16/kubectl-exec-hangs/</loc>
     
     <lastmod>2021-04-01</lastmod>
@@ -9,7 +16,231 @@
   </url>
   
   <url>
-    <loc>http://divinerapier.github.io/2021/03/19/docker-container-exitcode-137-without-oomkilled-flag-set/</loc>
+    <loc>http://divinerapier.github.io/2020/11/19/testing-the-bandwidth-between-two-nodes/</loc>
+    
+    <lastmod>2021-04-01</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/2021/03/12/pod-stuck-in-terminating-state/</loc>
+    
+    <lastmod>2021-04-01</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/2021/03/08/innodb-introduction/</loc>
+    
+    <lastmod>2021-04-01</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/2021/02/08/programming-open-closed-principle/</loc>
+    
+    <lastmod>2021-04-01</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/2021/02/06/programming-program-to-an-interface/</loc>
+    
+    <lastmod>2021-04-01</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/2021/02/08/programming-single-responsibility-principle/</loc>
+    
+    <lastmod>2021-04-01</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/2021/03/05/pytorch-fails-without-shm/</loc>
+    
+    <lastmod>2021-04-01</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/2021/02/06/the-code-quality-metrics/</loc>
+    
+    <lastmod>2021-04-01</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/2020/12/16/archlinux-diffutils/</loc>
+    
+    <lastmod>2021-04-01</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/2020/12/01/delete-all-evicted-pods/</loc>
+    
+    <lastmod>2021-04-01</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/2020/12/31/git-delete-merged-branches/</loc>
+    
+    <lastmod>2021-04-01</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/2020/12/08/install-nvidia-driver-and-cuda/</loc>
+    
+    <lastmod>2021-04-01</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/2020/11/21/introduction-to-parallel-programming/</loc>
+    
+    <lastmod>2021-04-01</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/2020/08/17/namespace-and-cgroup/</loc>
+    
+    <lastmod>2021-04-01</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/2020/11/14/nvidia-docker/</loc>
+    
+    <lastmod>2021-04-01</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/2020/12/07/volcano-plugin-binpack/</loc>
+    
+    <lastmod>2021-04-01</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/2020/11/30/set-locale-inside-a-container/</loc>
+    
+    <lastmod>2021-04-01</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/2020/10/24/mpi-operator/</loc>
+    
+    <lastmod>2021-04-01</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/2020/11/16/volcano/</loc>
+    
+    <lastmod>2021-04-01</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/2020/11/15/scheduling-and-eviction-assigning-pods-to-nodes/</loc>
+    
+    <lastmod>2021-04-01</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/2020/11/15/kubernetes-device-plugin/</loc>
+    
+    <lastmod>2021-04-01</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/2020/11/01/adding-a-new-hard-drive-for-linux/</loc>
+    
+    <lastmod>2021-04-01</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/2020/10/28/kubernetes-daemonset/</loc>
+    
+    <lastmod>2021-04-01</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/2020/10/27/kubernetes-statefulset/</loc>
+    
+    <lastmod>2021-04-01</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/2020/10/27/kubernetes-deployment/</loc>
+    
+    <lastmod>2021-04-01</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/2020/10/26/opt-cni-is-readonly-directory/</loc>
+    
+    <lastmod>2021-04-01</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/2020/10/19/using-kubeadm-to-create-a-kubernetes-cluster/</loc>
+    
+    <lastmod>2021-04-01</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/2020/10/24/openmpi-in-docker/</loc>
+    
+    <lastmod>2021-04-01</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/2020/10/15/GPU-101-Architecture/</loc>
+    
+    <lastmod>2021-04-01</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/2020/10/15/cannot-connect-to-docker-daemon-on-wsl2/</loc>
+    
+    <lastmod>2021-04-01</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/2020/10/19/configure-networks-on-ubuntu-20-04/</loc>
+    
+    <lastmod>2021-04-01</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/2020/10/18/command-configure-not-found-in-docker/</loc>
+    
+    <lastmod>2021-04-01</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/2020/10/07/kubernetes-persistent-volume/</loc>
     
     <lastmod>2021-04-01</lastmod>
     
@@ -18,434 +249,203 @@
   <url>
     <loc>http://divinerapier.github.io/2020/10/07/kubernetes-volumes/</loc>
     
-    <lastmod>2021-03-19</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/2020/10/07/kubernetes-persistent-volume/</loc>
-    
-    <lastmod>2021-03-19</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/2021/03/12/pod-stuck-in-terminating-state/</loc>
-    
-    <lastmod>2021-03-12</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/2021/03/08/innodb-introduction/</loc>
-    
-    <lastmod>2021-03-09</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/2021/02/08/programming-open-closed-principle/</loc>
-    
-    <lastmod>2021-03-06</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/2021/02/06/programming-program-to-an-interface/</loc>
-    
-    <lastmod>2021-03-06</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/2021/02/08/programming-single-responsibility-principle/</loc>
-    
-    <lastmod>2021-03-06</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/2021/03/05/pytorch-fails-without-shm/</loc>
-    
-    <lastmod>2021-03-05</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/2021/02/06/the-code-quality-metrics/</loc>
-    
-    <lastmod>2021-02-07</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/2020/12/31/git-delete-merged-branches/</loc>
-    
-    <lastmod>2020-12-31</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/2020/08/17/namespace-and-cgroup/</loc>
-    
-    <lastmod>2020-12-19</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/2020/12/16/archlinux-diffutils/</loc>
-    
-    <lastmod>2020-12-16</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/2020/12/07/volcano-plugin-binpack/</loc>
-    
-    <lastmod>2020-12-08</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/2020/11/14/nvidia-docker/</loc>
-    
-    <lastmod>2020-12-08</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/2020/12/08/install-nvidia-driver-and-cuda/</loc>
-    
-    <lastmod>2020-12-08</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/2020/12/01/delete-all-evicted-pods/</loc>
-    
-    <lastmod>2020-12-01</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/2020/11/30/set-locale-inside-a-container/</loc>
-    
-    <lastmod>2020-11-30</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/2020/11/21/introduction-to-parallel-programming/</loc>
-    
-    <lastmod>2020-11-23</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/2020/11/19/testing-the-bandwidth-between-two-nodes/</loc>
-    
-    <lastmod>2020-11-19</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/2020/10/24/mpi-operator/</loc>
-    
-    <lastmod>2020-11-18</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/2020/11/16/volcano/</loc>
-    
-    <lastmod>2020-11-18</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/2020/11/15/scheduling-and-eviction-assigning-pods-to-nodes/</loc>
-    
-    <lastmod>2020-11-15</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/2020/11/15/kubernetes-device-plugin/</loc>
-    
-    <lastmod>2020-11-15</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/2020/11/01/adding-a-new-hard-drive-for-linux/</loc>
-    
-    <lastmod>2020-11-01</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/2020/10/28/kubernetes-daemonset/</loc>
-    
-    <lastmod>2020-10-28</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/2020/10/27/kubernetes-statefulset/</loc>
-    
-    <lastmod>2020-10-27</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/2020/10/27/kubernetes-deployment/</loc>
-    
-    <lastmod>2020-10-27</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/2020/10/26/opt-cni-is-readonly-directory/</loc>
-    
-    <lastmod>2020-10-26</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/2020/10/19/using-kubeadm-to-create-a-kubernetes-cluster/</loc>
-    
-    <lastmod>2020-10-26</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/2020/10/24/openmpi-in-docker/</loc>
-    
-    <lastmod>2020-10-26</lastmod>
+    <lastmod>2021-04-01</lastmod>
     
   </url>
   
   <url>
     <loc>http://divinerapier.github.io/2020/10/20/upgrade-ubuntu-release/</loc>
     
-    <lastmod>2020-10-20</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/2020/10/19/configure-networks-on-ubuntu-20-04/</loc>
-    
-    <lastmod>2020-10-19</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/2020/10/18/command-configure-not-found-in-docker/</loc>
-    
-    <lastmod>2020-10-18</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/2020/10/15/GPU-101-Architecture/</loc>
-    
-    <lastmod>2020-10-15</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/2020/10/15/cannot-connect-to-docker-daemon-on-wsl2/</loc>
-    
-    <lastmod>2020-10-15</lastmod>
+    <lastmod>2021-04-01</lastmod>
     
   </url>
   
   <url>
     <loc>http://divinerapier.github.io/2020/10/11/started-with-mpi/</loc>
     
-    <lastmod>2020-10-11</lastmod>
+    <lastmod>2021-04-01</lastmod>
     
   </url>
   
   <url>
     <loc>http://divinerapier.github.io/2020/10/11/readings-about-training-system/</loc>
     
-    <lastmod>2020-10-11</lastmod>
+    <lastmod>2021-04-01</lastmod>
     
   </url>
   
   <url>
     <loc>http://divinerapier.github.io/2020/10/06/kubernetes-controllers/</loc>
     
-    <lastmod>2020-10-09</lastmod>
+    <lastmod>2021-04-01</lastmod>
     
   </url>
   
   <url>
     <loc>http://divinerapier.github.io/2020/10/02/how-to-use-nfs/</loc>
     
-    <lastmod>2020-10-06</lastmod>
+    <lastmod>2021-04-01</lastmod>
     
   </url>
   
   <url>
     <loc>http://divinerapier.github.io/2020/09/30/understanding-kubernetes-objects/</loc>
     
-    <lastmod>2020-10-06</lastmod>
+    <lastmod>2021-04-01</lastmod>
     
   </url>
   
   <url>
     <loc>http://divinerapier.github.io/2020/09/04/projected-volumes/</loc>
     
-    <lastmod>2020-09-30</lastmod>
+    <lastmod>2021-04-01</lastmod>
     
   </url>
   
   <url>
     <loc>http://divinerapier.github.io/2020/09/10/b-tree/</loc>
     
-    <lastmod>2020-09-24</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/2020/09/05/windows-terminal/</loc>
-    
-    <lastmod>2020-09-05</lastmod>
+    <lastmod>2021-04-01</lastmod>
     
   </url>
   
   <url>
     <loc>http://divinerapier.github.io/2020/09/04/play-with-k8s/</loc>
     
-    <lastmod>2020-09-04</lastmod>
+    <lastmod>2021-04-01</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/2020/09/05/windows-terminal/</loc>
+    
+    <lastmod>2021-04-01</lastmod>
     
   </url>
   
   <url>
     <loc>http://divinerapier.github.io/2020/09/02/the-basics-of-pods/</loc>
     
-    <lastmod>2020-09-04</lastmod>
+    <lastmod>2021-04-01</lastmod>
     
   </url>
   
   <url>
     <loc>http://divinerapier.github.io/2020/08/26/log-structured-merge-trees/</loc>
     
-    <lastmod>2020-09-02</lastmod>
+    <lastmod>2021-04-01</lastmod>
     
   </url>
   
   <url>
     <loc>http://divinerapier.github.io/2020/09/02/enable-rss-on-hexo/</loc>
     
-    <lastmod>2020-09-02</lastmod>
+    <lastmod>2021-04-01</lastmod>
     
   </url>
   
   <url>
     <loc>http://divinerapier.github.io/2020/08/31/why-do-we-need-pods/</loc>
     
-    <lastmod>2020-09-01</lastmod>
+    <lastmod>2021-04-01</lastmod>
     
   </url>
   
   <url>
     <loc>http://divinerapier.github.io/2020/08/24/container-orchestration-and-kubernetes/</loc>
     
-    <lastmod>2020-08-26</lastmod>
+    <lastmod>2021-04-01</lastmod>
     
   </url>
   
   <url>
     <loc>http://divinerapier.github.io/2020/08/22/load-average/</loc>
     
-    <lastmod>2020-08-23</lastmod>
+    <lastmod>2021-04-01</lastmod>
     
   </url>
   
   <url>
     <loc>http://divinerapier.github.io/2020/08/22/linux-performance-guide/</loc>
     
-    <lastmod>2020-08-22</lastmod>
+    <lastmod>2021-04-01</lastmod>
     
   </url>
   
   <url>
     <loc>http://divinerapier.github.io/2020/08/20/docker-image/</loc>
     
-    <lastmod>2020-08-21</lastmod>
+    <lastmod>2021-04-01</lastmod>
     
   </url>
   
   <url>
     <loc>http://divinerapier.github.io/2020/07/26/signing-git-commits-with-gpg/</loc>
     
-    <lastmod>2020-08-21</lastmod>
+    <lastmod>2021-04-01</lastmod>
     
   </url>
   
   <url>
     <loc>http://divinerapier.github.io/2020/08/16/what-is-the-docker/</loc>
     
-    <lastmod>2020-08-17</lastmod>
+    <lastmod>2021-04-01</lastmod>
     
   </url>
   
   <url>
     <loc>http://divinerapier.github.io/2020/08/12/device-controllers/</loc>
     
-    <lastmod>2020-08-15</lastmod>
+    <lastmod>2021-04-01</lastmod>
     
   </url>
   
   <url>
     <loc>http://divinerapier.github.io/2020/08/15/https-mutual-authentication/</loc>
     
-    <lastmod>2020-08-15</lastmod>
+    <lastmod>2021-04-01</lastmod>
     
   </url>
   
   <url>
     <loc>http://divinerapier.github.io/2020/07/28/optimizing-select-statements/</loc>
     
-    <lastmod>2020-08-11</lastmod>
+    <lastmod>2021-04-01</lastmod>
     
   </url>
   
   <url>
     <loc>http://divinerapier.github.io/2020/08/11/io-devices/</loc>
     
-    <lastmod>2020-08-11</lastmod>
+    <lastmod>2021-04-01</lastmod>
     
   </url>
   
   <url>
     <loc>http://divinerapier.github.io/2020/08/01/where-clause-optimization/</loc>
     
-    <lastmod>2020-08-01</lastmod>
+    <lastmod>2021-04-01</lastmod>
     
   </url>
   
   <url>
     <loc>http://divinerapier.github.io/2020/07/28/optimizing-sql-statements/</loc>
     
-    <lastmod>2020-07-28</lastmod>
+    <lastmod>2021-04-01</lastmod>
     
   </url>
   
   <url>
     <loc>http://divinerapier.github.io/2020/07/27/mysql-optimization-overview/</loc>
     
-    <lastmod>2020-07-27</lastmod>
+    <lastmod>2021-04-01</lastmod>
     
   </url>
   
   <url>
-    <loc>http://divinerapier.github.io/2020/07/13/hello-world/</loc>
+    <loc>http://divinerapier.github.io/2021/04/01/hello-world/</loc>
     
-    <lastmod>2020-07-13</lastmod>
+    <lastmod>2021-04-01</lastmod>
     
   </url>
   
@@ -457,13 +457,6 @@
     <priority>1.0</priority>
   </url>
 
-  
-  <url>
-    <loc>http://divinerapier.github.io/tags/gpu/</loc>
-    <lastmod>2021-04-01</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
   
   <url>
     <loc>http://divinerapier.github.io/tags/linux/</loc>
@@ -481,6 +474,13 @@
   
   <url>
     <loc>http://divinerapier.github.io/tags/archlinux/</loc>
+    <lastmod>2021-04-01</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/tags/gpu/</loc>
     <lastmod>2021-04-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -697,14 +697,14 @@
   </url>
   
   <url>
-    <loc>http://divinerapier.github.io/tags/parallel-programming/</loc>
+    <loc>http://divinerapier.github.io/tags/containerd/</loc>
     <lastmod>2021-04-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>http://divinerapier.github.io/tags/containerd/</loc>
+    <loc>http://divinerapier.github.io/tags/parallel-programming/</loc>
     <lastmod>2021-04-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -746,20 +746,6 @@
   </url>
   
   <url>
-    <loc>http://divinerapier.github.io/tags/lsm-tree/</loc>
-    <lastmod>2021-04-01</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://divinerapier.github.io/tags/sstable/</loc>
-    <lastmod>2021-04-01</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>http://divinerapier.github.io/tags/mpi/</loc>
     <lastmod>2021-04-01</lastmod>
     <changefreq>daily</changefreq>
@@ -768,6 +754,20 @@
   
   <url>
     <loc>http://divinerapier.github.io/tags/operator/</loc>
+    <lastmod>2021-04-01</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/tags/lsm-tree/</loc>
+    <lastmod>2021-04-01</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://divinerapier.github.io/tags/sstable/</loc>
     <lastmod>2021-04-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>

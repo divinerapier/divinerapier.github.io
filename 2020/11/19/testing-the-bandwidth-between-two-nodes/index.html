@@ -18,7 +18,7 @@
 <meta property="og:description" content="昨天同事找到我，说 nfs 太慢了，通过 iostat 看只有 1-2MB&#x2F;s 的写入速度。在通过 fio 测试磁盘顺序写入速度，得到结果为 300MB&#x2F;s 之后，遂怀疑是网络的问题。 iperf iperf is a tool for performing network throughput measurements.  It can test either TCP or UDP throug">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2020-11-19T05:14:30.000Z">
-<meta property="article:modified_time" content="2020-11-19T08:05:50.160Z">
+<meta property="article:modified_time" content="2021-04-01T10:18:08.711Z">
 <meta property="article:author" content="divinerapier">
 <meta property="article:tag" content="network">
 <meta name="twitter:card" content="summary">
@@ -243,10 +243,10 @@
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iperf -c &lt;server-host&gt; -p &lt;port&gt; -P &lt;threadiness&gt;</span><br></pre></td></tr></table></figure>
 
 <h4 id="测试结果"><a href="#测试结果" class="headerlink" title="测试结果"></a>测试结果</h4><p>单线程客户端的测试结果:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">------------------------------------------------------------</span><br><span class="line">Client connecting to 10.33.28.26, TCP port 9999</span><br><span class="line">TCP window size:  170 KByte (default)</span><br><span class="line">------------------------------------------------------------</span><br><span class="line">[  3] <span class="built_in">local</span> 172.29.60.164 port 37290 connected with 10.33.28.26 port 9999</span><br><span class="line">[ ID] Interval       Transfer     Bandwidth</span><br><span class="line">[  3]  0.0-10.6 sec  24.0 MBytes  19.0 Mbits/sec</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">------------------------------------------------------------</span><br><span class="line">Client connecting to 10.100.28.26, TCP port 9999</span><br><span class="line">TCP window size:  170 KByte (default)</span><br><span class="line">------------------------------------------------------------</span><br><span class="line">[  3] <span class="built_in">local</span> 172.29.60.164 port 37290 connected with 10.100.28.26 port 9999</span><br><span class="line">[ ID] Interval       Transfer     Bandwidth</span><br><span class="line">[  3]  0.0-10.6 sec  24.0 MBytes  19.0 Mbits/sec</span><br></pre></td></tr></table></figure>
 
 <p>多线程客户端的测试结果，两个节点都有 <strong>16</strong> 个 <strong>CPU</strong> 核心:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">------------------------------------------------------------</span><br><span class="line">Client connecting to 10.33.28.26, TCP port 9999</span><br><span class="line">TCP window size: 85.0 KByte (default)</span><br><span class="line">------------------------------------------------------------</span><br><span class="line">[ 18] <span class="built_in">local</span> 172.29.60.164 port 37392 connected with 10.33.28.26 port 9999</span><br><span class="line">[ 17] <span class="built_in">local</span> 172.29.60.164 port 37390 connected with 10.33.28.26 port 9999</span><br><span class="line">[  4] <span class="built_in">local</span> 172.29.60.164 port 37364 connected with 10.33.28.26 port 9999</span><br><span class="line">[ 11] <span class="built_in">local</span> 172.29.60.164 port 37378 connected with 10.33.28.26 port 9999</span><br><span class="line">[  9] <span class="built_in">local</span> 172.29.60.164 port 37374 connected with 10.33.28.26 port 9999</span><br><span class="line">[  8] <span class="built_in">local</span> 172.29.60.164 port 37372 connected with 10.33.28.26 port 9999</span><br><span class="line">[ 10] <span class="built_in">local</span> 172.29.60.164 port 37376 connected with 10.33.28.26 port 9999</span><br><span class="line">[  6] <span class="built_in">local</span> 172.29.60.164 port 37366 connected with 10.33.28.26 port 9999</span><br><span class="line">[ 13] <span class="built_in">local</span> 172.29.60.164 port 37382 connected with 10.33.28.26 port 9999</span><br><span class="line">[ 14] <span class="built_in">local</span> 172.29.60.164 port 37384 connected with 10.33.28.26 port 9999</span><br><span class="line">[  3] <span class="built_in">local</span> 172.29.60.164 port 37362 connected with 10.33.28.26 port 9999</span><br><span class="line">[  5] <span class="built_in">local</span> 172.29.60.164 port 37368 connected with 10.33.28.26 port 9999</span><br><span class="line">[  7] <span class="built_in">local</span> 172.29.60.164 port 37370 connected with 10.33.28.26 port 9999</span><br><span class="line">[ 15] <span class="built_in">local</span> 172.29.60.164 port 37386 connected with 10.33.28.26 port 9999</span><br><span class="line">[ 16] <span class="built_in">local</span> 172.29.60.164 port 37388 connected with 10.33.28.26 port 9999</span><br><span class="line">[ 12] <span class="built_in">local</span> 172.29.60.164 port 37380 connected with 10.33.28.26 port 9999</span><br><span class="line">[ ID] Interval       Transfer     Bandwidth</span><br><span class="line">[  3]  0.0-10.2 sec  2.62 MBytes  2.17 Mbits/sec</span><br><span class="line">[ 13]  0.0-10.2 sec  2.88 MBytes  2.36 Mbits/sec</span><br><span class="line">[ 15]  0.0-10.2 sec  1.88 MBytes  1.54 Mbits/sec</span><br><span class="line">[  7]  0.0-10.9 sec  1.50 MBytes  1.15 Mbits/sec</span><br><span class="line">[  6]  0.0-11.0 sec  1.75 MBytes  1.34 Mbits/sec</span><br><span class="line">[ 17]  0.0-11.2 sec  1.88 MBytes  1.40 Mbits/sec</span><br><span class="line">[  5]  0.0-11.3 sec  1.50 MBytes  1.12 Mbits/sec</span><br><span class="line">[ 10]  0.0-11.6 sec  1.88 MBytes  1.35 Mbits/sec</span><br><span class="line">[  9]  0.0-12.4 sec  1.62 MBytes  1.10 Mbits/sec</span><br><span class="line">[  4]  0.0-13.0 sec  2.88 MBytes  1.85 Mbits/sec</span><br><span class="line">[ 11]  0.0-13.0 sec  4.62 MBytes  2.98 Mbits/sec</span><br><span class="line">[ 14]  0.0-13.1 sec  4.88 MBytes  3.12 Mbits/sec</span><br><span class="line">[  8]  0.0-13.9 sec  2.12 MBytes  1.28 Mbits/sec</span><br><span class="line">[ 16]  0.0-14.1 sec  2.00 MBytes  1.19 Mbits/sec</span><br><span class="line">[ 18]  0.0-14.1 sec  2.12 MBytes  1.26 Mbits/sec</span><br><span class="line">[ 12]  0.0-14.3 sec  1.73 MBytes  1.01 Mbits/sec</span><br><span class="line">[SUM]  0.0-14.3 sec  37.9 MBytes  22.1 Mbits/sec</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">------------------------------------------------------------</span><br><span class="line">Client connecting to 10.100.28.26, TCP port 9999</span><br><span class="line">TCP window size: 85.0 KByte (default)</span><br><span class="line">------------------------------------------------------------</span><br><span class="line">[ 18] <span class="built_in">local</span> 172.29.60.164 port 37392 connected with 10.100.28.26 port 9999</span><br><span class="line">[ 17] <span class="built_in">local</span> 172.29.60.164 port 37390 connected with 10.100.28.26 port 9999</span><br><span class="line">[  4] <span class="built_in">local</span> 172.29.60.164 port 37364 connected with 10.100.28.26 port 9999</span><br><span class="line">[ 11] <span class="built_in">local</span> 172.29.60.164 port 37378 connected with 10.100.28.26 port 9999</span><br><span class="line">[  9] <span class="built_in">local</span> 172.29.60.164 port 37374 connected with 10.100.28.26 port 9999</span><br><span class="line">[  8] <span class="built_in">local</span> 172.29.60.164 port 37372 connected with 10.100.28.26 port 9999</span><br><span class="line">[ 10] <span class="built_in">local</span> 172.29.60.164 port 37376 connected with 10.100.28.26 port 9999</span><br><span class="line">[  6] <span class="built_in">local</span> 172.29.60.164 port 37366 connected with 10.100.28.26 port 9999</span><br><span class="line">[ 13] <span class="built_in">local</span> 172.29.60.164 port 37382 connected with 10.100.28.26 port 9999</span><br><span class="line">[ 14] <span class="built_in">local</span> 172.29.60.164 port 37384 connected with 10.100.28.26 port 9999</span><br><span class="line">[  3] <span class="built_in">local</span> 172.29.60.164 port 37362 connected with 10.100.28.26 port 9999</span><br><span class="line">[  5] <span class="built_in">local</span> 172.29.60.164 port 37368 connected with 10.100.28.26 port 9999</span><br><span class="line">[  7] <span class="built_in">local</span> 172.29.60.164 port 37370 connected with 10.100.28.26 port 9999</span><br><span class="line">[ 15] <span class="built_in">local</span> 172.29.60.164 port 37386 connected with 10.100.28.26 port 9999</span><br><span class="line">[ 16] <span class="built_in">local</span> 172.29.60.164 port 37388 connected with 10.100.28.26 port 9999</span><br><span class="line">[ 12] <span class="built_in">local</span> 172.29.60.164 port 37380 connected with 10.100.28.26 port 9999</span><br><span class="line">[ ID] Interval       Transfer     Bandwidth</span><br><span class="line">[  3]  0.0-10.2 sec  2.62 MBytes  2.17 Mbits/sec</span><br><span class="line">[ 13]  0.0-10.2 sec  2.88 MBytes  2.36 Mbits/sec</span><br><span class="line">[ 15]  0.0-10.2 sec  1.88 MBytes  1.54 Mbits/sec</span><br><span class="line">[  7]  0.0-10.9 sec  1.50 MBytes  1.15 Mbits/sec</span><br><span class="line">[  6]  0.0-11.0 sec  1.75 MBytes  1.34 Mbits/sec</span><br><span class="line">[ 17]  0.0-11.2 sec  1.88 MBytes  1.40 Mbits/sec</span><br><span class="line">[  5]  0.0-11.3 sec  1.50 MBytes  1.12 Mbits/sec</span><br><span class="line">[ 10]  0.0-11.6 sec  1.88 MBytes  1.35 Mbits/sec</span><br><span class="line">[  9]  0.0-12.4 sec  1.62 MBytes  1.10 Mbits/sec</span><br><span class="line">[  4]  0.0-13.0 sec  2.88 MBytes  1.85 Mbits/sec</span><br><span class="line">[ 11]  0.0-13.0 sec  4.62 MBytes  2.98 Mbits/sec</span><br><span class="line">[ 14]  0.0-13.1 sec  4.88 MBytes  3.12 Mbits/sec</span><br><span class="line">[  8]  0.0-13.9 sec  2.12 MBytes  1.28 Mbits/sec</span><br><span class="line">[ 16]  0.0-14.1 sec  2.00 MBytes  1.19 Mbits/sec</span><br><span class="line">[ 18]  0.0-14.1 sec  2.12 MBytes  1.26 Mbits/sec</span><br><span class="line">[ 12]  0.0-14.3 sec  1.73 MBytes  1.01 Mbits/sec</span><br><span class="line">[SUM]  0.0-14.3 sec  37.9 MBytes  22.1 Mbits/sec</span><br></pre></td></tr></table></figure>
 
 <h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>瓶颈在网络带宽，悲哀。</p>
 
@@ -561,10 +561,6 @@
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">gpu</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
@@ -574,6 +570,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">archlinux</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">gpu</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -697,11 +697,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">parallel programming</a>
+                <a href="javascript:void(0)" class="js-tag color1">containerd</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">containerd</a>
+                <a href="javascript:void(0)" class="js-tag color1">parallel programming</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -725,19 +725,19 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">lsm tree</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">sstable</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">mpi</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">operator</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">lsm tree</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">sstable</a>
               </li>
              
               <li class="article-tag-list-item">

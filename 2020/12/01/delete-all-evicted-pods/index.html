@@ -18,7 +18,7 @@
 <meta property="og:description" content="1kubectl get pods --all-namespaces -ojson | jq -r &#39;.items[] | select(.status.reason!&#x3D;null) | select(.status.reason | contains(&quot;Evicted&quot;)) | .metadata.namespace + &quot; &quot; + .metadata.name&#39; | xargs -n2 -l b">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2020-12-01T05:53:47.000Z">
-<meta property="article:modified_time" content="2020-12-01T05:54:30.431Z">
+<meta property="article:modified_time" content="2021-04-01T10:09:48.251Z">
 <meta property="article:author" content="divinerapier">
 <meta property="article:tag" content="kubernetes">
 <meta name="twitter:card" content="summary">
@@ -534,10 +534,6 @@
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">gpu</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
@@ -547,6 +543,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">archlinux</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">gpu</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -670,11 +670,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">parallel programming</a>
+                <a href="javascript:void(0)" class="js-tag color1">containerd</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">containerd</a>
+                <a href="javascript:void(0)" class="js-tag color1">parallel programming</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -698,19 +698,19 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">lsm tree</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">sstable</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">mpi</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">operator</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">lsm tree</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">sstable</a>
               </li>
              
               <li class="article-tag-list-item">

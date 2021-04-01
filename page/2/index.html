@@ -172,6 +172,92 @@
             
 
   
+    <article id="post-git-delete-merged-branches" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+  
+  
+    <h1 itemprop="name">
+	
+	  <a class="article-title" href="/2020/12/31/git-delete-merged-branches/" target="_blank">删除已合并的分支</a>
+  
+    </h1>
+  
+
+
+  
+  
+<a href="/2020/12/31/git-delete-merged-branches/" class="archive-article-date">
+        <time datetime="2020-12-31T03:05:56.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-12-31</time>
+</a>
+
+  
+  
+    
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git branch --merged | egrep -v <span class="string">"(^\*|master|dev)"</span> | xargs git branch -d</span><br></pre></td></tr></table></figure>
+
+    
+
+    
+
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">git</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+
+    
+    <p class="article-more-link">
+      <a class="article-more-a" href="/2020/12/31/git-delete-merged-branches/">展开全文 >></a>
+    </p>
+    
+
+    
+    <div class="clearfix"></div>
+  </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-archlinux-diffutils" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -787,10 +873,10 @@
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iperf -c &lt;server-host&gt; -p &lt;port&gt; -P &lt;threadiness&gt;</span><br></pre></td></tr></table></figure>
 
 <h4 id="测试结果"><a href="#测试结果" class="headerlink" title="测试结果"></a>测试结果</h4><p>单线程客户端的测试结果:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">------------------------------------------------------------</span><br><span class="line">Client connecting to 10.33.28.26, TCP port 9999</span><br><span class="line">TCP window size:  170 KByte (default)</span><br><span class="line">------------------------------------------------------------</span><br><span class="line">[  3] <span class="built_in">local</span> 172.29.60.164 port 37290 connected with 10.33.28.26 port 9999</span><br><span class="line">[ ID] Interval       Transfer     Bandwidth</span><br><span class="line">[  3]  0.0-10.6 sec  24.0 MBytes  19.0 Mbits/sec</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">------------------------------------------------------------</span><br><span class="line">Client connecting to 10.100.28.26, TCP port 9999</span><br><span class="line">TCP window size:  170 KByte (default)</span><br><span class="line">------------------------------------------------------------</span><br><span class="line">[  3] <span class="built_in">local</span> 172.29.60.164 port 37290 connected with 10.100.28.26 port 9999</span><br><span class="line">[ ID] Interval       Transfer     Bandwidth</span><br><span class="line">[  3]  0.0-10.6 sec  24.0 MBytes  19.0 Mbits/sec</span><br></pre></td></tr></table></figure>
 
 <p>多线程客户端的测试结果，两个节点都有 <strong>16</strong> 个 <strong>CPU</strong> 核心:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">------------------------------------------------------------</span><br><span class="line">Client connecting to 10.33.28.26, TCP port 9999</span><br><span class="line">TCP window size: 85.0 KByte (default)</span><br><span class="line">------------------------------------------------------------</span><br><span class="line">[ 18] <span class="built_in">local</span> 172.29.60.164 port 37392 connected with 10.33.28.26 port 9999</span><br><span class="line">[ 17] <span class="built_in">local</span> 172.29.60.164 port 37390 connected with 10.33.28.26 port 9999</span><br><span class="line">[  4] <span class="built_in">local</span> 172.29.60.164 port 37364 connected with 10.33.28.26 port 9999</span><br><span class="line">[ 11] <span class="built_in">local</span> 172.29.60.164 port 37378 connected with 10.33.28.26 port 9999</span><br><span class="line">[  9] <span class="built_in">local</span> 172.29.60.164 port 37374 connected with 10.33.28.26 port 9999</span><br><span class="line">[  8] <span class="built_in">local</span> 172.29.60.164 port 37372 connected with 10.33.28.26 port 9999</span><br><span class="line">[ 10] <span class="built_in">local</span> 172.29.60.164 port 37376 connected with 10.33.28.26 port 9999</span><br><span class="line">[  6] <span class="built_in">local</span> 172.29.60.164 port 37366 connected with 10.33.28.26 port 9999</span><br><span class="line">[ 13] <span class="built_in">local</span> 172.29.60.164 port 37382 connected with 10.33.28.26 port 9999</span><br><span class="line">[ 14] <span class="built_in">local</span> 172.29.60.164 port 37384 connected with 10.33.28.26 port 9999</span><br><span class="line">[  3] <span class="built_in">local</span> 172.29.60.164 port 37362 connected with 10.33.28.26 port 9999</span><br><span class="line">[  5] <span class="built_in">local</span> 172.29.60.164 port 37368 connected with 10.33.28.26 port 9999</span><br><span class="line">[  7] <span class="built_in">local</span> 172.29.60.164 port 37370 connected with 10.33.28.26 port 9999</span><br><span class="line">[ 15] <span class="built_in">local</span> 172.29.60.164 port 37386 connected with 10.33.28.26 port 9999</span><br><span class="line">[ 16] <span class="built_in">local</span> 172.29.60.164 port 37388 connected with 10.33.28.26 port 9999</span><br><span class="line">[ 12] <span class="built_in">local</span> 172.29.60.164 port 37380 connected with 10.33.28.26 port 9999</span><br><span class="line">[ ID] Interval       Transfer     Bandwidth</span><br><span class="line">[  3]  0.0-10.2 sec  2.62 MBytes  2.17 Mbits/sec</span><br><span class="line">[ 13]  0.0-10.2 sec  2.88 MBytes  2.36 Mbits/sec</span><br><span class="line">[ 15]  0.0-10.2 sec  1.88 MBytes  1.54 Mbits/sec</span><br><span class="line">[  7]  0.0-10.9 sec  1.50 MBytes  1.15 Mbits/sec</span><br><span class="line">[  6]  0.0-11.0 sec  1.75 MBytes  1.34 Mbits/sec</span><br><span class="line">[ 17]  0.0-11.2 sec  1.88 MBytes  1.40 Mbits/sec</span><br><span class="line">[  5]  0.0-11.3 sec  1.50 MBytes  1.12 Mbits/sec</span><br><span class="line">[ 10]  0.0-11.6 sec  1.88 MBytes  1.35 Mbits/sec</span><br><span class="line">[  9]  0.0-12.4 sec  1.62 MBytes  1.10 Mbits/sec</span><br><span class="line">[  4]  0.0-13.0 sec  2.88 MBytes  1.85 Mbits/sec</span><br><span class="line">[ 11]  0.0-13.0 sec  4.62 MBytes  2.98 Mbits/sec</span><br><span class="line">[ 14]  0.0-13.1 sec  4.88 MBytes  3.12 Mbits/sec</span><br><span class="line">[  8]  0.0-13.9 sec  2.12 MBytes  1.28 Mbits/sec</span><br><span class="line">[ 16]  0.0-14.1 sec  2.00 MBytes  1.19 Mbits/sec</span><br><span class="line">[ 18]  0.0-14.1 sec  2.12 MBytes  1.26 Mbits/sec</span><br><span class="line">[ 12]  0.0-14.3 sec  1.73 MBytes  1.01 Mbits/sec</span><br><span class="line">[SUM]  0.0-14.3 sec  37.9 MBytes  22.1 Mbits/sec</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">------------------------------------------------------------</span><br><span class="line">Client connecting to 10.100.28.26, TCP port 9999</span><br><span class="line">TCP window size: 85.0 KByte (default)</span><br><span class="line">------------------------------------------------------------</span><br><span class="line">[ 18] <span class="built_in">local</span> 172.29.60.164 port 37392 connected with 10.100.28.26 port 9999</span><br><span class="line">[ 17] <span class="built_in">local</span> 172.29.60.164 port 37390 connected with 10.100.28.26 port 9999</span><br><span class="line">[  4] <span class="built_in">local</span> 172.29.60.164 port 37364 connected with 10.100.28.26 port 9999</span><br><span class="line">[ 11] <span class="built_in">local</span> 172.29.60.164 port 37378 connected with 10.100.28.26 port 9999</span><br><span class="line">[  9] <span class="built_in">local</span> 172.29.60.164 port 37374 connected with 10.100.28.26 port 9999</span><br><span class="line">[  8] <span class="built_in">local</span> 172.29.60.164 port 37372 connected with 10.100.28.26 port 9999</span><br><span class="line">[ 10] <span class="built_in">local</span> 172.29.60.164 port 37376 connected with 10.100.28.26 port 9999</span><br><span class="line">[  6] <span class="built_in">local</span> 172.29.60.164 port 37366 connected with 10.100.28.26 port 9999</span><br><span class="line">[ 13] <span class="built_in">local</span> 172.29.60.164 port 37382 connected with 10.100.28.26 port 9999</span><br><span class="line">[ 14] <span class="built_in">local</span> 172.29.60.164 port 37384 connected with 10.100.28.26 port 9999</span><br><span class="line">[  3] <span class="built_in">local</span> 172.29.60.164 port 37362 connected with 10.100.28.26 port 9999</span><br><span class="line">[  5] <span class="built_in">local</span> 172.29.60.164 port 37368 connected with 10.100.28.26 port 9999</span><br><span class="line">[  7] <span class="built_in">local</span> 172.29.60.164 port 37370 connected with 10.100.28.26 port 9999</span><br><span class="line">[ 15] <span class="built_in">local</span> 172.29.60.164 port 37386 connected with 10.100.28.26 port 9999</span><br><span class="line">[ 16] <span class="built_in">local</span> 172.29.60.164 port 37388 connected with 10.100.28.26 port 9999</span><br><span class="line">[ 12] <span class="built_in">local</span> 172.29.60.164 port 37380 connected with 10.100.28.26 port 9999</span><br><span class="line">[ ID] Interval       Transfer     Bandwidth</span><br><span class="line">[  3]  0.0-10.2 sec  2.62 MBytes  2.17 Mbits/sec</span><br><span class="line">[ 13]  0.0-10.2 sec  2.88 MBytes  2.36 Mbits/sec</span><br><span class="line">[ 15]  0.0-10.2 sec  1.88 MBytes  1.54 Mbits/sec</span><br><span class="line">[  7]  0.0-10.9 sec  1.50 MBytes  1.15 Mbits/sec</span><br><span class="line">[  6]  0.0-11.0 sec  1.75 MBytes  1.34 Mbits/sec</span><br><span class="line">[ 17]  0.0-11.2 sec  1.88 MBytes  1.40 Mbits/sec</span><br><span class="line">[  5]  0.0-11.3 sec  1.50 MBytes  1.12 Mbits/sec</span><br><span class="line">[ 10]  0.0-11.6 sec  1.88 MBytes  1.35 Mbits/sec</span><br><span class="line">[  9]  0.0-12.4 sec  1.62 MBytes  1.10 Mbits/sec</span><br><span class="line">[  4]  0.0-13.0 sec  2.88 MBytes  1.85 Mbits/sec</span><br><span class="line">[ 11]  0.0-13.0 sec  4.62 MBytes  2.98 Mbits/sec</span><br><span class="line">[ 14]  0.0-13.1 sec  4.88 MBytes  3.12 Mbits/sec</span><br><span class="line">[  8]  0.0-13.9 sec  2.12 MBytes  1.28 Mbits/sec</span><br><span class="line">[ 16]  0.0-14.1 sec  2.00 MBytes  1.19 Mbits/sec</span><br><span class="line">[ 18]  0.0-14.1 sec  2.12 MBytes  1.26 Mbits/sec</span><br><span class="line">[ 12]  0.0-14.3 sec  1.73 MBytes  1.01 Mbits/sec</span><br><span class="line">[SUM]  0.0-14.3 sec  37.9 MBytes  22.1 Mbits/sec</span><br></pre></td></tr></table></figure>
 
 <h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>瓶颈在网络带宽，悲哀。</p>
 
@@ -1104,140 +1190,6 @@
 
 
   
-    <article id="post-kubernetes-device-plugin" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-  
-  
-    <h1 itemprop="name">
-	
-	  <a class="article-title" href="/2020/11/15/kubernetes-device-plugin/" target="_blank">Kubernetes Device Plugin</a>
-  
-    </h1>
-  
-
-
-  
-  
-<a href="/2020/11/15/kubernetes-device-plugin/" class="archive-article-date">
-        <time datetime="2020-11-15T09:20:26.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-11-15</time>
-</a>
-
-  
-  
-    
-
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-    <p>Kubernetes 提供 <a href="https://github.com/kubernetes/community/blob/master/contributors/design-proposals/resource-management/device-plugin.md" target="_blank" rel="noopener">device plugin framework</a>，允许用户将系统硬件资源发布到 Kubelet。</p>
-<p>Device Plugin 由设备供应商实现，由用户或手动部署或作为 DaemonSet 来部署，而无需定制 Kubernetes 本身的代码。目标设备可以是 GPU、高性能 NIC、FPGA、InfiniBand 适配器以及其他类似的、可能需要特定于供应商的初始化和设置的计算资源。</p>
-<h2 id="注册-Device-Plugin"><a href="#注册-Device-Plugin" class="headerlink" title="注册 Device Plugin"></a>注册 Device Plugin</h2><p>kubelet 提供了一个 Registration 的 gRPC 服务:</p>
-<figure class="highlight protobuf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">service</span> <span class="title">Registration</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">rpc</span> Register(RegisterRequest) <span class="keyword">returns</span> (Empty) &#123;&#125;</span></span><br><span class="line"><span class="function">&#125;</span></span><br></pre></td></tr></table></figure>
-
-<p><strong>Device Plugin</strong> 可以通过此 gRPC 服务在 kubelet 进行注册。在注册时，<strong>Device Plugin</strong> 需要提供如下内容:</p>
-<ul>
-<li>Device Plugin 的 Unix 套接字。</li>
-<li>Device Plugin 的 API 版本。</li>
-<li>ResourceName。遵循 <a href="https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#extended-resources" target="_blank" rel="noopener">扩展资源命名方案</a>，形如 vendor-domain/resourcetype: 比如 NVIDIA GPU 就被公布为 nvidia.com/gpu。</li>
-</ul>
-<p>在成功注册后，<strong>Device Plugin</strong> 会向 kubelet 发送他所管理的设备列表，之后 kubelet 负责将这些资源发布到 API Server，作为 kubelet 节点状态更新的一部分。</p>
-<p>比如，<strong>Device Plugin</strong> 在 kubelet 中注册了 <strong>hardware-vendor.example/foo</strong> 并报告了节点上的两个运行状况良好的设备后，节点状态将更新以通告该节点已安装2个 Foo 设备并且是可用的。</p>
-<p>然后，用户就可以在 Container 规范中请求这类设备，但是有以下的限制:</p>
-<ul>
-<li>扩展资源仅可作为整数资源使用，且不能被过量使用</li>
-<li>设备不能在容器之间共享</li>
-</ul>
-<p>假设 Kubernetes 集群正在运行一个 <strong>Device Plugin</strong>，ResourceName 为 <strong>hardware-vendor.example/foo</strong>。下面就是一个 Pod 示例，请求此资源以运行某演示负载：</p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Pod</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">demo-pod</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">containers:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">demo-container-1</span></span><br><span class="line">      <span class="attr">image:</span> <span class="string">k8s.gcr.io/pause:2.0</span></span><br><span class="line">      <span class="attr">resources:</span></span><br><span class="line">        <span class="attr">limits:</span></span><br><span class="line">          <span class="attr">hardware-vendor.example/foo:</span> <span class="number">2</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># pod 需要两个 hardware-vendor.example/foo 设备</span></span><br><span class="line"><span class="comment"># 而且只能够调度到满足需求的 node 上</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># 如果该节点中有2个以上的设备可用，剩余的设备可供其他 pod 使用</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="实现-Device-Plugin"><a href="#实现-Device-Plugin" class="headerlink" title="实现 Device Plugin"></a>实现 Device Plugin</h2><p>Device Plugin 的常规工作流程包括以下几个步骤：</p>
-<ul>
-<li><p>初始化。在这个阶段，Device Plugin 将执行供应商特定的初始化和设置，以确保设备处于就绪状态。</p>
-</li>
-<li><p>使用主机路径 /var/lib/kubelet/device-plugins/ 下的 Unix socket 启动一个 gRPC 服务，该服务实现以下接口：</p>
-  <figure class="highlight protobuf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">service</span> <span class="title">DevicePlugin</span> </span>&#123;</span><br><span class="line">    <span class="comment">// GetDevicePluginOptions returns options to be communicated with Device Manager.</span></span><br><span class="line">    <span class="function"><span class="keyword">rpc</span> GetDevicePluginOptions(Empty) <span class="keyword">returns</span> (DevicePluginOptions) &#123;&#125;</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">    // ListAndWatch <span class="keyword">returns</span> a stream of List of Devices</span></span><br><span class="line"><span class="function">    // Whenever a Device state change or a Device disappears, ListAndWatch</span></span><br><span class="line"><span class="function">    // <span class="keyword">returns</span> the new list</span></span><br><span class="line"><span class="function">    <span class="keyword">rpc</span> ListAndWatch(Empty) <span class="keyword">returns</span> (stream ListAndWatchResponse) &#123;&#125;</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">    // Allocate is called during container creation so that the Device</span></span><br><span class="line"><span class="function">    // Plugin can run device specific operations and instruct Kubelet</span></span><br><span class="line"><span class="function">    // of the steps to make the Device available in the container</span></span><br><span class="line"><span class="function">    <span class="keyword">rpc</span> Allocate(AllocateRequest) <span class="keyword">returns</span> (AllocateResponse) &#123;&#125;</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">    // GetPreferredAllocation <span class="keyword">returns</span> a preferred set of devices to allocate</span></span><br><span class="line"><span class="function">    // from a list of available ones. The resulting preferred allocation is not</span></span><br><span class="line"><span class="function">    // guaranteed to be the allocation ultimately performed by the</span></span><br><span class="line"><span class="function">    // devicemanager. It is only designed to help the devicemanager make a more</span></span><br><span class="line"><span class="function">    // informed allocation decision when possible.</span></span><br><span class="line"><span class="function">    <span class="keyword">rpc</span> GetPreferredAllocation(PreferredAllocationRequest) <span class="keyword">returns</span> (PreferredAllocationResponse) &#123;&#125;</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">    // PreStartContainer is called, if indicated by Device Plugin during registeration phase,</span></span><br><span class="line"><span class="function">    // before each container start. Device plugin can run device specific operations</span></span><br><span class="line"><span class="function">    // such as resetting the device before making devices available to the container.</span></span><br><span class="line"><span class="function">    <span class="keyword">rpc</span> PreStartContainer(PreStartContainerRequest) <span class="keyword">returns</span> (PreStartContainerResponse) &#123;&#125;</span></span><br><span class="line"><span class="function">&#125;</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>通过 Unix socket 在主机路径 /var/lib/kubelet/device-plugins/kubelet.sock 处向 kubelet 注册自身。</p>
-</li>
-<li><p>成功注册自身后，Device Plugin 将以服务模式运行，之后，它将持续监控设备运行状况，并在设备状态发生任何变化时报告 kubelet。它还负责响应 Allocate gRPC 请求。 在 Allocate 期间，Device Plugin 可能还会做一些设备特定的准备；例如清理 GPU 或初始化 QRNG。如果操作成功，则 Device Plugin 将返回 AllocateResponse，其中包含用于访问被分配的设备容器运行时的配置。 kubelet 将此信息传递到容器运行时。</p>
-</li>
-</ul>
-<h3 id="处理-kubelet-重启"><a href="#处理-kubelet-重启" class="headerlink" title="处理 kubelet 重启"></a>处理 kubelet 重启</h3><p>Device Plugin 应能监测到 kubelet 重启，并且向新的 kubelet 实例来重新注册自己。在当前实现中，当 kubelet 重启的时候，新的 kubelet 实例会删除 /var/lib/kubelet/device-plugins 下所有已经存在的 Unix sockets。 Device Plugin 需要能够监控到它的 Unix socket 被删除，并且当发生此类事件时重新注册自己。</p>
-<h2 id="部署-Device-Plugin"><a href="#部署-Device-Plugin" class="headerlink" title="部署 Device Plugin"></a>部署 Device Plugin</h2><p>用户可以将 Device Plugin 作为节点操作系统的软件包来部署、作为 DaemonSet 来部署或者手动部署。</p>
-<p>规范目录 /var/lib/kubelet/device-plugins 是需要特权访问的，所以 Device Plugin 必须要在被授权的安全的上下文中运行。如果将 Device Plugin 部署为 DaemonSet，/var/lib/kubelet/device-plugins 目录必须要在 DevicePlugin 的 PodSpec 中声明作为 Volume 被 mount 到 Device Plugin 中。</p>
-<p>若选择 DaemonSet 方法，用户可以通过 Kubernetes 进行以下操作: 将 Device Plugin 的 Pod 放置在节点上，在出现故障后重新启动守护进程 Pod，来进行自动升级。</p>
-<h2 id="API-兼容性"><a href="#API-兼容性" class="headerlink" title="API 兼容性"></a>API 兼容性</h2><p>Kubernetes Device Plugin 还处于 beta 版本。所以在稳定版本出来之前 API 会以不兼容的方式进行更改。作为一个项目，Kubernetes 建议 Device Plugin 开发者:</p>
-<ul>
-<li>注意未来版本的更改</li>
-<li>支持多个版本的 Device Plugin API，以实现向后/向前兼容性。</li>
-</ul>
-<p>如果你启用 DevicePlugins 功能，并在需要升级到 Kubernetes 版本来获得较新的 Device Plugin API 版本的节点上运行 Device Plugin，请在升级这些节点之前先升级 Device Plugin 以支持这两个版本。 采用该方法将确保升级期间设备分配的连续运行。</p>
-<h2 id="监控-Device-Plugin"><a href="#监控-Device-Plugin" class="headerlink" title="监控 Device Plugin"></a>监控 Device Plugin</h2><p>为了监控 Device Plugin 提供的资源，监控代理程序需要能够发现节点上正在使用的设备，并获取元数据来描述哪个指标与容器相关联。 设备监控代理暴露给 <a href="https://prometheus.io/" target="_blank" rel="noopener">Prometheus</a> 的指标应该遵循 <a href="https://github.com/kubernetes/community/blob/master/contributors/devel/sig-instrumentation/instrumentation.md" target="_blank" rel="noopener">Kubernetes Instrumentation Guidelines</a>，使用 pod、namespace 和 container 标签来标识容器。</p>
-<p>kubelet 提供了 gRPC 服务来使得正在使用中的设备被发现，并且还未这些设备提供了元数据:</p>
-<figure class="highlight protobuf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// PodResourcesLister is a service provided by the kubelet that provides information about the</span></span><br><span class="line"><span class="comment">// node resources consumed by pods and containers on the node</span></span><br><span class="line"><span class="class"><span class="keyword">service</span> <span class="title">PodResourcesLister</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">rpc</span> List(ListPodResourcesRequest) <span class="keyword">returns</span> (ListPodResourcesResponse) &#123;&#125;</span></span><br><span class="line"><span class="function">&#125;</span></span><br></pre></td></tr></table></figure>
-
-<p>gRPC 服务通过 /var/lib/kubelet/pod-resources/kubelet.sock 的 UNIX 套接字来提供服务。 Device Plugin资源的监控代理程序可以部署为守护进程或者 DaemonSet。 规范的路径 /var/lib/kubelet/pod-resources 需要特权来进入， 所以监控代理程序必须要在获得授权的安全的上下文中运行。 如果设备监控代理以 DaemonSet 形式运行，必须要在插件的 PodSpec 中声明将 /var/lib/kubelet/pod-resources 目录以 卷的形式被挂载到容器中。</p>
-<p>对“PodResources 服务”的支持要求启用 KubeletPodResources 特性门控。 从 Kubernetes 1.15 开始默认启用。</p>
-<h2 id="Device-Plugin-集成-The-Topology-Manager"><a href="#Device-Plugin-集成-The-Topology-Manager" class="headerlink" title="Device Plugin 集成 The Topology Manager"></a>Device Plugin 集成 The Topology Manager</h2><p>The Topology Manager 是 Kubelet 的一个组件，它允许以拓扑对齐方式来调度资源。 为了做到这一点，Device Plugin API 进行了扩展来包括一个 TopologyInfo 结构体。</p>
-<figure class="highlight protobuf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">message</span> <span class="title">TopologyInfo</span> </span>&#123;</span><br><span class="line">    <span class="keyword">repeated</span> NUMANode nodes = <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">message</span> <span class="title">NUMANode</span> </span>&#123;</span><br><span class="line">    <span class="built_in">int64</span> ID = <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>Device Plugin 希望 The Topology Manager 可以将填充的 TopologyInfo 结构体作为设备注册的一部分以及设备 ID 和设备的运行状况发送回去。然后 The Topology Manager 将使用此信息来咨询拓扑管理器并做出资源分配决策。</p>
-<p>TopologyInfo 支持定义 nodes 字段，允许为 nil（默认）或者是一个 NUMA 节点的列表。 这样就可以使Device Plugin可以跨越 NUMA 节点去发布。</p>
-<p>下面是一个由 Device Plugin 为设备填充 TopologyInfo 结构体的示例:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pluginapi.Device&#123;ID: &quot;25102017&quot;, Health: pluginapi.Healthy, Topology:&amp;pluginapi.TopologyInfo&#123;Nodes: []*pluginapi.NUMANode&#123;&amp;pluginapi.NUMANode&#123;ID: 0,&#125;,&#125;&#125;&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
-<li><a href="https://kubernetes.io/docs/concepts/extend-kubernetes/compute-storage-net/device-plugins/" target="_blank" rel="noopener">Kubernetes Device Plugin</a></li>
-</ul>
-
-    
-
-    
-
-    
-
-  </div>
-  <div class="article-info article-info-index">
-    
-    
-    
-
-    
-    <p class="article-more-link">
-      <a class="article-more-a" href="/2020/11/15/kubernetes-device-plugin/">展开全文 >></a>
-    </p>
-    
-
-    
-    <div class="clearfix"></div>
-  </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <a class="extend prev" rel="prev" href="/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" href="/page/3/">Next &amp;raquo;</a>
@@ -1371,10 +1323,6 @@
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">gpu</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
@@ -1384,6 +1332,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">archlinux</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">gpu</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1507,11 +1459,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">parallel programming</a>
+                <a href="javascript:void(0)" class="js-tag color1">containerd</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">containerd</a>
+                <a href="javascript:void(0)" class="js-tag color1">parallel programming</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1535,19 +1487,19 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">lsm tree</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">sstable</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">mpi</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">operator</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">lsm tree</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">sstable</a>
               </li>
              
               <li class="article-tag-list-item">

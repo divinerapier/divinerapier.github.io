@@ -18,7 +18,7 @@
 <meta property="og:description" content="又是一次喜闻乐见的容器 137 错误码退出事件，事件案发现场如下: 12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758596061$ kubectl -n ns get podNAME">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-03-19T01:36:32.000Z">
-<meta property="article:modified_time" content="2021-04-01T10:00:29.261Z">
+<meta property="article:modified_time" content="2021-04-01T10:18:08.711Z">
 <meta property="article:author" content="divinerapier">
 <meta property="article:tag" content="docker">
 <meta property="article:tag" content="kubernetes">
@@ -223,7 +223,7 @@
   <div class="article-entry" itemprop="articleBody">
     
     <p>又是一次喜闻乐见的容器 <strong>137</strong> 错误码退出事件，事件案发现场如下:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl -n ns get pod</span><br><span class="line">NAME                                 READY   STATUS      RESTARTS   AGE</span><br><span class="line">cassification-xwcc2         0/1     Error       0          2d12h</span><br><span class="line"></span><br><span class="line">$ kubectl -n ns describe pod cassification-xwcc2</span><br><span class="line">Name:         cassification-xwcc2</span><br><span class="line">Namespace:    ns</span><br><span class="line">Priority:     0</span><br><span class="line">Node:         n017.example.com/10.33.200.27</span><br><span class="line">Start Time:   Tue, 16 Mar 2021 20:41:13 +0800</span><br><span class="line">Labels:       controller-uid=9c5aed2c-895b-4012-8a06-9bb9d44d49b4</span><br><span class="line">              job-name=cassification</span><br><span class="line">Annotations:  &lt;none&gt;</span><br><span class="line">Status:       Failed</span><br><span class="line">IP:           10.216.3.55</span><br><span class="line">IPs:</span><br><span class="line">  IP:           10.216.3.55</span><br><span class="line">Controlled By:  Job/cassification</span><br><span class="line">Containers:</span><br><span class="line">  cassification:</span><br><span class="line">    Container ID:  docker://f0c2b1129c1c7ce74e8eff9633b31cc4d564a18b6fc5a1416a305df811420242</span><br><span class="line">    Image:         harbor.exmple.com/pytorch:v3</span><br><span class="line">    Image ID:      docker-pullable://harbor.exmple.com/pytorch@sha256:3197c2b34fb0b525652b5382d3f61c580700d80dd0332796bc1a96149b0853cc</span><br><span class="line">    Port:          &lt;none&gt;</span><br><span class="line">    Host Port:     &lt;none&gt;</span><br><span class="line">    Command:</span><br><span class="line">      /bin/bash</span><br><span class="line">      -c</span><br><span class="line">      sleep 8000000</span><br><span class="line">    State:          Terminated</span><br><span class="line">      Reason:       Error</span><br><span class="line">      Exit Code:    137</span><br><span class="line">      Started:      Tue, 16 Mar 2021 20:41:15 +0800</span><br><span class="line">      Finished:     Thu, 18 Mar 2021 18:47:45 +0800</span><br><span class="line">    Ready:          False</span><br><span class="line">    Restart Count:  0</span><br><span class="line">    Limits:</span><br><span class="line">      cpu:             5</span><br><span class="line">      memory:          50Gi</span><br><span class="line">      nvidia.com/gpu:  2</span><br><span class="line">    Requests:</span><br><span class="line">      cpu:             5</span><br><span class="line">      memory:          50Gi</span><br><span class="line">      nvidia.com/gpu:  2</span><br><span class="line">    Environment:       &lt;none&gt;</span><br><span class="line">Conditions:</span><br><span class="line">  Type              Status</span><br><span class="line">  Initialized       True</span><br><span class="line">  Ready             False</span><br><span class="line">  ContainersReady   False</span><br><span class="line">  PodScheduled      Trued</span><br><span class="line">Volumes:</span><br><span class="line">  default-token-9rxgg:</span><br><span class="line">    Type:        Secret (a volume populated by a Secret)</span><br><span class="line">    SecretName:  default-token-9rxgg</span><br><span class="line">    Optional:    <span class="literal">false</span></span><br><span class="line">QoS Class:       Guaranteed</span><br><span class="line">Node-Selectors:  &lt;none&gt;</span><br><span class="line">Tolerations:     node.kubernetes.io/not-ready:NoExecute <span class="keyword">for</span> 300s</span><br><span class="line">                 node.kubernetes.io/unreachable:NoExecute <span class="keyword">for</span> 300s</span><br><span class="line">Events:          &lt;none&gt;</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl -n ns get pod</span><br><span class="line">NAME                                 READY   STATUS      RESTARTS   AGE</span><br><span class="line">cassification-xwcc2         0/1     Error       0          2d12h</span><br><span class="line"></span><br><span class="line">$ kubectl -n ns describe pod cassification-xwcc2</span><br><span class="line">Name:         cassification-xwcc2</span><br><span class="line">Namespace:    ns</span><br><span class="line">Priority:     0</span><br><span class="line">Node:         n017.example.com/10.100.200.27</span><br><span class="line">Start Time:   Tue, 16 Mar 2021 20:41:13 +0800</span><br><span class="line">Labels:       controller-uid=9c5aed2c-895b-4012-8a06-9bb9d44d49b4</span><br><span class="line">              job-name=cassification</span><br><span class="line">Annotations:  &lt;none&gt;</span><br><span class="line">Status:       Failed</span><br><span class="line">IP:           10.216.3.55</span><br><span class="line">IPs:</span><br><span class="line">  IP:           10.216.3.55</span><br><span class="line">Controlled By:  Job/cassification</span><br><span class="line">Containers:</span><br><span class="line">  cassification:</span><br><span class="line">    Container ID:  docker://f0c2b1129c1c7ce74e8eff9633b31cc4d564a18b6fc5a1416a305df811420242</span><br><span class="line">    Image:         harbor.exmple.com/pytorch:v3</span><br><span class="line">    Image ID:      docker-pullable://harbor.exmple.com/pytorch@sha256:3197c2b34fb0b525652b5382d3f61c580700d80dd0332796bc1a96149b0853cc</span><br><span class="line">    Port:          &lt;none&gt;</span><br><span class="line">    Host Port:     &lt;none&gt;</span><br><span class="line">    Command:</span><br><span class="line">      /bin/bash</span><br><span class="line">      -c</span><br><span class="line">      sleep 8000000</span><br><span class="line">    State:          Terminated</span><br><span class="line">      Reason:       Error</span><br><span class="line">      Exit Code:    137</span><br><span class="line">      Started:      Tue, 16 Mar 2021 20:41:15 +0800</span><br><span class="line">      Finished:     Thu, 18 Mar 2021 18:47:45 +0800</span><br><span class="line">    Ready:          False</span><br><span class="line">    Restart Count:  0</span><br><span class="line">    Limits:</span><br><span class="line">      cpu:             5</span><br><span class="line">      memory:          50Gi</span><br><span class="line">      nvidia.com/gpu:  2</span><br><span class="line">    Requests:</span><br><span class="line">      cpu:             5</span><br><span class="line">      memory:          50Gi</span><br><span class="line">      nvidia.com/gpu:  2</span><br><span class="line">    Environment:       &lt;none&gt;</span><br><span class="line">Conditions:</span><br><span class="line">  Type              Status</span><br><span class="line">  Initialized       True</span><br><span class="line">  Ready             False</span><br><span class="line">  ContainersReady   False</span><br><span class="line">  PodScheduled      Trued</span><br><span class="line">Volumes:</span><br><span class="line">  default-token-9rxgg:</span><br><span class="line">    Type:        Secret (a volume populated by a Secret)</span><br><span class="line">    SecretName:  default-token-9rxgg</span><br><span class="line">    Optional:    <span class="literal">false</span></span><br><span class="line">QoS Class:       Guaranteed</span><br><span class="line">Node-Selectors:  &lt;none&gt;</span><br><span class="line">Tolerations:     node.kubernetes.io/not-ready:NoExecute <span class="keyword">for</span> 300s</span><br><span class="line">                 node.kubernetes.io/unreachable:NoExecute <span class="keyword">for</span> 300s</span><br><span class="line">Events:          &lt;none&gt;</span><br></pre></td></tr></table></figure>
 
 <p><strong>137</strong> 错误码大部分情况是超出资源被 <code>kill -9</code> 干掉了。但还是本着负责任的态度<del>(空口无凭，研发不信)</del>找出真相。</p>
 <p>根据 <code>Container ID</code> 查看容器信息:</p>
@@ -376,6 +376,15 @@
 
 
 <nav id="article-nav">
+  
+    <a href="/2021/04/01/hello-world/" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          Hello World
+        
+      </div>
+    </a>
   
   
     <a href="/2021/03/16/kubectl-exec-hangs/" id="article-nav-older" class="article-nav-link-wrap">
@@ -541,10 +550,6 @@
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">gpu</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
@@ -554,6 +559,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">archlinux</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">gpu</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -677,11 +686,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">parallel programming</a>
+                <a href="javascript:void(0)" class="js-tag color1">containerd</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">containerd</a>
+                <a href="javascript:void(0)" class="js-tag color1">parallel programming</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -705,19 +714,19 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">lsm tree</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">sstable</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">mpi</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">operator</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">lsm tree</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">sstable</a>
               </li>
              
               <li class="article-tag-list-item">

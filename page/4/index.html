@@ -172,6 +172,142 @@
             
 
   
+    <article id="post-using-kubeadm-to-create-a-kubernetes-cluster" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+  
+  
+    <h1 itemprop="name">
+	
+	  <a class="article-title" href="/2020/10/19/using-kubeadm-to-create-a-kubernetes-cluster/" target="_blank">使用 kubeadm 创建 kubernetes 集群</a>
+  
+    </h1>
+  
+
+
+  
+  
+<a href="/2020/10/19/using-kubeadm-to-create-a-kubernetes-cluster/" class="archive-article-date">
+        <time datetime="2020-10-19T12:38:25.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-10-19</time>
+</a>
+
+  
+  
+    
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    <p>在 <strong>Ubuntu 20.04</strong> 系统上搭建 <strong>Kubernetes</strong> 集群。</p>
+<h2 id="安装-Docker"><a href="#安装-Docker" class="headerlink" title="安装 Docker"></a>安装 Docker</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get remove docker docker-engine docker.io containerd runc</span><br><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install -y \</span><br><span class="line">    apt-transport-https \</span><br><span class="line">    ca-certificates \</span><br><span class="line">    curl \</span><br><span class="line">    gnupg-agent \</span><br><span class="line">    software-properties-common</span><br><span class="line">curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -</span><br><span class="line">sudo apt-key fingerprint 0EBFCD88</span><br><span class="line">sudo add-apt-repository \</span><br><span class="line">   <span class="string">"deb [arch=amd64] https://download.docker.com/linux/ubuntu \</span></span><br><span class="line"><span class="string">   <span class="variable">$(lsb_release -cs)</span> \</span></span><br><span class="line"><span class="string">   stable"</span></span><br><span class="line">sudo apt-get update --fix-missing</span><br><span class="line">sudo apt-get install -y docker-ce docker-ce-cli containerd.io</span><br><span class="line">cat &lt;&lt;EOF | sudo tee /etc/docker/daemon.json</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"exec-opts"</span>: [<span class="string">"native.cgroupdriver=systemd"</span>],</span><br><span class="line">  <span class="string">"log-driver"</span>: <span class="string">"json-file"</span>,</span><br><span class="line">  <span class="string">"log-opts"</span>: &#123;</span><br><span class="line">    <span class="string">"max-size"</span>: <span class="string">"100m"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="string">"storage-driver"</span>: <span class="string">"overlay2"</span></span><br><span class="line">&#125;</span><br><span class="line">EOF</span><br><span class="line">sudo mkdir -p /etc/systemd/system/docker.service.d</span><br><span class="line">sudo systemctl daemon-reload</span><br><span class="line">sudo systemctl restart docker</span><br><span class="line">sudo systemctl <span class="built_in">enable</span> docker</span><br></pre></td></tr></table></figure>
+
+<h2 id="下载-Kubernetes-相关程序"><a href="#下载-Kubernetes-相关程序" class="headerlink" title="下载 Kubernetes 相关程序"></a>下载 Kubernetes 相关程序</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get update &amp;&amp; sudo apt-get install -y apt-transport-https curl</span><br><span class="line">curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -</span><br><span class="line">cat &lt;&lt;EOF | sudo tee /etc/apt/sources.list.d/kubernetes.list</span><br><span class="line">deb https://mirrors.aliyun.com/kubernetes/apt/ kubernetes-xenial main</span><br><span class="line">EOF</span><br><span class="line">sudo apt-get update --fix-missing</span><br><span class="line">sudo apt-get install -y kubelet kubeadm kubectl</span><br><span class="line">sudo apt-mark hold kubelet kubeadm kubectl</span><br></pre></td></tr></table></figure>
+
+<h2 id="配置桥接网络防火墙"><a href="#配置桥接网络防火墙" class="headerlink" title="配置桥接网络防火墙"></a>配置桥接网络防火墙</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">cat &lt;&lt;EOF | sudo tee /etc/sysctl.d/k8s.conf</span><br><span class="line">net.bridge.bridge-nf-call-ip6tables = 1</span><br><span class="line">net.bridge.bridge-nf-call-iptables = 1</span><br><span class="line">EOF</span><br><span class="line">sudo sysctl --system</span><br></pre></td></tr></table></figure>
+
+<h2 id="关闭-swap"><a href="#关闭-swap" class="headerlink" title="关闭 swap"></a>关闭 swap</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 临时关闭</span></span><br><span class="line">swapoff -a</span><br><span class="line"></span><br><span class="line"><span class="comment"># 永久关闭，注释 swap 配置</span></span><br><span class="line">vi /etc/fstab</span><br></pre></td></tr></table></figure>
+
+<h2 id="关闭防火墙"><a href="#关闭防火墙" class="headerlink" title="关闭防火墙"></a>关闭防火墙</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo systemctl stop firewalld</span><br><span class="line">sudo systemctl <span class="built_in">disable</span> firewalld</span><br></pre></td></tr></table></figure>
+
+<h2 id="关闭-selinux"><a href="#关闭-selinux" class="headerlink" title="关闭 selinux"></a>关闭 selinux</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo sed -i <span class="string">'s/enforcing/disabled/'</span> /etc/selinux/config</span><br><span class="line">sudo setenforce 0</span><br></pre></td></tr></table></figure>
+
+<h2 id="拉取-gcr-镜像"><a href="#拉取-gcr-镜像" class="headerlink" title="拉取 gcr 镜像"></a>拉取 gcr 镜像</h2><p>需要在所有的 <strong>Master</strong> 节点与 <strong>Worker</strong> 节点拉取镜像。</p>
+<p><strong>bash</strong> 环境使用如下脚本:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">image_list=$(kubeadm config images list)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> image <span class="keyword">in</span> <span class="variable">$&#123;image_list&#125;</span> ; <span class="keyword">do</span></span><br><span class="line">  name=$(<span class="built_in">echo</span> <span class="variable">$&#123;image&#125;</span> | cut -d<span class="string">'/'</span> -f2)</span><br><span class="line">  docker pull registry.aliyuncs.com/google_containers/<span class="variable">$name</span></span><br><span class="line">  docker image tag registry.aliyuncs.com/google_containers/<span class="variable">$name</span> k8s.gcr.io/<span class="variable">$name</span></span><br><span class="line">  docker image rm registry.aliyuncs.com/google_containers/<span class="variable">$name</span></span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>zsh</strong> 环境使用如下脚本:</p>
+<figure class="highlight zsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">image_list=$(kubeadm config images list)</span><br><span class="line">images=(`<span class="built_in">echo</span> <span class="variable">$&#123;image_list&#125;</span> | tr <span class="string">'\n'</span> <span class="string">' '</span>`)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> image <span class="keyword">in</span> <span class="variable">$&#123;images&#125;</span> ; <span class="keyword">do</span></span><br><span class="line">  name=$(<span class="built_in">echo</span> <span class="variable">$&#123;image&#125;</span> | cut -d<span class="string">'/'</span> -f2)</span><br><span class="line">  docker pull registry.aliyuncs.com/google_containers/<span class="variable">$name</span></span><br><span class="line">  docker image tag registry.aliyuncs.com/google_containers/<span class="variable">$name</span> k8s.gcr.io/<span class="variable">$name</span></span><br><span class="line">  docker image rm registry.aliyuncs.com/google_containers/<span class="variable">$name</span></span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="初始化-Master-节点"><a href="#初始化-Master-节点" class="headerlink" title="初始化 Master 节点"></a>初始化 Master 节点</h2><p>在 <strong>Master</strong> 节点执行命令:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">sudo kubeadm init \</span><br><span class="line">  --apiserver-advertise-address $(hostname -i) \</span><br><span class="line">  --pod-network-cidr 10.244.0.0/16 --v=5</span><br><span class="line"></span><br><span class="line">Your Kubernetes control-plane has initialized successfully!</span><br><span class="line"></span><br><span class="line">To start using your cluster, you need to run the following as a regular user:</span><br><span class="line"></span><br><span class="line">  mkdir -p <span class="variable">$HOME</span>/.kube</span><br><span class="line">  sudo cp -i /etc/kubernetes/admin.conf <span class="variable">$HOME</span>/.kube/config</span><br><span class="line">  sudo chown $(id -u):$(id -g) <span class="variable">$HOME</span>/.kube/config</span><br><span class="line"></span><br><span class="line">You should now deploy a pod network to the cluster.</span><br><span class="line">Run <span class="string">"kubectl apply -f [podnetwork].yaml"</span> with one of the options listed at:</span><br><span class="line">  https://kubernetes.io/docs/concepts/cluster-administration/addons/</span><br><span class="line"></span><br><span class="line">Then you can join any number of worker nodes by running the following on each as root:</span><br><span class="line"></span><br><span class="line">kubeadm join 192.168.50.5:6443 --token 7zjyq9.x3xkoatt6pb1cbsu \</span><br><span class="line">    --discovery-token-ca-cert-hash sha256:1c78c44bc57e6e887c5f81e7a9c6c3e52f098e1ba9255f5303ac78129d410774</span><br></pre></td></tr></table></figure>
+
+<p>或者省略下载镜像步骤，直接创建集群:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sudo kubeadm init \</span><br><span class="line">  --apiserver-advertise-address=$(hostname -i) \</span><br><span class="line">  --image-repository registry.aliyuncs.com/google_containers \</span><br><span class="line">  --service-cidr=10.5.0.0/16 \</span><br><span class="line">  --pod-network-cidr=10.244.0.0/16</span><br></pre></td></tr></table></figure>
+
+<p>然后配置 <strong>kubeconfig</strong>:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p <span class="variable">$HOME</span>/.kube</span><br><span class="line">sudo cp -i /etc/kubernetes/admin.conf <span class="variable">$HOME</span>/.kube/config</span><br><span class="line">sudo chown $(id -u):$(id -g) <span class="variable">$HOME</span>/.kube/config</span><br></pre></td></tr></table></figure>
+
+<h2 id="配置网络"><a href="#配置网络" class="headerlink" title="配置网络"></a>配置网络</h2><h3 id="Calico"><a href="#Calico" class="headerlink" title="Calico"></a>Calico</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f https://docs.projectcalico.org/manifests/canal.yaml</span><br></pre></td></tr></table></figure>
+
+<h2 id="添加-Worker-节点"><a href="#添加-Worker-节点" class="headerlink" title="添加 Worker 节点"></a>添加 Worker 节点</h2><p>在 <strong>Worker</strong> 节点执行命令:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">sudo kubeadm join 192.168.50.5:6443 --token 4n2pwp.hq9jyo3auaibma3q     --discovery-token-ca-cert-hash sha256:750da2c87a67b96bfec73ade40888d22b61e045fdd28bbb7a4ff2c6ce3e0309c</span><br><span class="line"></span><br><span class="line">This node has joined the cluster:</span><br><span class="line">* Certificate signing request was sent to apiserver and a response was received.</span><br><span class="line">* The Kubelet was informed of the new secure connection details.</span><br><span class="line"></span><br><span class="line">Run <span class="string">'kubectl get nodes'</span> on the control-plane to see this node join the cluster.</span><br></pre></td></tr></table></figure>
+
+<h2 id="测试集群"><a href="#测试集群" class="headerlink" title="测试集群"></a>测试集群</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f https://raw.githubusercontent.com/kubernetes/website/master/content/en/examples/application/nginx-app.yaml</span><br></pre></td></tr></table></figure>
+
+<h2 id="清理集群"><a href="#清理集群" class="headerlink" title="清理集群"></a>清理集群</h2><p>在期望清理的节点执行:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo kubeadm reset</span><br><span class="line">sudo rm -rf /etc/cni/net.d</span><br><span class="line">rm -rf ~/.kube</span><br></pre></td></tr></table></figure>
+
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li><a href="https://docs.docker.com/engine/install/ubuntu/" target="_blank" rel="noopener">Install Docker Engine on Ubuntu</a></li>
+<li><a href="https://kubernetes.io/docs/setup/production-environment/container-runtimes/" target="_blank" rel="noopener">Container runtimes</a></li>
+<li><a href="https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/" target="_blank" rel="noopener">Installing kubeadm</a></li>
+<li><a href="https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/" target="_blank" rel="noopener">Creating a cluster with kubeadm</a></li>
+<li><a href="https://github.com/cloudnativelabs/kube-router/blob/master/docs/kubeadm.md" target="_blank" rel="noopener">Deploying kube-router with kubeadm</a></li>
+<li><a href="https://docs.projectcalico.org/getting-started/kubernetes/flannel/flannel" target="_blank" rel="noopener">Install Calico for policy and flannel (aka Canal) for networking</a></li>
+</ul>
+
+    
+
+    
+
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">kubernetes</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">kubeadm</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+
+    
+    <p class="article-more-link">
+      <a class="article-more-a" href="/2020/10/19/using-kubeadm-to-create-a-kubernetes-cluster/">展开全文 >></a>
+    </p>
+    
+
+    
+    <div class="clearfix"></div>
+  </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-configure-networks-on-ubuntu-20-04" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1217,124 +1353,6 @@
 
 
   
-    <article id="post-how-to-use-nfs" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-  
-  
-    <h1 itemprop="name">
-	
-	  <a class="article-title" href="/2020/10/02/how-to-use-nfs/" target="_blank">使用 NFS</a>
-  
-    </h1>
-  
-
-
-  
-  
-<a href="/2020/10/02/how-to-use-nfs/" class="archive-article-date">
-        <time datetime="2020-10-02T08:18:20.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-10-02</time>
-</a>
-
-  
-  
-    
-
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-    <p>查看被分享目录的属性:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">stat</span> /public</span><br><span class="line">  File: /public</span><br><span class="line">  Size: 4096            Blocks: 8          IO Block: 4096   directory</span><br><span class="line">Device: 802h/2050d      Inode: 58982401    Links: 2</span><br><span class="line">Access: (0777/drwxrwxrwx)  Uid: (    0/    root)   Gid: (    0/    root)</span><br><span class="line">Access: 2020-10-02 16:25:03.129246127 +0800</span><br><span class="line">Modify: 2020-10-02 16:24:56.129203697 +0800</span><br><span class="line">Change: 2020-10-02 16:24:56.129203697 +0800</span><br><span class="line"> Birth: -</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ sudo exportfs -avrf</span><br><span class="line">exporting *:/public</span><br></pre></td></tr></table></figure>
-
-<p>服务端 <strong>/etc/exports</strong> 配置如下:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;public *(rw,sync,no_subtree_check)</span><br></pre></td></tr></table></figure>
-
-<p>确认被 NFS 导出的本地文件系统:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ sudo exportfs -avrf</span><br><span class="line">exporting *:/public</span><br></pre></td></tr></table></figure>
-
-<p>在客户端查看远端配置:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ showmount -e 192.168.50.5</span><br><span class="line">Export list <span class="keyword">for</span> 192.168.50.5:</span><br><span class="line">/public                               *</span><br></pre></td></tr></table></figure>
-
-<p>客户端挂载 NFS 文件系统:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo mount -o rw,nolock -t nfs 192.168.50.5:/public ./tmp</span><br></pre></td></tr></table></figure>
-
-<p>当出现如下报错信息:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mount.nfs: Operation not permitted</span><br></pre></td></tr></table></figure>
-
-<p>请修改 <strong>/etc/exports</strong> 内容为:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;public *(rw,sync,all_squash,no_subtree_check,insecure)</span><br></pre></td></tr></table></figure>
-
-<p>然后重新执行命令挂载。</p>
-<p>如果希望指定 <code>user</code> 与 <code>group</code> 来操作文件，可以通过在 <strong>/etc/exports</strong> 中增加选项: <strong>anonuid=1026,anongid=100</strong>。</p>
-<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
-<li><a href="https://unix.stackexchange.com/questions/252812/user-permissions-in-nfs-mounted-directory" target="_blank" rel="noopener">User permissions in NFS mounted directory</a></li>
-<li><a href="https://access.redhat.com/solutions/3773891" target="_blank" rel="noopener">Mount failed with mount: mount.nfs: access denied by server while mounting error</a></li>
-</ul>
-
-    
-
-    
-
-    
-
-  </div>
-  <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">nfs</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">filesystem</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-
-    
-    <p class="article-more-link">
-      <a class="article-more-a" href="/2020/10/02/how-to-use-nfs/">展开全文 >></a>
-    </p>
-    
-
-    
-    <div class="clearfix"></div>
-  </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <a class="extend prev" rel="prev" href="/page/3/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><a class="page-number" href="/page/6/">6</a><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" href="/page/5/">Next &amp;raquo;</a>
@@ -1468,10 +1486,6 @@
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">gpu</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
@@ -1481,6 +1495,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">archlinux</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">gpu</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1604,11 +1622,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">parallel programming</a>
+                <a href="javascript:void(0)" class="js-tag color1">containerd</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">containerd</a>
+                <a href="javascript:void(0)" class="js-tag color1">parallel programming</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1632,19 +1650,19 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">lsm tree</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">sstable</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">mpi</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">operator</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">lsm tree</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">sstable</a>
               </li>
              
               <li class="article-tag-list-item">
