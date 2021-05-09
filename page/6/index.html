@@ -172,6 +172,402 @@
             
 
   
+    <article id="post-enable-rss-on-hexo" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+  
+  
+    <h1 itemprop="name">
+	
+	  <a class="article-title" href="/2020/09/02/enable-rss-on-hexo/" target="_blank">让你的 Hexo 博客支持 RSS</a>
+  
+    </h1>
+  
+
+
+  
+  
+<a href="/2020/09/02/enable-rss-on-hexo/" class="archive-article-date">
+        <time datetime="2020-09-02T12:37:46.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-09-02</time>
+</a>
+
+  
+  
+    
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    <p>让博客支持 <code>RSS</code> 是一种美好的品德。</p>
+<ul>
+<li><p>安装 <code>RSS</code> 插件</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install hexo-generator-feed</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>配置博客 <code>_config.uml</code></p>
+  <figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Extensions</span></span><br><span class="line"><span class="attr">plugins:</span></span><br><span class="line"><span class="bullet">-</span> <span class="string">hexo-generator-feed</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#Feed Atom</span></span><br><span class="line"><span class="attr">feed:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">atom</span></span><br><span class="line">  <span class="attr">path:</span> <span class="string">atom.xml</span></span><br><span class="line">  <span class="attr">limit:</span> <span class="number">20</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>配置主题 <code>_config.yml</code></p>
+  <figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># RSS订阅</span></span><br><span class="line"><span class="attr">rss:</span> <span class="string">/atom.xml</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>客户端订阅</p>
+<p>  使用 <code>RSS</code> 客户端订阅 <code>http(s)://${YOUR_BLOG_HOST}/atom.xml</code>。</p>
+</li>
+</ul>
+
+    
+
+    
+
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">hexo</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">rss</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+
+    
+    <p class="article-more-link">
+      <a class="article-more-a" href="/2020/09/02/enable-rss-on-hexo/">展开全文 >></a>
+    </p>
+    
+
+    
+    <div class="clearfix"></div>
+  </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-why-do-we-need-pods" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+  
+  
+    <h1 itemprop="name">
+	
+	  <a class="article-title" href="/2020/08/31/why-do-we-need-pods/" target="_blank">Pod 的意义</a>
+  
+    </h1>
+  
+
+
+  
+  
+<a href="/2020/08/31/why-do-we-need-pods/" class="archive-article-date">
+        <time datetime="2020-08-31T08:34:52.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-31</time>
+</a>
+
+  
+  
+    
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    <h2 id="容器的局限性"><a href="#容器的局限性" class="headerlink" title="容器的局限性"></a>容器的局限性</h2><p>既然要讨论 <code>Pod</code> 的意义，或许可以想象一个如果没有 <code>Pod</code> 会是什么样子。</p>
+<p>假设，有如下需求: 使用容器化来部署一个支持自动更新数据的文件服务。可以使用如下方法解决:</p>
+<ol>
+<li>在一个容器中，同时运行两个进程，一个进程提供文件服务，一个进程定时更新数据。<ul>
+<li>优点:<ol>
+<li>无论是编码，还是部署都十分的容易，就像在物理机或者虚拟机里面一样</li>
+</ol>
+</li>
+<li>缺点:<ol>
+<li>容器的本质是进程，对操作系统而言是那个由 <code>entrypoint</code> 指定的进程，其他进程都是其子进程，或子进程的子进程等。而且，<code>entrypoint</code> 没有回收僵尸进程的能力。</li>
+<li>耦合严重</li>
+</ol>
+</li>
+</ul>
+</li>
+<li>每个进程分别位于各自的容器，两个容器之间通过挂载相同的外部 <code>volume</code> 实现容器间共享文件系统。<ul>
+<li>优点:<ol>
+<li>将两个容器解耦，保证功能单一性</li>
+</ol>
+</li>
+<li>缺点:<ol>
+<li>通过共享外部 <code>volume</code> 的方式无法保证数据安全性，其他容器，或宿主机也能直接访问 <code>volume</code></li>
+</ol>
+</li>
+</ul>
+</li>
+<li>在上一个方法的基础上，通过 <code>--volume-from</code> 指定从其他的 <code>container</code> 挂载 <code>volume</code>。<ul>
+<li>优点:<ol>
+<li>避免对外直接暴露 <code>volume</code></li>
+</ol>
+</li>
+</ul>
+</li>
+</ol>
+<p>到此为止，一切似乎很顺利，没有在创建 <code>Pod</code> 这样一个新的概念。</p>
+<p>但上述方案有一个局限性，<code>--volume-from</code> 的目标容器只能是本地的其他 <code>container</code>。</p>
+<p>假设，使用 <code>Docker Swarm</code> 部署服务。为了便于叙述，做出如下定义:</p>
+<ul>
+<li>集群中存在两个节点。<strong><code>node-0</code></strong> 剩余 <code>2G</code> 内存，<strong><code>node-1</code></strong> 剩余 <code>1.5G</code> 内存</li>
+<li>两个容器 <code>container-0</code> 与 <code>container-1</code> 各需要 <code>1G</code> 内存</li>
+<li>部署过程，先启动 <code>container-0</code>，后启动 <code>container-1</code></li>
+</ul>
+<p>因此，为了让两个容器能够运行在同一个 <code>Node</code> 上，需要在启动 <code>container-1</code> 时增加限制 <code>affinity=container-0</code>。</p>
+<p>此时，如果 <code>container-0</code> 被调度到了 <code>node-1</code> 上，<code>node-1</code> 将剩余 <code>0.5G</code> 内存。接下来，调度 <code>container-1</code> 时，<code>Docker Swarm</code> 就会发现无法找到一个合适的 <code>Node</code> 来启动 <code>container-1</code>。</p>
+<p>以上问题被称作 <a href="https://en.wikipedia.org/wiki/Gang_scheduling" target="_blank" rel="noopener">Gang Scheduling</a>。</p>
+<p>而 <code>Kuberntes</code> 则通过 <code>Pod</code> 解决了这个问题。</p>
+<p><code>Pod</code> 是 <code>Kubernetes</code> 中最小的可调度计算单元。在处理上述问题中，如果将 <code>container-0</code> 与 <code>container-1</code> 同时包含在一个 <code>Pod</code> 中，<code>Kubernetes</code> 在调度这个 <code>Pod</code> 时就只会考虑剩余内存不小于 <code>2G</code> 的 <code>node-0</code>。</p>
+<p>对于上面这种，相互之间直接访问文件系统、使用 <code>localhost</code> 或 <code>socket</code> 文件进行本地通信，共享某些 <code>Namespace</code> 的一组容器，称之为 <strong>超亲密关系</strong>。</p>
+<h2 id="Pod-实现原理"><a href="#Pod-实现原理" class="headerlink" title="Pod 实现原理"></a>Pod 实现原理</h2><p><code>Pod</code> 是一个逻辑概念。其本质是一组共享了 <code>Network Namespace</code>，并且可以声明共享同一个 <code>Volume</code> 的容器。</p>
+<p>比如，一个包含了 <code>A</code> 与 <code>B</code> 两个容器的 <code>Pod</code>，按照 <a href="https://kubernetes.io/docs/concepts/workloads/pods/#what-is-a-pod" target="_blank" rel="noopener">定义</a> 的描述，可以使用如下 <code>Docker</code> 命令模拟:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># start container A</span></span><br><span class="line">$ docker run --net=B --volumes-from=B --name=A image-A ...</span><br></pre></td></tr></table></figure>
+
+<p>但此时会发现，<code>Pod</code> 内的一组容器要遵循某个特定的顺序启动，容器与容器之间不再是对等关系，而是拓扑关系。</p>
+<p>所以，在 <code>Kubernetes</code> 项目里，通过增加一个被称作 <code>Infra</code> 的容器作为 <code>Pod</code> 里第一个启动的容器。用户定义的其他容器通过 <code>Join Network Namespace</code> 的方式，关联到 <code>Infra</code> 容器。这样的组织关系，可以用下面这样一个示意图来表达:</p>
+<p><img src="/images/why-do-we-need-pods/01.png" alt="pause container"></p>
+<p>如上图所示，这个 <code>Pod</code> 里有两个用户容器 <code>A</code> 和 <code>B</code>，还有一个 <code>Infra</code> 容器。这个特殊容器的镜像地址为 <code>k8s.gcr.io/pause</code>，源代码位于 <a href="https://github.com/kubernetes/kubernetes/blob/master/build/pause/pause.c" target="_blank" rel="noopener">github</a>。同时，<code>kubelet</code> 提供参数 <code>--pod-infra-container-image</code> 支持自定义镜像。</p>
+<p>所以，当容器 <code>A</code>、<code>B</code> 加入到 <code>Infra</code> 容器的 <code>Network Namespace</code> 后，对于容器 <code>A</code>、<code>B</code> 而言:</p>
+<ul>
+<li>可以直接使用 <code>localhost</code> 进行通信</li>
+<li>看到的网络设备跟 <code>Infra</code> 容器看到的完全一样</li>
+<li>一个 <code>Pod</code> 只有一个 <code>IP</code> 地址，也就是这个 <code>Pod</code> 的 <code>Network Namespace</code> 对应的 <code>IP</code> 地址</li>
+<li>其他的所有网络资源，都是一个 <code>Pod</code> 一份，并且被该 <code>Pod</code> 中的所有容器共享</li>
+<li><code>Pod</code> 的生命周期只跟 <code>Infra</code> 容器一致，而与容器 <code>A</code>、<code>B</code> 无关。</li>
+</ul>
+<p>而对于同一个 <code>Pod</code> 里面的所有用户容器来说，它们的进出流量，也可以认为都是通过 <code>Infra</code> 容器完成的。这一点很重要，因此为 <code>Kubernetes</code> 开发网络插件时，应该重点考虑的是如何配置这个 <code>Pod</code> 的 <code>Network Namespace</code>，而不是每一个用户容器如何使用网络配置。</p>
+<p>而且，在这这个设计模型之下，可以方便的共享 <code>volume</code>: <code>Kubernetes</code> 项目只要把所有 <code>volume</code> 的定义都设计在 <code>Pod</code> 层级即可。之后，<code>Pod</code> 内的容器再声明挂载这个 <code>volume</code> 从而达到共享 <code>volume</code> 的目的。</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Pod</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">two-containers</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">restartPolicy:</span> <span class="string">Never</span></span><br><span class="line">  <span class="attr">volumes:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">shared-data</span></span><br><span class="line">    <span class="attr">hostPath:</span></span><br><span class="line">      <span class="attr">path:</span> <span class="string">/data</span></span><br><span class="line">  <span class="attr">containers:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">nginx-container</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">nginx</span></span><br><span class="line">    <span class="attr">volumeMounts:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">shared-data</span></span><br><span class="line">      <span class="attr">mountPath:</span> <span class="string">/usr/share/nginx/html</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">debian-container</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">debian</span></span><br><span class="line">    <span class="attr">volumeMounts:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">shared-data</span></span><br><span class="line">      <span class="attr">mountPath:</span> <span class="string">/pod-data</span></span><br><span class="line">    <span class="attr">command:</span> <span class="string">["/bin/sh"]</span></span><br><span class="line">    <span class="attr">args:</span> <span class="string">["-c",</span> <span class="string">"echo Hello from the debian container &gt; /pod-data/index.html"</span><span class="string">]</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="容器设计模式"><a href="#容器设计模式" class="headerlink" title="容器设计模式"></a>容器设计模式</h2><p><code>Pod</code> 这种 <strong>超亲密关系</strong> 容器的设计思想，实际上就是希望，当用户想在一个容器里运行多个功能并不相关的应用时，应该优先考虑它们是不是更应该被描述成一个 <code>Pod</code> 里的多个容器。</p>
+<p>要理解这个概念，也很容易。只需要将 <code>Pod</code> 理解为原来的虚拟机即可。</p>
+<p>在虚拟机时代，服务之间也存在一定的关系。有上述那样需要共享本地文件系统的关系，也有 <code>API Service</code> 与 <code>DB</code> 之间的关系。</p>
+<p>当需要考虑是否需要将多个容器描述成一个 <code>Pod</code> 时，可以想象一下: 如果使用虚拟机部署，是否应该将这些服务部署在同一台虚拟机上。如果需要部署在一台虚拟机才能工作，那么就需要描述为一个 <code>Pod</code>。</p>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li><a href="https://kubernetes.io/docs/concepts/workloads/pods/" target="_blank" rel="noopener">Kuberntes Documentation: Pod</a></li>
+<li><a href="https://cloud.tencent.com/developer/article/1513369" target="_blank" rel="noopener">为什么说容器是单进程模型</a></li>
+<li><a href="https://forums.docker.com/t/use-affinity-filter-in-docker-service-create/78402" target="_blank" rel="noopener">Use “affinity filter” in “docker service create”</a></li>
+<li><a href="https://www.ianlewis.org/en/almighty-pause-container" target="_blank" rel="noopener">The Almighty Pause Container</a></li>
+<li><a href="https://developers.redhat.com/blog/2019/01/15/podman-managing-containers-pods/" target="_blank" rel="noopener">Podman: Managing pods and containers in a local container runtime</a></li>
+<li><a href="https://www.usenix.org/system/files/conference/hotcloud16/hotcloud16_burns.pdf" target="_blank" rel="noopener">Design patterns for container-based distributed systems</a></li>
+</ul>
+
+    
+
+    
+
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">kubernetes</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">pod</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+
+    
+    <p class="article-more-link">
+      <a class="article-more-a" href="/2020/08/31/why-do-we-need-pods/">展开全文 >></a>
+    </p>
+    
+
+    
+    <div class="clearfix"></div>
+  </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-log-structured-merge-trees" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+  
+  
+    <h1 itemprop="name">
+	
+	  <a class="article-title" href="/2020/08/26/log-structured-merge-trees/" target="_blank">Log Structured Merge Trees</a>
+  
+    </h1>
+  
+
+
+  
+  
+<a href="/2020/08/26/log-structured-merge-trees/" class="archive-article-date">
+        <time datetime="2020-08-26T13:37:03.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-26</time>
+</a>
+
+  
+  
+    
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    <p>转自 <a href="https://medium.com/swlh/log-structured-merge-trees-9c8e2bea89e8" target="_blank" rel="noopener">Log Structured Merge Trees</a>。</p>
+<p>LSM tree is at the heart of most storage systems that provide high write throughput, be it a key-value storage like dynamodb/cassandra or a messaging system like pulsar which is backed by bookkeeper.</p>
+<p>The various components of a typical LSM backed system are shown below.</p>
+<p><img src="/images/log-structured-merge-trees/01.png" alt="01"></p>
+<p>The main reason why LSM provides high write throughput is that every write request is actually performed only <strong>in-memory</strong> in contrast to traditional B-Tree based implementation where the updates are done to disk which can trigger an update to an index making it very expensive.</p>
+<p>So the obvious question is, how does LSM achieve durability? that’s where WAL comes into the picture.</p>
+<h2 id="WAL"><a href="#WAL" class="headerlink" title="WAL"></a>WAL</h2><p>WAL is a write-ahead log that is used to provide the durability of data during system failures, what it means is that when a request for write comes in, the data is first added to a WAL file (sometimes called journal) and flushed to the disk (using <a href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/5/html/global_file_system/s1-manage-direct-io" target="_blank" rel="noopener">direct io</a>) before updating the in-memory data structure.</p>
+<p>This allows for systems to recover from the WAL if it crashes before persisting the in-memory data structure to disk.</p>
+<p>Why not directly update the write to the disk instead of updating WAL? it’s because WAL updates are cheaper as it’s append-only and doesn’t require any restructuring of data on disk.</p>
+<h2 id="MemTable"><a href="#MemTable" class="headerlink" title="MemTable"></a>MemTable</h2><p>The in-memory data structure is called a memtable, there are various implementations of memtable, but you can think of memtable as just a binary search tree for the sake of simplicity.</p>
+<p>So now for every write request, the data is appended to WAL and the memtable is updated and a successful response is returned to the client.</p>
+<p>For java implementations, the memtable is usually stored off-heap (direct memory) to avoid GC load</p>
+<h2 id="SSTable-Sorted-Strings-Table"><a href="#SSTable-Sorted-Strings-Table" class="headerlink" title="SSTable (Sorted Strings Table)"></a>SSTable (Sorted Strings Table)</h2><p>As it’s obvious that we cannot keep adding data to memtable to bloat the RAM, the memtable is frequently flushed to disk as an SSTable.</p>
+<p>SSTable, as the name indicates, is a sorted array of keys persisted on disk.</p>
+<p>The reason it is sorted is to make it easy to look up the data for readings.</p>
+<p>Okay, now that is the essence of how LSM provides high throughput using a WAL, MemTable &amp; SSTable.</p>
+<p>Usually, even every delete request for a key is also added to memtable with a marker indicating it’s deleted and the same information is flushed to the SSTable.</p>
+<h2 id="Compactor"><a href="#Compactor" class="headerlink" title="Compactor"></a>Compactor</h2><p>As we keep flushing SSTables to disk, the same key may be present in multiple SSTables, although the latest data of a key is present in the most recent SSTable, it’s presence in all previous SSTable needs to be cleaned up.</p>
+<p>This is the job of a compactor which usually runs in the background, It merges SSTables by removing redundant &amp; deleted keys and creating a compacted/merged SSTables.</p>
+<p>the compactor also is responsible for updating an index (typical B-Tree based index) to locate SSTable a key is present in.</p>
+<h2 id="Index"><a href="#Index" class="headerlink" title="Index"></a>Index</h2><p>The index data structure created is used to locate the correct SSTable for a key, once an SSTable is located, it is easy to locate the actual key inside the SSTable as it’s sorted, a binary search in-memory is sufficient.</p>
+<p>Also, the size of SSTables is chosen in such a way that it corresponds to the operating system <a href="https://en.wikipedia.org/wiki/Page_(computer_memory)" target="_blank" rel="noopener">page size</a> (usually multiples of disk bock size) making it easier to load the data to memory faster.</p>
+<p>Although the Index along with SSTable help in faster lookup of keys, all read requests are first consulted in the memtable as it should contain the most recent change. If the key is not in the memtable, then the index is used to identify the possible SSTable the key may be present and then search inside the SSTable in-memory.</p>
+<p>Since every read has to check the memtable, index &amp; SSTable to look for a key, it makes read requests very expensive especially for keys that are not present!</p>
+<p>For keys that are recently updated, the read request will easily locate it in the memtable, but for keys not recently updated, and for keys that are not present in the system the read path is expensive!</p>
+<p>Bloom Filters are used to improve read performance especially for the cases where the key is not present in the system.</p>
+<h2 id="Bloom-Filter"><a href="#Bloom-Filter" class="headerlink" title="Bloom Filter"></a>Bloom Filter</h2><p>A Bloom filter is a probabilistic data structure, which at a high level helps you check if a key is present or not in the system with O(1) complexity in memory.</p>
+<p>With bloom filter, False positive match is possible, which means, it may indicate a key is present although it’s not in the system. But false-negative match won’t happen, which means if bloom filter indicates a key is not present, then it is definitely not present in the system, so we could avoid taking the expensive read path.</p>
+<p>So the presence of a bloom filter improves the read performance for keys that are missing in the system but for the keys that are present in the system, the read is still expensive as we have to look into the memtable, index and the SSTable.</p>
+<h2 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h2><p>So every time you come across a system that promises high write throughput, you can assume there will be a variant of LSM tree underneath that helps achieve the throughput and also understand why reads are expensive.</p>
+
+    
+
+    
+
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">storage engine</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">lsm tree</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">sstable</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+
+    
+    <p class="article-more-link">
+      <a class="article-more-a" href="/2020/08/26/log-structured-merge-trees/">展开全文 >></a>
+    </p>
+    
+
+    
+    <div class="clearfix"></div>
+  </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-container-orchestration-and-kubernetes" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1397,348 +1793,6 @@
 
 
   
-    <article id="post-device-controllers" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-  
-  
-    <h1 itemprop="name">
-	
-	  <a class="article-title" href="/2020/08/12/device-controllers/" target="_blank">设备控制器</a>
-  
-    </h1>
-  
-
-
-  
-  
-<a href="/2020/08/12/device-controllers/" class="archive-article-date">
-        <time datetime="2020-08-12T09:50:29.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-12</time>
-</a>
-
-  
-  
-    
-
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-    <p>从功能角度方面，一个 <code>I/O</code> 单元由机械组件和电子组件两部分组合而成。而从设计的角度出发，将二者分开，则可以提供一种更具模块化，且更具通用性的设计模式。</p>
-<p>电子组件，可被称作设备控制器(<code>device controller</code>)，也可被称作适配器 <code>(adapter)</code>。在个人计算机上，常见的设备控制器要么是直接在母板上的芯片，要么是可插入扩展插槽的印刷电路板。</p>
-<p>机械组件其实就是设备本身。</p>
-<p>下图为这种模块化的设计的简易示意图。</p>
-<p><img src="/images/device-controllers/01-devices-arrangement.PNG" alt="arrangement"></p>
-<p>控制器卡上有一些连接器，用途是允许通过线缆连接到设备上，大部分控制器卡支持两个，四个甚至八个设备。控制器和设备之间的接口可以是标准接口，比如 <code>ANSI</code>，<code>IEEE</code> 或 <code>ISO</code> 标准，也可以是事实上的标准，例如，<code>SATA</code>，<code>SCSI</code>，<code>USB</code>，<code>Thunderbolt</code> 或 <code>FireWire(IEEE 1394)</code>。</p>
-<p>控制器和设备之间的接口属于非常底层的接口。例如，磁盘可能被格式化为<code>2,000,000</code> 个扇区，每个磁道 <code>512</code> 字节。但是，实际上从驱动器中出来的是一个串行位流，始于前导码 <code>(preamble)</code>，然后是一个扇区中的 <code>4096</code> 位，最后是一个校验和或纠错码 <code>(ECC)</code>。格式化磁盘后，将写入包含柱面号和扇区号，扇区大小，类似数据以及同步信息的前导码。</p>
-<p>控制器的职责是将串行位流转换为字节块，并执行必要的纠错。首先，控制器在其内部缓冲区中，逐位组装成字节块。在确认校验和无误，且该块无错误后，可以将数据块复制到主存储器中。</p>
-<p><code>LCD</code> 显示器的控制器在低电平时，可以用作位串行设备。它从存储器中读取包含要显示的字符的字节后，生成修改相应像素背光偏振的信号，实现将字符写入到屏幕上。试想，如果没有显示控制器，则需要操作系统开发者通过显式编程的方式，控制所有像素的电场，这将是一件多么可怕的事情。正是因为使用了控制器，操作系统只需通过少量参数来初始化控制器，例如每行的字符数，像素数以及每屏的行数，之后就可以让控制器来负责实际驱动电场。</p>
-
-    
-
-    
-
-    
-
-  </div>
-  <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">I/O</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">principles of i/o hardware</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-
-    
-    <p class="article-more-link">
-      <a class="article-more-a" href="/2020/08/12/device-controllers/">展开全文 >></a>
-    </p>
-    
-
-    
-    <div class="clearfix"></div>
-  </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-io-devices" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-  
-  
-    <h1 itemprop="name">
-	
-	  <a class="article-title" href="/2020/08/11/io-devices/" target="_blank">I/O 设备</a>
-  
-    </h1>
-  
-
-
-  
-  
-<a href="/2020/08/11/io-devices/" class="archive-article-date">
-        <time datetime="2020-08-11T04:33:35.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-11</time>
-</a>
-
-  
-  
-    
-
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-    <p><code>I/O</code> 设备大致可分为两类：块设备和字符设备。</p>
-<p>块设备将信息存储在固定大小的块中。通常情况，数据块的大小在 <code>512 Bytes</code> 到 <code>32768 Bytes</code> 之间。所有传输过程均以<strong>块</strong>为单位，每次传输一个或多个完整且连续的块。对每个块的读或写操作是互相独立的，这是块设备的基本属性。常见的块设备有硬盘、蓝光光盘等。每个设备块都有各自的地址，因此块设备支持寻址操作，可以使用 <code>seek</code> 指令任意指定偏移位置。比如，磁盘接收到该指令后，通过旋转机械臂及磁头的方式完成寻址操作。</p>
-<p>字符设备在传输数据时使用流式传输的方式，为不可寻址设备，因此也不支持 <code>seek</code> 操作。常见的字符设备有鼠标，网卡等。</p>
-<p>但事实上，这种分类方案并不是完美无缺的。因为，还有一些设备无法适用于这个分类方案。</p>
-<p>比如，时钟是一种按照预定义时间间隔产生中断信息的一种设备，它既不是可寻址的块设备，也不是字符流设备。除此之外，还有内存映射、屏幕、触摸屏等各类设备。但换一个角度分析，由于计算机使用到的大部分 <code>I/O</code> 设备，要么是块设备，要么是字符设备，这个分类模型足够通用。因此，可以用来作为独立于设备的基础操作系统基础模块。例如，文件系统就是用于处理经过抽象处理之后的块设备，而具体到设备层面的交互则交给更底层的软件处理，比如设备驱动程序。</p>
-
-    
-
-    
-
-    
-
-  </div>
-  <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">I/O</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">principles of i/o hardware</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-
-    
-    <p class="article-more-link">
-      <a class="article-more-a" href="/2020/08/11/io-devices/">展开全文 >></a>
-    </p>
-    
-
-    
-    <div class="clearfix"></div>
-  </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-where-clause-optimization" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-  
-  
-    <h1 itemprop="name">
-	
-	  <a class="article-title" href="/2020/08/01/where-clause-optimization/" target="_blank">优化 WHERE 子句</a>
-  
-    </h1>
-  
-
-
-  
-  
-<a href="/2020/08/01/where-clause-optimization/" class="archive-article-date">
-        <time datetime="2020-08-01T07:26:44.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-01</time>
-</a>
-
-  
-  
-    
-
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-    <p>以 <code>SELECT</code> 语句为例，介绍如何优化 <code>WHERE</code> 子句。这些优化方法同样适用于 <code>DELETE</code> 和 <code>UPDATE</code> 语句中的 <code>WHERE</code> 子句。</p>
-<p>在编写 <code>SQL</code> 时，开发者在主观上为了使语句执行的更快而去做一些所谓的“优化”。但实际上，这些“优化”要么会使 <code>SQL</code> 失去了可读性，要么是在重复 <code>MySQL</code> 做的事情。</p>
-<p>下面列举一些 <code>MySQL</code> 会做的优化:</p>
-<ul>
-<li><p>删除不必要的括号</p>
-  <figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">((a AND b) AND c OR (((a AND b) AND (c AND d))))</span><br><span class="line">-&gt; (a AND b AND c) OR (a AND b AND c AND d)</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>常量替换(Constant folding)</p>
-  <figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(a&lt;b AND b=c) AND a=5</span><br><span class="line">-&gt; b&gt;5 AND b=c AND a=5</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>删除恒定条件</p>
-  <figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(b&gt;=5 AND b=5) OR (b=6 AND 5=5) OR (b=7 AND 5=6)</span><br><span class="line">-&gt; b=5 OR b=6</span><br></pre></td></tr></table></figure>
-
-<p>  在 <code>MySQL 8.0.14</code> 和更高版本中，这是在准备过程中发生的，而不是在优化阶段发生的，这有助于简化联接。 有关更多信息和示例，请参见 <a href="https://dev.mysql.com/doc/refman/8.0/en/outer-join-optimization.html" target="_blank" rel="noopener">Section 8.2.1.9, “Outer Join Optimization”</a>。</p>
-</li>
-<li><p>索引使用的常量表达式仅计算一次。</p>
-</li>
-<li><p>从 <code>MySQL 8.0.16</code> 开始，数值类型的列与常数比较时，折叠(folded)或删除无效或越界的值：</p>
-  <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- CREATE TABLE t (c TINYINT UNSIGNED NOT NULL);</span></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> t <span class="keyword">WHERE</span> c ≪ <span class="number">256</span>;</span><br><span class="line">-≫ <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> t <span class="keyword">WHERE</span> <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>对于使用<code>MyISAM</code> 和 <code>MEMORY</code>存储引擎的表，在单一表上执行 <a href="https://dev.mysql.com/doc/refman/8.0/en/aggregate-functions.html#function_count" target="_blank" rel="noopener"><code>COUNT(*)</code></a> 操作时，如果没有 <code>WHERE</code> 子句，或者 <code>WHERE</code> 子句的表达式 <code>NOT NULL</code>，都将直接从表信息中读取。</p>
-<blockquote>
-<p>COUNT(*) on a single table without a WHERE is retrieved directly from the table information for MyISAM and MEMORY tables. This is also done for any NOT NULL expression when used with only one table.</p>
-</blockquote>
-</li>
-<li><p>尽早检测无效的常量表达式。<code>MySQL</code> 检测到无效 <code>SELECT</code> 语句时，直接返回无结果。</p>
-</li>
-<li><p>不使用 <code>GROUP BY</code> 或聚合函数(<code>COUNT()，MIN()</code>)时，会把 <code>HAVING</code> 与 <code>WHERE</code> 合并。</p>
-</li>
-<li><p>对于联接查询中的每个表，构造一个简单的 <code>WHERE</code> 实现快速 <code>WHERE</code> 评估，尽快跳过行的目的。</p>
-</li>
-<li><p>优先读取常量表。满足以下任意一个即为常量表：</p>
-<ul>
-<li>空表或具有一行的表。</li>
-<li>使用 <code>WHERE</code> 语句构建得到的表，且 <code>WHERE</code> 子句中的所有列只能是 <code>PRIMARY KEY</code> 或 <code>NOT NULL UNIQUE</code> 索引与常量表达式比较。</li>
-</ul>
-<p>以下所有表均用作常量表：</p>
-  <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">WHERE primary_key=1;</span><br><span class="line"></span><br><span class="line">WHERE t1.primary_key=1 AND t2.primary_key=t1.id;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- PRIMARY KEY (column1,column2)</span></span><br><span class="line">WHERE column1=5 AND column2=7</span><br><span class="line"></span><br><span class="line"><span class="comment">-- unique_not_null_column INT NOT NULL UNIQUE</span></span><br><span class="line">WHERE unique_not_null_column=5</span><br></pre></td></tr></table></figure>
-
-<p>参考 <a href="https://dev.mysql.com/doc/internals/en/optimizer-constants-constant-tables.html" target="_blank" rel="noopener">7.2.1.4 Constants and Constant Tables</a> 了解更多有关常量与常量表。</p>
-</li>
-<li><p>通过尝试所有可能的方法，找到用于联接表的最佳联接组合。如果 <code>ORDER BY</code> 和 <code>GROUP BY</code> 子句中的所有列都来自同一表，则在连接时优先使用该表。</p>
-</li>
-<li><p>如果 <code>ORDER BY</code> 子句和 <code>GROUP BY</code> 子句使用不同的列，或者 <code>ORDER BY</code>/<code>GROUP BY</code> 使用的列不属于联接队列中第一个表，则会创建一个临时表。</p>
-<blockquote>
-<p>If there is an ORDER BY clause and a different GROUP BY clause, or if the ORDER BY or GROUP BY contains columns from tables other than the first table in the join queue, a temporary table is created.</p>
-</blockquote>
-</li>
-<li><p>如果使用 <code>SQL_SMALL_RESULT</code> 修饰符，<code>MySQL</code> 将使用内存临时表。</p>
-</li>
-<li><p>从表的所有索引中选择一个最佳索引使用。或者，优化器认为全表扫描更有效时，会选择全表扫描。曾经，当使用最佳索引仍然会跨越表的 <code>30%</code>(<code>spanned more than 30% of the table</code>)时，就会选择使用全表扫描。但现在，使用索引还是全表扫描不再只取决于固定百分比，同时还要考虑其他因素，例如表大小，行数和 <code>I/O</code> 块大小。</p>
-</li>
-<li><p>在某些情况下，<code>MySQL</code> 可以从索引中读取数据行，而无需查询数据文件。如果索引中使用的所有列都是数字列，则仅使用索引树解析查询。</p>
-</li>
-<li><p>在输出每一行之前，将跳过与 <code>HAVING</code> 子句不匹配的行。</p>
-</li>
-</ul>
-
-    
-
-    
-
-    
-
-  </div>
-  <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">mysql</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">optimization</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">where clause</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-
-    
-    <p class="article-more-link">
-      <a class="article-more-a" href="/2020/08/01/where-clause-optimization/">展开全文 >></a>
-    </p>
-    
-
-    
-    <div class="clearfix"></div>
-  </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <a class="extend prev" rel="prev" href="/page/5/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" href="/page/7/">Next &amp;raquo;</a>
@@ -1872,18 +1926,6 @@
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">linux</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">hard drive</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">archlinux</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">gpu</a>
               </li>
              
@@ -1901,6 +1943,18 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">index</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">linux</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">hard drive</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">archlinux</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1956,23 +2010,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">hexo</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">rss</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">git</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">nfs</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">filesystem</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1992,11 +2030,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
+                <a href="javascript:void(0)" class="js-tag color5">hexo</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">innnodb</a>
+                <a href="javascript:void(0)" class="js-tag color4">rss</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2008,7 +2046,27 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">containerd</a>
+                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">innnodb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">network programming</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">io</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">nfs</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">filesystem</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2020,6 +2078,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">containerd</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">volume</a>
               </li>
              
@@ -2028,11 +2090,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">linux performance</a>
+                <a href="javascript:void(0)" class="js-tag color3">mongodb</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">cpu performance</a>
+                <a href="javascript:void(0)" class="js-tag color3">linux performance</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2044,6 +2106,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">optimization</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">lsm tree</a>
               </li>
              
@@ -2052,7 +2118,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">optimization</a>
+                <a href="javascript:void(0)" class="js-tag color1">cpu performance</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2084,10 +2150,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">pytorch</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">rdma</a>
               </li>
              
@@ -2096,11 +2158,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">network</a>
+                <a href="javascript:void(0)" class="js-tag color3">pytorch</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">kubeadm</a>
+                <a href="javascript:void(0)" class="js-tag color3">network</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2112,15 +2174,19 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">kubeadm</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">terminal</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">paas</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">where clause</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">terminal</a>
               </li>
             
             <div class="clearfix"></div>

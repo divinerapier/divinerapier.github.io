@@ -172,6 +172,415 @@
             
 
   
+    <article id="post-programming-single-responsibility-principle" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+  
+  
+    <h1 itemprop="name">
+	
+	  <a class="article-title" href="/2021/02/08/programming-single-responsibility-principle/" target="_blank">单一职责原则</a>
+  
+    </h1>
+  
+
+
+  
+  
+<a href="/2021/02/08/programming-single-responsibility-principle/" class="archive-article-date">
+        <time datetime="2021-02-08T02:06:13.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-02-08</time>
+</a>
+
+  
+  
+    
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    <blockquote>
+<p>A class or module should have a single responsibility.</p>
+</blockquote>
+<p>单一职责原则要求，一个类或模块只应该有唯一的职责。</p>
+<p>首先来明确概念，职责可以被看做一个类或者模块被修改的原因。那么，由这个概念可以得出，当一个类或者模块被修改的原因有两个或以上时，应该考虑将这些功能拆分到多个类或者模块中，从而使每一个类或者模块被修改的原因只有一个。</p>
+<p>那么，问题来了: 什么叫做单一职责，或者说，以类为例，如何判断一个类的职责是否单一？这个原则在字面上是非常简单的，但实际上却又非常主观。</p>
+<h2 id="举个例子"><a href="#举个例子" class="headerlink" title="举个例子"></a>举个例子</h2><p>大多数业务中都会涉及到用户信息，例如:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> UserInfo <span class="keyword">struct</span> &#123;</span><br><span class="line">    ID                <span class="keyword">int64</span></span><br><span class="line">    Name              <span class="keyword">string</span></span><br><span class="line">    Email             <span class="keyword">string</span></span><br><span class="line">    Telephone         <span class="keyword">string</span></span><br><span class="line">    CreateTime        time.Time</span><br><span class="line">    LastLoginTime     time.Time</span><br><span class="line">    AvatarURL         <span class="keyword">string</span></span><br><span class="line">    ProvinceOfAddress Province</span><br><span class="line">    CityOfAddress     City</span><br><span class="line">    RegionOfAddress   Region</span><br><span class="line">    DetailedAddress   <span class="keyword">string</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>大部分的开发者会使用如上扁平化的数据结构，事实上也不会有什么问题。但本着从学术的角度出发，来审视一下 <code>UserInfo</code> 中的职责有哪些:</p>
+<ul>
+<li>调用接口时，作为唯一标志<ul>
+<li><code>ID</code></li>
+</ul>
+</li>
+<li>展示作用<ul>
+<li><code>Name</code></li>
+<li><code>CreateTime</code></li>
+<li><code>LastLoginTime</code></li>
+<li><code>AvatarURL</code></li>
+</ul>
+</li>
+<li>认证作用<ul>
+<li><code>Email</code></li>
+<li><code>Telephone</code></li>
+</ul>
+</li>
+<li>地址信息<ul>
+<li><code>ProvinceOfAddress</code></li>
+<li><code>CityOfAddress</code></li>
+<li><code>RegionOfAddress</code></li>
+<li><code>DetailedAddress</code></li>
+</ul>
+</li>
+</ul>
+<p>结果分析下来，竟然包含了四种职责。并且，这四种职责基本上是相互独立的，即任何一种职责的信息发生变化，基本不会影响其他职责的功能。</p>
+<p>同时，思考如下几个问题:</p>
+<ol>
+<li>用户登录的时候，是直接使用 <code>UserInfo</code> 类型做处理，还是使用只包含认证相关字段的类型 <code>Credential</code> 呢</li>
+<li>展示用户信息的时候，是直接使用 <code>UserInfo</code> 类型做处理，还是使用只包含展示信息字段的类型 <code>UserDisplayInfo</code> 呢</li>
+<li>在处理订单收货地址是，是直接使用 <code>UserInfo</code> 类型做处理，还是使用只包含地址相关字段的类型 <code>Address</code> 呢</li>
+<li>在计算发货地与收货地距离时，也要使用 <code>UserInfo</code> 类型处理吗</li>
+</ol>
+<p>如此看来，应该将 <code>UserInfo</code> 修改为:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Credential <span class="keyword">struct</span> &#123;</span><br><span class="line">    Email             <span class="keyword">string</span></span><br><span class="line">    Telephone         <span class="keyword">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> UserDisplayInfo <span class="keyword">struct</span> &#123;</span><br><span class="line">    Name              <span class="keyword">string</span></span><br><span class="line">    CreateTime        time.Time</span><br><span class="line">    LastLoginTime     time.Time</span><br><span class="line">    AvatarURL         <span class="keyword">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Address <span class="keyword">struct</span> &#123;</span><br><span class="line">    ProvinceOfAddress Province</span><br><span class="line">    CityOfAddress     City</span><br><span class="line">    RegionOfAddress   Region</span><br><span class="line">    DetailedAddress   <span class="keyword">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> UserInfo <span class="keyword">struct</span> &#123;</span><br><span class="line">    ID              <span class="keyword">int64</span></span><br><span class="line">    Credential      Credential</span><br><span class="line">    UserDisplayInfo UserDisplayInfo</span><br><span class="line">    Address         Address</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>但是，还有可能你开发的产品没有订单功能，这时候还有必要有 <code>Address</code> 类吗？</p>
+<p>因此，开篇才会说，这是一个主观的设计原则。职责是否单一还应该取决于实际的业务场景。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="https://www.oodesign.com/single-responsibility-principle.html" target="_blank" rel="noopener">OODesign: single responsibility principle</a></li>
+</ul>
+
+    
+
+    
+
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">programming</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+
+    
+    <p class="article-more-link">
+      <a class="article-more-a" href="/2021/02/08/programming-single-responsibility-principle/">展开全文 >></a>
+    </p>
+    
+
+    
+    <div class="clearfix"></div>
+  </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-programming-program-to-an-interface" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+  
+  
+    <h1 itemprop="name">
+	
+	  <a class="article-title" href="/2021/02/06/programming-program-to-an-interface/" target="_blank">针对接口编程</a>
+  
+    </h1>
+  
+
+
+  
+  
+<a href="/2021/02/06/programming-program-to-an-interface/" class="archive-article-date">
+        <time datetime="2021-02-06T08:22:31.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-02-06</time>
+</a>
+
+  
+  
+    
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    <blockquote>
+<p>Program to an interface, not an implementation.</p>
+</blockquote>
+<p>针对接口，而非实现编程 —— 出自 GoF《设计模式: 可复用面向对象软件基础》。<strong>接口</strong> 表示一组 <strong>协议</strong> 或 <strong>约定</strong>，是一组功能的集合。</p>
+<p>接口在不同的语言中，有不同的称呼:</p>
+<ul>
+<li><strong>rust</strong> 中的 <strong>trait</strong></li>
+<li><strong>go</strong> 中的 <strong>interface</strong></li>
+<li><strong>swift</strong> 中的 <strong>protocol</strong></li>
+<li><strong>java</strong> 中的 <strong>interface</strong></li>
+</ul>
+<p>但无论他们的名字是否相同，其作用都是表达一组 <strong>抽象的功能集合</strong>。</p>
+<p>以上字面意思很好理解，下面来详细说明。</p>
+<h2 id="为什么要针对接口编程"><a href="#为什么要针对接口编程" class="headerlink" title="为什么要针对接口编程"></a>为什么要针对接口编程</h2><p>初级开发者在实现某一具体需求时，其思考的关注点在于需求本身，分析实现这个需求要经过哪些步骤，每个步骤又要做那些事情，以此类推。在经过逐层分析，想明白流程之后，这名开发者就会把解决步骤转化为代码。</p>
+<p>如果只看这个需求，这名开发者完成并交付了这个功能。但是，当需求发生变动时，需要修改功能，或增加功能时，由于上面的实现方式是面向过程的，步骤与步骤之间互相暴露实现的细节。因此，当修改了某一个步骤的代码时，就非常可能需要同步修改前后相邻步骤的代码，最坏的情况可能要修改全部的代码。结果就是不小的开发工作量与测试工作量。</p>
+<p>如果开发者使用针对接口编程的方式，封装不稳定的实现细节，暴露稳定的接口。当需求发生变化时，只需要修改相关的接口实现，而因为接口不变，所以无需改动其他代码。</p>
+<h2 id="举个例子"><a href="#举个例子" class="headerlink" title="举个例子"></a>举个例子</h2><p>产品给你分配了一个任务: 有一批保存在 <code>aws s3</code> 上的数据，需要你将它们同步到 <code>aliyun oss</code> 上。</p>
+<h3 id="针对实现编程"><a href="#针对实现编程" class="headerlink" title="针对实现编程"></a>针对实现编程</h3><p>如果是使用针对实现编程方式，那么在收到这个需求之后，应该就会思考: 把 <code>aws s3</code> 的数据同步到 <code>aliyun oss</code> 上，步骤差不多是:</p>
+<ol>
+<li>想办法把数据从 <code>aws s3</code> 上下载到磁盘或者内存</li>
+<li>把磁盘或者内存中的数据上传到 <code>aliyun oss</code></li>
+</ol>
+<p>想到这里，感觉差不多可以写代码了:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> AwsS3 <span class="keyword">struct</span> &#123;&#125;</span><br><span class="line"><span class="keyword">type</span> AliyunOSS <span class="keyword">struct</span> &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> (s3 *AwsS3) Sync(oss *AliyunOSS, names []<span class="keyword">string</span>) &#123;</span><br><span class="line">  <span class="keyword">for</span> _, name := ranges names &#123;</span><br><span class="line">    data := s3.Download(name)</span><br><span class="line">    oss.Upload(name, data)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>经过测试确认无误后，发布上线，成功运行了几个月没出现 Bug。</p>
+<h4 id="需求变更"><a href="#需求变更" class="headerlink" title="需求变更"></a>需求变更</h4><p>后来呢，产品要求你有的数据要同步到 <code>aliyun oss</code>，有一些要同步到 <code>ceph s3</code> 上。你一看，这个需求简单啊，我会。然后，你把上面的代码复制了一份，稍加改动:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> CephS3 <span class="keyword">struct</span> &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Meta <span class="keyword">struct</span> &#123;</span><br><span class="line">  Name     <span class="keyword">string</span></span><br><span class="line">  ToOss    <span class="keyword">bool</span></span><br><span class="line">  ToCephS3 <span class="keyword">bool</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> (s3 *AwsS3) syncToOss(oss *AliyunOSS, name <span class="keyword">string</span>) &#123;</span><br><span class="line">  data := s3.Download(name)</span><br><span class="line">  oss.Upload(name, data)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> (s3 *AwsS3) syncToCephS3(cephs3 *CephS3, name <span class="keyword">string</span>) &#123;</span><br><span class="line">  data := s3.Download(name)</span><br><span class="line">  cephs3.Upload(name, data)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> (s3 *AwsS3) Sync(oss *AliyunOSS, cephs3 *CephS3, metas *Meta) &#123;</span><br><span class="line">  <span class="keyword">for</span> _, meta := ranges metas &#123;</span><br><span class="line">    data := s3.Download(meta.Name)</span><br><span class="line">    <span class="keyword">if</span> meta.ToOss &#123;</span><br><span class="line">      s3.syncToOss(oss, meta.Name)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> meta.ToCephS3 &#123;</span><br><span class="line">      s3.syncToCephS3(cephs3, meta.Name)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>不到一天的时间就完成了开发、测试，第二天就上线了。</p>
+<h3 id="针对接口编程"><a href="#针对接口编程" class="headerlink" title="针对接口编程"></a>针对接口编程</h3><p>实现将数据从 <code>aws s3</code> 同步到 <code>aliyun oss</code> 上，可以提取到的信息包括 <code>aws s3</code>、<code>aliyun oss</code> 两种存储系统，同步是要实现的操作。</p>
+<p>由此引发思考，同步是一种动作，未来发生变化的可能性不大，或许有增加其他的动作可能，比如对比两个存储系统的内容，但这应该算作扩展需求，暂时无需考虑；但是存储系统就不好说了，现在是这样的要求，未来可能就会要求同步到 <code>minio</code> 上，或者同步到另一个 <code>aws s3</code> 上。</p>
+<p>至此，可以考虑将存储系统抽象为一组接口:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Storage <span class="keyword">interface</span> &#123;</span><br><span class="line">  Upload(name <span class="keyword">string</span>, data []<span class="keyword">byte</span>)</span><br><span class="line">  Download(name <span class="keyword">string</span>) []<span class="keyword">byte</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>再来思考，现在是要求从 <code>aws s3</code> 同步到 <code>aliyun oss</code> 上，既然上面已经认为未来有很大概率需要同步其他存储系统，由此提出问题: 如何确定同步的目标系统？先大胆猜测:</p>
+<ol>
+<li>一个服务只负责一种特定源到特定目标的同步任务</li>
+<li>在创建同步任务时指定，即在请求参数中，适用于本次任务的所有数据</li>
+<li>根据某种策略，或者是算法，确定每一个文件的源与目的分别是哪里</li>
+</ol>
+<p>那么接下来逐条分析:</p>
+<ul>
+<li>方法一，极其不灵活，如果有 <strong>n</strong> 个存储系统，那么一共需要启动 <strong>nx(n-1)</strong>个服务，无论是对于使用者，还是维护者来说，都可谓是灾难</li>
+<li>方法二，相比于方法一，极大地提高了灵活性，只需要一个服务就能替代上述 <strong>nx(n-1)</strong> 个服务</li>
+<li>方法三，相比于方法二，更进一步提高了灵活性，每一个文件都可以有独立的源与目标。但这种方法只是看起来很美好，很灵活，实际上可能并没有真实的使用场景。原因是，如果每一个文件都可以具有独立的目标，那么完全可以将目标相同的文件聚合到一起，作为一个批量的任务，这样就演变为了 <strong>方法二</strong></li>
+</ul>
+<p>综上所述，下面实现 <strong>方法二</strong>:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Batch <span class="keyword">struct</span> &#123;</span><br><span class="line">  From    <span class="keyword">string</span></span><br><span class="line">  Targets []<span class="keyword">string</span></span><br><span class="line">  Names   []<span class="keyword">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Sync</span><span class="params">(batch *Batch)</span></span> &#123;</span><br><span class="line">  from := NewStorage(batch.From)</span><br><span class="line">  targets := NewStorages(batch.Targets)</span><br><span class="line">  <span class="keyword">for</span> _, name := <span class="keyword">range</span> batch.Names &#123;</span><br><span class="line">    data := from.Download(name)</span><br><span class="line">    <span class="keyword">for</span> _, target := <span class="keyword">range</span> targets &#123;</span><br><span class="line">      target.Upload(name, data)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>到此为止，所有代码都是面向接口编程，需求中提到的 <code>aws s3</code> 与 <code>aliyun oss</code> 还没有出现:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> AwsS3 <span class="keyword">struct</span> &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s3 *AwsS3)</span> <span class="title">Upload</span><span class="params">(name <span class="keyword">string</span>, data []<span class="keyword">byte</span>)</span></span> &#123;&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s3 *AwsS3)</span> <span class="title">Download</span><span class="params">(name <span class="keyword">string</span>)</span> []<span class="title">byte</span></span> &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> AliyunOSS <span class="keyword">struct</span> &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s3 *AwsS3)</span> <span class="title">Upload</span><span class="params">(name <span class="keyword">string</span>, data []<span class="keyword">byte</span>)</span></span> &#123;&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s3 *AwsS3)</span> <span class="title">Download</span><span class="params">(name <span class="keyword">string</span>)</span> []<span class="title">byte</span></span> &#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后，需要实现两个函数:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewStorage</span><span class="params">(name <span class="keyword">string</span>)</span> <span class="title">Storage</span></span> &#123;</span><br><span class="line">  <span class="keyword">switch</span> name &#123;</span><br><span class="line">    <span class="keyword">case</span> <span class="string">"awss3"</span>:</span><br><span class="line">      <span class="keyword">return</span> &amp;AwsS3&#123;&#125;</span><br><span class="line">    <span class="keyword">case</span> <span class="string">"aliyunoss"</span>:</span><br><span class="line">      <span class="keyword">return</span> AliyunOSS&#123;&#125;</span><br><span class="line">    <span class="keyword">default</span>:</span><br><span class="line">      <span class="built_in">panic</span>(<span class="string">"unknown name: %s"</span>, name) <span class="comment">// 只作为演示 </span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewStorages</span><span class="params">(names <span class="keyword">string</span>)</span> []<span class="title">Storage</span></span> &#123;</span><br><span class="line">  <span class="keyword">var</span> results []Storage</span><br><span class="line">  <span class="keyword">for</span> _, name := <span class="keyword">range</span> names &#123;</span><br><span class="line">    results = <span class="built_in">append</span>(results, NewStorage(name))</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> results</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>到此为止，才终于完成了原始需求。使用面向实现方式的同学会说: 你这代码量要比面向实现的方法多很多，你实现了一个需求，我都实现好几个了。</p>
+<p>对此，我是不慌的。</p>
+<p>当产品要求将数据同步到 <code>cephs3</code>，<code>minio</code> 时，或者是从 <code>tencent cos</code>，本地磁盘同步到其他地方时，<code>func Sync</code> 是完全不需要改动的，代码的改动只有:</p>
+<ol>
+<li><p>增加对应的类型实现 <strong>Storage</strong> 接口:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> CephS3 <span class="keyword">struct</span> &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(ceph *CephS3)</span> <span class="title">Upload</span><span class="params">(name <span class="keyword">string</span>, data []<span class="keyword">byte</span>)</span></span> &#123;&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(ceph *CephS3)</span> <span class="title">Download</span><span class="params">(name <span class="keyword">string</span>)</span> []<span class="title">byte</span></span> &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> MinIO <span class="keyword">struct</span> &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(minio *MinIO)</span> <span class="title">Upload</span><span class="params">(name <span class="keyword">string</span>, data []<span class="keyword">byte</span>)</span></span> &#123;&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(minio *MinIO)</span> <span class="title">Download</span><span class="params">(name <span class="keyword">string</span>)</span> []<span class="title">byte</span></span> &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Posix <span class="keyword">struct</span> &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(fs *Posix)</span> <span class="title">Upload</span><span class="params">(name <span class="keyword">string</span>, data []<span class="keyword">byte</span>)</span></span> &#123;&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(fs *Posix)</span> <span class="title">Download</span><span class="params">(name <span class="keyword">string</span>)</span> []<span class="title">byte</span></span> &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> TencentOSS <span class="keyword">struct</span> &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(oss *TencentOSS)</span> <span class="title">Upload</span><span class="params">(name <span class="keyword">string</span>, data []<span class="keyword">byte</span>)</span></span> &#123;&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(oss *TencentOSS)</span> <span class="title">Download</span><span class="params">(name <span class="keyword">string</span>)</span> []<span class="title">byte</span></span> &#123;&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>修改 <strong>func NewStorage</strong>:</p>
+</li>
+</ol>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewStorage</span><span class="params">(name <span class="keyword">string</span>)</span> <span class="title">Storage</span></span> &#123;</span><br><span class="line">  <span class="keyword">switch</span> name &#123;</span><br><span class="line">    <span class="keyword">case</span> <span class="string">"awss3"</span>:</span><br><span class="line">      <span class="keyword">return</span> &amp;AwsS3&#123;&#125;</span><br><span class="line">    <span class="keyword">case</span> <span class="string">"aliyunoss"</span>:</span><br><span class="line">      <span class="keyword">return</span> AliyunOSS&#123;&#125;</span><br><span class="line">    <span class="keyword">case</span> <span class="string">"cephs3"</span>:</span><br><span class="line">      <span class="keyword">return</span> CephS3&#123;&#125;</span><br><span class="line">    <span class="keyword">case</span> <span class="string">"minio"</span>:</span><br><span class="line">      <span class="keyword">return</span> MinIO&#123;&#125;</span><br><span class="line">    <span class="keyword">case</span> <span class="string">"posix"</span>:</span><br><span class="line">      <span class="keyword">return</span> Posix&#123;&#125;</span><br><span class="line">    <span class="keyword">case</span> <span class="string">"tencentoss"</span>:</span><br><span class="line">      <span class="keyword">return</span> TencentOSS&#123;&#125;</span><br><span class="line">    <span class="keyword">default</span>:</span><br><span class="line">      <span class="built_in">panic</span>(<span class="string">"unknown name: %s"</span>, name) <span class="comment">// 只作为演示 </span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>就完成所有的修改了。如果是面向实现的方式，算了，我不想了。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>抽象会提升思维上的难度，但却能提高代码的灵活性。而且，灵活性还会随着抽象程度的提升一起提高。优秀的代码设计，不但能满足于眼前的需求，还提供了在不改变已有设计的前提支持对未来可能变化的需求的能力。</p>
+
+    
+
+    
+
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">programming</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+
+    
+    <p class="article-more-link">
+      <a class="article-more-a" href="/2021/02/06/programming-program-to-an-interface/">展开全文 >></a>
+    </p>
+    
+
+    
+    <div class="clearfix"></div>
+  </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-the-code-quality-metrics" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+  
+  
+    <h1 itemprop="name">
+	
+	  <a class="article-title" href="/2021/02/06/the-code-quality-metrics/" target="_blank">代码质量衡量标准</a>
+  
+    </h1>
+  
+
+
+  
+  
+<a href="/2021/02/06/the-code-quality-metrics/" class="archive-article-date">
+        <time datetime="2021-02-06T04:51:33.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-02-06</time>
+</a>
+
+  
+  
+    
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    <h2 id="可维护性-maintainability"><a href="#可维护性-maintainability" class="headerlink" title="可维护性 (maintainability)"></a>可维护性 (maintainability)</h2><p>常见的代码维护工作，大体上包括: 修复 Bug，修改已有的代码，添加新的代码。可维护性就是用来衡量上述工作的难度。</p>
+<p>显而易见地，修改配置的难度小于修改编译参数，小于增加代码，小于改动已有代码。改动一处代码的难度小于改动多出代码，更小于改动不知道多少处代码。</p>
+<p>易于维护就要求，在不破坏原有代码设计、引入新 Bug 低风险的情况下，能够快速修改或者添加代码。反之，则是不易于维护。</p>
+<p>易于维护代码应该在兼具 <strong>可读性</strong> 的前提下，具有良好的模块化设计，做到高内聚低耦合，遵从面向接口而非实现的程序设计原则。</p>
+<p>但是，可维护性是一个偏主观的衡量标准。一段代码的可维护性依赖于代码量、业务复杂度、知识背景、文档完善度还有开发开发者水平等诸多方面的因素。</p>
+<p>同一段代码对于不同的开发者会具有不同的可维护性。</p>
+<h2 id="可读性-readability"><a href="#可读性-readability" class="headerlink" title="可读性 (readability)"></a>可读性 (readability)</h2><blockquote>
+<p>Martin Fowler:”Any fool can write code that a computer can understand. Good programmers write code that humans can understand.”</p>
+</blockquote>
+<p>代码被阅读的次数远超过被编写的次数，无论是学习编程、修改代码、添加代码还是进行 Code Review 时，都需要对代码进行阅读。</p>
+<p>很多人都听说过 <strong>可读性</strong>，知道 <strong>可读性</strong> 很重要，但却并不重视。在实际写代码的时候，会为了 <strong>编写上舒服</strong>，为了 <strong>自以为的高效</strong>，为了 <strong>炫技</strong> 或者是其他什么原因，写出让其他人难以理解，甚至无法理解的代码。更有甚者，<strong>看不懂若干月之前自己写的代码</strong>。</p>
+<p>个人认为，可读性应被看做最重要的衡量标准。因为，无论是修复 Bug 还是开发新功能，只有先读懂代码，才能得到自己需要的信息去完成接下来的工作。若是读都读不懂，那么轻则工作效率事倍功半，加班成为常态；重则引入 Bug 影响绩效。</p>
+<p>衡量可读性可以从编码规范、命名、函数长度、模块划分、注释等方面切入。</p>
+<p>检测可读性可以通过 Code Review，如果同事读你的代码有很多疑问就表示需要提高可读性了。</p>
+<h2 id="可扩展性-extensibility"><a href="#可扩展性-extensibility" class="headerlink" title="可扩展性 (extensibility)"></a>可扩展性 (extensibility)</h2><p>代码的可扩展性表示代码应对未来需求变化的能力。</p>
+<p>在添加新功能时，扩展性的高低反比与对已有代码修改的数量。修改的内容越少，则表示扩展性越好。如果能做到只通过扩展的方式添加新代码，而无需修改已有代码时，则表示代码具有非常好的可扩展性。</p>
+<h2 id="灵活性-flexibility"><a href="#灵活性-flexibility" class="headerlink" title="灵活性 (flexibility)"></a>灵活性 (flexibility)</h2><p>灵活性也是一个比较主观的衡量标准。例如:</p>
+<ul>
+<li>代码具有非常好的可扩展性</li>
+<li>底层模块抽象度高，封装良好，已于复用代码</li>
+<li>接口可以应对各种使用场景，满足各种不同的需求</li>
+</ul>
+<h2 id="简洁性-simplicity"><a href="#简洁性-simplicity" class="headerlink" title="简洁性 (simplicity)"></a>简洁性 (simplicity)</h2><blockquote>
+<p>KISS 原则: Kepp It Simple, Stupid.</p>
+</blockquote>
+<p>保持代码简单、结构简洁、逻辑清晰。因为，越简单的代码，越易于理解。避免在代码中引入不必要的设计模式，或其他炫技的写法。</p>
+<h2 id="可复用性-reusability"><a href="#可复用性-reusability" class="headerlink" title="可复用性 (reusability)"></a>可复用性 (reusability)</h2><p>大部分开发者一定听过可复用性，也一定听过 <strong>Don’t Repeat Yourself</strong>，也明白同样的代码只写一次，但却很少有人能真正做到，或者说是不知道如何做:</p>
+<ul>
+<li>面向对象的封装、继承、多态</li>
+<li>单一职责原则</li>
+<li>解耦，高内聚低耦合</li>
+</ul>
+<h2 id="可测试性-testability"><a href="#可测试性-testability" class="headerlink" title="可测试性 (testability)"></a>可测试性 (testability)</h2><p>编写易于单元测试的代码，如果为你的代码编写单元测试很困难，那你可能需要思考，你的一个函数或模块是不是做了太多的事情。</p>
+
+    
+
+    
+
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">programming</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+
+    
+    <p class="article-more-link">
+      <a class="article-more-a" href="/2021/02/06/the-code-quality-metrics/">展开全文 >></a>
+    </p>
+    
+
+    
+    <div class="clearfix"></div>
+  </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-git-delete-merged-branches" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -822,374 +1231,6 @@
 
 
   
-    <article id="post-testing-the-bandwidth-between-two-nodes" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-  
-  
-    <h1 itemprop="name">
-	
-	  <a class="article-title" href="/2020/11/19/testing-the-bandwidth-between-two-nodes/" target="_blank">测试节点之间的网络带宽</a>
-  
-    </h1>
-  
-
-
-  
-  
-<a href="/2020/11/19/testing-the-bandwidth-between-two-nodes/" class="archive-article-date">
-        <time datetime="2020-11-19T05:14:30.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-11-19</time>
-</a>
-
-  
-  
-    
-
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-    <p>昨天同事找到我，说 <strong>nfs</strong> 太慢了，通过 <strong>iostat</strong> 看只有 <strong>1-2MB/s</strong> 的写入速度。在通过 <strong>fio</strong> 测试磁盘顺序写入速度，得到结果为 <strong>300MB/s</strong> 之后，遂怀疑是网络的问题。</p>
-<h2 id="iperf"><a href="#iperf" class="headerlink" title="iperf"></a>iperf</h2><blockquote>
-<p>iperf is a tool for performing network throughput measurements.  It can test either TCP or UDP throughput.  To perform an iperf test the user must establish both a server (to discard traffic) and a client (to generate traffic).</p>
-</blockquote>
-<p>此处省略安装过程。</p>
-<h3 id="测试网络带宽"><a href="#测试网络带宽" class="headerlink" title="测试网络带宽"></a>测试网络带宽</h3><p><strong>iperf</strong> 通过使用不同的命令行参数，支持分别作为 <strong>服务端</strong> 或 <strong>客户端</strong>。</p>
-<h4 id="启动服务端"><a href="#启动服务端" class="headerlink" title="启动服务端"></a>启动服务端</h4><p>监听默认端口 <strong>5001</strong>，启动服务端:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iperf -s</span><br></pre></td></tr></table></figure>
-
-<p>或者，监听指定端口，启动服务端:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iperf -s -p &lt;port&gt;</span><br></pre></td></tr></table></figure>
-
-<h4 id="启动客户端"><a href="#启动客户端" class="headerlink" title="启动客户端"></a>启动客户端</h4><p>连接默认端口 <strong>5001</strong>，启动客户端:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iperf -c &lt;server-host&gt;</span><br></pre></td></tr></table></figure>
-
-<p>或者，连接指定端口，启动客户端:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iperf -c &lt;server-host&gt; -p &lt;port&gt;</span><br></pre></td></tr></table></figure>
-
-<p>同时，<strong>iperf</strong> 也支持多线程的客户端:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iperf -c &lt;server-host&gt; -p &lt;port&gt; -P &lt;threadiness&gt;</span><br></pre></td></tr></table></figure>
-
-<h4 id="测试结果"><a href="#测试结果" class="headerlink" title="测试结果"></a>测试结果</h4><p>单线程客户端的测试结果:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">------------------------------------------------------------</span><br><span class="line">Client connecting to 10.100.28.26, TCP port 9999</span><br><span class="line">TCP window size:  170 KByte (default)</span><br><span class="line">------------------------------------------------------------</span><br><span class="line">[  3] <span class="built_in">local</span> 172.29.60.164 port 37290 connected with 10.100.28.26 port 9999</span><br><span class="line">[ ID] Interval       Transfer     Bandwidth</span><br><span class="line">[  3]  0.0-10.6 sec  24.0 MBytes  19.0 Mbits/sec</span><br></pre></td></tr></table></figure>
-
-<p>多线程客户端的测试结果，两个节点都有 <strong>16</strong> 个 <strong>CPU</strong> 核心:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">------------------------------------------------------------</span><br><span class="line">Client connecting to 10.100.28.26, TCP port 9999</span><br><span class="line">TCP window size: 85.0 KByte (default)</span><br><span class="line">------------------------------------------------------------</span><br><span class="line">[ 18] <span class="built_in">local</span> 172.29.60.164 port 37392 connected with 10.100.28.26 port 9999</span><br><span class="line">[ 17] <span class="built_in">local</span> 172.29.60.164 port 37390 connected with 10.100.28.26 port 9999</span><br><span class="line">[  4] <span class="built_in">local</span> 172.29.60.164 port 37364 connected with 10.100.28.26 port 9999</span><br><span class="line">[ 11] <span class="built_in">local</span> 172.29.60.164 port 37378 connected with 10.100.28.26 port 9999</span><br><span class="line">[  9] <span class="built_in">local</span> 172.29.60.164 port 37374 connected with 10.100.28.26 port 9999</span><br><span class="line">[  8] <span class="built_in">local</span> 172.29.60.164 port 37372 connected with 10.100.28.26 port 9999</span><br><span class="line">[ 10] <span class="built_in">local</span> 172.29.60.164 port 37376 connected with 10.100.28.26 port 9999</span><br><span class="line">[  6] <span class="built_in">local</span> 172.29.60.164 port 37366 connected with 10.100.28.26 port 9999</span><br><span class="line">[ 13] <span class="built_in">local</span> 172.29.60.164 port 37382 connected with 10.100.28.26 port 9999</span><br><span class="line">[ 14] <span class="built_in">local</span> 172.29.60.164 port 37384 connected with 10.100.28.26 port 9999</span><br><span class="line">[  3] <span class="built_in">local</span> 172.29.60.164 port 37362 connected with 10.100.28.26 port 9999</span><br><span class="line">[  5] <span class="built_in">local</span> 172.29.60.164 port 37368 connected with 10.100.28.26 port 9999</span><br><span class="line">[  7] <span class="built_in">local</span> 172.29.60.164 port 37370 connected with 10.100.28.26 port 9999</span><br><span class="line">[ 15] <span class="built_in">local</span> 172.29.60.164 port 37386 connected with 10.100.28.26 port 9999</span><br><span class="line">[ 16] <span class="built_in">local</span> 172.29.60.164 port 37388 connected with 10.100.28.26 port 9999</span><br><span class="line">[ 12] <span class="built_in">local</span> 172.29.60.164 port 37380 connected with 10.100.28.26 port 9999</span><br><span class="line">[ ID] Interval       Transfer     Bandwidth</span><br><span class="line">[  3]  0.0-10.2 sec  2.62 MBytes  2.17 Mbits/sec</span><br><span class="line">[ 13]  0.0-10.2 sec  2.88 MBytes  2.36 Mbits/sec</span><br><span class="line">[ 15]  0.0-10.2 sec  1.88 MBytes  1.54 Mbits/sec</span><br><span class="line">[  7]  0.0-10.9 sec  1.50 MBytes  1.15 Mbits/sec</span><br><span class="line">[  6]  0.0-11.0 sec  1.75 MBytes  1.34 Mbits/sec</span><br><span class="line">[ 17]  0.0-11.2 sec  1.88 MBytes  1.40 Mbits/sec</span><br><span class="line">[  5]  0.0-11.3 sec  1.50 MBytes  1.12 Mbits/sec</span><br><span class="line">[ 10]  0.0-11.6 sec  1.88 MBytes  1.35 Mbits/sec</span><br><span class="line">[  9]  0.0-12.4 sec  1.62 MBytes  1.10 Mbits/sec</span><br><span class="line">[  4]  0.0-13.0 sec  2.88 MBytes  1.85 Mbits/sec</span><br><span class="line">[ 11]  0.0-13.0 sec  4.62 MBytes  2.98 Mbits/sec</span><br><span class="line">[ 14]  0.0-13.1 sec  4.88 MBytes  3.12 Mbits/sec</span><br><span class="line">[  8]  0.0-13.9 sec  2.12 MBytes  1.28 Mbits/sec</span><br><span class="line">[ 16]  0.0-14.1 sec  2.00 MBytes  1.19 Mbits/sec</span><br><span class="line">[ 18]  0.0-14.1 sec  2.12 MBytes  1.26 Mbits/sec</span><br><span class="line">[ 12]  0.0-14.3 sec  1.73 MBytes  1.01 Mbits/sec</span><br><span class="line">[SUM]  0.0-14.3 sec  37.9 MBytes  22.1 Mbits/sec</span><br></pre></td></tr></table></figure>
-
-<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>瓶颈在网络带宽，悲哀。</p>
-
-    
-
-    
-
-    
-
-  </div>
-  <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">network</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-
-    
-    <p class="article-more-link">
-      <a class="article-more-a" href="/2020/11/19/testing-the-bandwidth-between-two-nodes/">展开全文 >></a>
-    </p>
-    
-
-    
-    <div class="clearfix"></div>
-  </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-volcano" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-  
-  
-    <h1 itemprop="name">
-	
-	  <a class="article-title" href="/2020/11/16/volcano/" target="_blank">Volcano</a>
-  
-    </h1>
-  
-
-
-  
-  
-<a href="/2020/11/16/volcano/" class="archive-article-date">
-        <time datetime="2020-11-16T06:43:43.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-11-16</time>
-</a>
-
-  
-  
-    
-
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-    <h2 id="Installation"><a href="#Installation" class="headerlink" title="Installation"></a>Installation</h2><p>从 <a href="https://github.com/volcano-sh/volcano/releases" target="_blank" rel="noopener">volocano release</a> 下载 <strong>Volcano</strong>，通过 <strong>yaml</strong> 文件创建 <strong>Deployment</strong> 等。</p>
-<p>以当前版本 <strong>v1.1.0</strong> 为例:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">$ wget https://github.com/volcano-sh/volcano/releases/download/v1.1.0/volcano-v1.1.0-linux-gnu.tar.gz</span><br><span class="line"></span><br><span class="line">$ tar xzf volcano-v1.1.0-linux-gnu.tar.gz</span><br><span class="line"></span><br><span class="line">$ kubectl apply -f ./volcano-v1.1.0.yaml</span><br><span class="line">namespace/volcano-system created</span><br><span class="line">namespace/volcano-monitoring created</span><br><span class="line">configmap/volcano-scheduler-configmap created</span><br><span class="line">serviceaccount/volcano-scheduler created</span><br><span class="line">clusterrole.rbac.authorization.k8s.io/volcano-scheduler created</span><br><span class="line">clusterrolebinding.rbac.authorization.k8s.io/volcano-scheduler-role created</span><br><span class="line">deployment.apps/volcano-scheduler created</span><br><span class="line">service/volcano-scheduler-service created</span><br><span class="line">serviceaccount/volcano-admission created</span><br><span class="line">clusterrole.rbac.authorization.k8s.io/volcano-admission created</span><br><span class="line">clusterrolebinding.rbac.authorization.k8s.io/volcano-admission-role created</span><br><span class="line">deployment.apps/volcano-admission created</span><br><span class="line">service/volcano-admission-service created</span><br><span class="line">job.batch/volcano-admission-init created</span><br><span class="line">serviceaccount/volcano-controllers created</span><br><span class="line">clusterrole.rbac.authorization.k8s.io/volcano-controllers created</span><br><span class="line">clusterrolebinding.rbac.authorization.k8s.io/volcano-controllers-role created</span><br><span class="line">deployment.apps/volcano-controllers created</span><br><span class="line">Warning: apiextensions.k8s.io/v1beta1 CustomResourceDefinition is deprecated <span class="keyword">in</span> v1.16+, unavailable <span class="keyword">in</span> v1.22+; use apiextensions.k8s.io/v1 CustomResourceDefinition</span><br><span class="line">customresourcedefinition.apiextensions.k8s.io/jobs.batch.volcano.sh created</span><br><span class="line">customresourcedefinition.apiextensions.k8s.io/commands.bus.volcano.sh created</span><br><span class="line">customresourcedefinition.apiextensions.k8s.io/podgroups.scheduling.volcano.sh created</span><br><span class="line">customresourcedefinition.apiextensions.k8s.io/queues.scheduling.volcano.sh created</span><br></pre></td></tr></table></figure>
-
-<p>验证 <strong>Volcano</strong> 组件运行状态:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl get all -n volcano-system</span><br><span class="line">NAME                                     READY   STATUS      RESTARTS   AGE</span><br><span class="line">pod/volcano-admission-7cfdf5b8d-cd2mk    1/1     Running     0          6m27s</span><br><span class="line">pod/volcano-admission-init-rmd7w         0/1     Completed   0          6m27s</span><br><span class="line">pod/volcano-controllers-c4c5f48b-dtx4w   1/1     Running     0          6m27s</span><br><span class="line">pod/volcano-scheduler-54f77d6788-d6t9j   1/1     Running     0          6m27s</span><br><span class="line"></span><br><span class="line">NAME                                TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)    AGE</span><br><span class="line">service/volcano-admission-service   ClusterIP   10.5.51.59    &lt;none&gt;        443/TCP    6m27s</span><br><span class="line">service/volcano-scheduler-service   ClusterIP   10.5.128.19   &lt;none&gt;        8080/TCP   6m27s</span><br><span class="line"></span><br><span class="line">NAME                                  READY   UP-TO-DATE   AVAILABLE   AGE</span><br><span class="line">deployment.apps/volcano-admission     1/1     1            1           6m27s</span><br><span class="line">deployment.apps/volcano-controllers   1/1     1            1           6m27s</span><br><span class="line">deployment.apps/volcano-scheduler     1/1     1            1           6m27s</span><br><span class="line"></span><br><span class="line">NAME                                           DESIRED   CURRENT   READY   AGE</span><br><span class="line">replicaset.apps/volcano-admission-7cfdf5b8d    1         1         1       6m27s</span><br><span class="line">replicaset.apps/volcano-controllers-c4c5f48b   1         1         1       6m27s</span><br><span class="line">replicaset.apps/volcano-scheduler-54f77d6788   1         1         1       6m27s</span><br><span class="line"></span><br><span class="line">NAME                               COMPLETIONS   DURATION   AGE</span><br><span class="line">job.batch/volcano-admission-init   1/1           4m24s      6m27s</span><br></pre></td></tr></table></figure>
-
-<h2 id="创建任务"><a href="#创建任务" class="headerlink" title="创建任务"></a>创建任务</h2><h3 id="CPU-任务"><a href="#CPU-任务" class="headerlink" title="CPU 任务"></a>CPU 任务</h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">kubeflow.org/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">MPIJob</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">openmpi-helloworld-job</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">schedulerName:</span> <span class="string">volcano</span></span><br><span class="line">  <span class="attr">slotsPerWorker:</span> <span class="number">1</span></span><br><span class="line">  <span class="attr">cleanPodPolicy:</span> <span class="string">Running</span></span><br><span class="line">  <span class="attr">mpiReplicaSpecs:</span></span><br><span class="line">    <span class="attr">Launcher:</span></span><br><span class="line">      <span class="attr">replicas:</span> <span class="number">1</span></span><br><span class="line">      <span class="attr">template:</span></span><br><span class="line">         <span class="attr">spec:</span></span><br><span class="line">           <span class="attr">containers:</span></span><br><span class="line">           <span class="bullet">-</span> <span class="attr">image:</span> <span class="string">divinerapier/openmpi-helloworld:0.0.1</span></span><br><span class="line">             <span class="attr">name:</span> <span class="string">openmpi-helloworld-job</span></span><br><span class="line">             <span class="attr">command:</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">mpirun</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">--allow-run-as-root</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">-np</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">"2"</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">/helloworld/mpi_hello_world</span></span><br><span class="line">             <span class="attr">resources:</span></span><br><span class="line">               <span class="attr">request:</span></span><br><span class="line">                 <span class="attr">cpu:</span> <span class="number">0.1</span></span><br><span class="line">               <span class="attr">limits:</span></span><br><span class="line">                 <span class="attr">cpu:</span> <span class="number">0.1</span></span><br><span class="line">    <span class="attr">Worker:</span></span><br><span class="line">      <span class="attr">replicas:</span> <span class="number">2</span></span><br><span class="line">      <span class="attr">template:</span></span><br><span class="line">        <span class="attr">spec:</span></span><br><span class="line">          <span class="attr">containers:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">image:</span> <span class="string">divinerapier/openmpi-helloworld:0.0.1</span></span><br><span class="line">            <span class="attr">name:</span> <span class="string">openmpi-helloworld-job</span></span><br><span class="line">            <span class="attr">resources:</span></span><br><span class="line">              <span class="attr">request:</span></span><br><span class="line">                <span class="attr">cpu:</span> <span class="number">0.1</span></span><br><span class="line">              <span class="attr">limits:</span></span><br><span class="line">                <span class="attr">cpu:</span> <span class="number">0.1</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="GPU-任务"><a href="#GPU-任务" class="headerlink" title="GPU 任务"></a>GPU 任务</h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">kubeflow.org/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">MPIJob</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">tensorflow-benchmarks</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">schedulerName:</span> <span class="string">volcano</span></span><br><span class="line">  <span class="attr">slotsPerWorker:</span> <span class="number">1</span></span><br><span class="line">  <span class="attr">cleanPodPolicy:</span> <span class="string">Running</span></span><br><span class="line">  <span class="attr">mpiReplicaSpecs:</span></span><br><span class="line">    <span class="attr">Launcher:</span></span><br><span class="line">      <span class="attr">replicas:</span> <span class="number">1</span></span><br><span class="line">      <span class="attr">template:</span></span><br><span class="line">         <span class="attr">spec:</span></span><br><span class="line">           <span class="attr">containers:</span></span><br><span class="line">           <span class="bullet">-</span> <span class="attr">image:</span> <span class="string">mpioperator/tensorflow-benchmarks:latest</span></span><br><span class="line">             <span class="attr">name:</span> <span class="string">tensorflow-benchmarks</span></span><br><span class="line">             <span class="attr">command:</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">mpirun</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">--allow-run-as-root</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">-np</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">"2"</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">-bind-to</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">none</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">-map-by</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">slot</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">-x</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">NCCL_DEBUG=INFO</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">-x</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">LD_LIBRARY_PATH</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">-x</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">PATH</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">-mca</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">pml</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">ob1</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">-mca</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">btl</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">^openib</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">python</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">--model=resnet101</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">--batch_size=64</span></span><br><span class="line">             <span class="bullet">-</span> <span class="string">--variable_update=horovod</span></span><br><span class="line">             <span class="attr">resources:</span></span><br><span class="line">               <span class="attr">limits:</span></span><br><span class="line">                 <span class="attr">nvidia.com/gpu:</span> <span class="number">1</span></span><br><span class="line">    <span class="attr">Worker:</span></span><br><span class="line">      <span class="attr">replicas:</span> <span class="number">2</span></span><br><span class="line">      <span class="attr">template:</span></span><br><span class="line">        <span class="attr">spec:</span></span><br><span class="line">          <span class="attr">containers:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">image:</span> <span class="string">mpioperator/tensorflow-benchmarks:latest</span></span><br><span class="line">            <span class="attr">name:</span> <span class="string">tensorflow-benchmarks</span></span><br><span class="line">            <span class="attr">resources:</span></span><br><span class="line">              <span class="attr">limits:</span></span><br><span class="line">                <span class="attr">nvidia.com/gpu:</span> <span class="number">1</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h2><p><strong>volcano-scheduler</strong> 在调度任务时，当任务使用的资源太少时会被跳过，具体逻辑为:</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> (</span><br><span class="line">    minMilliCPU <span class="keyword">float64</span> = <span class="number">10</span></span><br><span class="line">    minMilliScalarResources <span class="keyword">float64</span> = <span class="number">10</span></span><br><span class="line">    minMemory <span class="keyword">float64</span> = <span class="number">1</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(alloc *Action)</span> <span class="title">Execute</span><span class="params">(ssn *framework.Session)</span></span> &#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    <span class="keyword">if</span> _, found = pendingTasks[job.UID]; !found &#123;</span><br><span class="line">        tasks := util.NewPriorityQueue(ssn.TaskOrderFn)</span><br><span class="line">        <span class="keyword">for</span> _, task := <span class="keyword">range</span> job.TaskStatusIndex[api.Pending] &#123;</span><br><span class="line">            <span class="comment">// Skip BestEffort task in 'allocate' action.</span></span><br><span class="line">            <span class="keyword">if</span> task.Resreq.IsEmpty() &#123;</span><br><span class="line">                klog.V(<span class="number">4</span>).Infof(<span class="string">"Task &lt;%v/%v&gt; is BestEffort task, skip it."</span>,</span><br><span class="line">                task.Namespace, task.Name)</span><br><span class="line">                <span class="keyword">continue</span></span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            tasks.Push(task)</span><br><span class="line">        &#125;</span><br><span class="line">        pendingTasks[job.UID] = tasks</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// IsEmpty returns bool after checking any of resource is less than min possible value</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(r *Resource)</span> <span class="title">IsEmpty</span><span class="params">()</span> <span class="title">bool</span></span> &#123;</span><br><span class="line">    <span class="keyword">if</span> r.MilliCPU &gt;= minMilliCPU || r.Memory &gt;= minMemory &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> _, rQuant := <span class="keyword">range</span> r.ScalarResources &#123;</span><br><span class="line">        <span class="keyword">if</span> rQuant &gt;= minMilliScalarResources &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>所以，在使用 <strong>volcano</strong> 作为调度器时，必须要对 <strong>Pod</strong> 使用的资源做出限制。对于使用 <strong>volcano</strong> 调度 <strong>MPIJob</strong> 时，无论是 <strong>Launcher</strong> 还是 <strong>Worker</strong> 都需要显示声明需要的资源。</p>
-<p>更具体地，<strong>volcano</strong> 会将资源分为两个大类:</p>
-<ul>
-<li><strong>CPU</strong> 与 <strong>Memory</strong></li>
-<li>其他资源</li>
-</ul>
-<p>要求上述两类资源，至少有一类使用的资源满足最低要求即可。</p>
-
-    
-
-    
-
-    
-
-  </div>
-  <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">kubernetes</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">scheduler</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-
-    
-    <p class="article-more-link">
-      <a class="article-more-a" href="/2020/11/16/volcano/">展开全文 >></a>
-    </p>
-    
-
-    
-    <div class="clearfix"></div>
-  </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-scheduling-and-eviction-assigning-pods-to-nodes" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-  
-  
-    <h1 itemprop="name">
-	
-	  <a class="article-title" href="/2020/11/15/scheduling-and-eviction-assigning-pods-to-nodes/" target="_blank">调度与驱逐 —— 将 Pod 分配到节点上</a>
-  
-    </h1>
-  
-
-
-  
-  
-<a href="/2020/11/15/scheduling-and-eviction-assigning-pods-to-nodes/" class="archive-article-date">
-        <time datetime="2020-11-15T10:47:40.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-11-15</time>
-</a>
-
-  
-  
-    
-
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-    <p>Kubernetes 允许用户强制 Pod 只能在特定的 Node(s) 上，或者建议优先在特定的 Node(s) 上运行。常规方法是使用 <a href="https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/" target="_blank" rel="noopener">Labels and Selectors</a> 来选择。该约束为可选项，默认情况下调度器将自动进行合理的调度，比如，将 pod 分散到节点上，而非在可用资源不足的节点上。但在某些情况下，用户期望对调度 Pod 的 Node(s) 有更多控制，例如，确保 pod 最终落在有 SSD 的机器上，或者将若干有大量通信的服务的 pod 放置在同一个可用区。</p>
-<h2 id="nodeSelector"><a href="#nodeSelector" class="headerlink" title="nodeSelector"></a>nodeSelector</h2><p><strong>nodeSelector</strong> 是最简单推荐形式的节点选择约束。nodeSelector 是 PodSpec 的一个字段，其包含键值对映射。为了使 pod 可以在某个节点上运行，约束键值对构成的集合必须是节点标签集合的子集。</p>
-<h3 id="Get-nodes"><a href="#Get-nodes" class="headerlink" title="Get nodes"></a>Get nodes</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl get nodes</span><br></pre></td></tr></table></figure>
-
-<h3 id="Get-the-names-of-cluster’s-nodes"><a href="#Get-the-names-of-cluster’s-nodes" class="headerlink" title="Get the names of cluster’s nodes"></a>Get the names of cluster’s nodes</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl get nodes</span><br></pre></td></tr></table></figure>
-
-<h3 id="Attach-label-to-the-node"><a href="#Attach-label-to-the-node" class="headerlink" title="Attach label to the node"></a>Attach label to the node</h3><p>规则为:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl label nodes &lt;node-name&gt; &lt;label-key&gt;=&lt;label-value&gt;</span><br></pre></td></tr></table></figure>
-
-<p>例如，节点 ‘kubernetes-foo-node-1.c.a-robinson.internal’，标签 ‘disktype=ssd’，则可以执行:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl label nodes kubernetes-foo-node-1.c.a-robinson.internal disktype=ssd</span><br></pre></td></tr></table></figure>
-
-<p>通过命令验证:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl get nodes --show-labels</span><br></pre></td></tr></table></figure>
-
-<p>或者:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl describe node &lt;node-name&gt;</span><br></pre></td></tr></table></figure>
-
-<h3 id="Add-a-nodeSelector-field-to-your-pod-configuration"><a href="#Add-a-nodeSelector-field-to-your-pod-configuration" class="headerlink" title="Add a nodeSelector field to your pod configuration"></a>Add a nodeSelector field to your pod configuration</h3><p>如下为原始 Pod 配置文件:</p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Pod</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">nginx</span></span><br><span class="line">  <span class="attr">labels:</span></span><br><span class="line">    <span class="attr">env:</span> <span class="string">test</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">containers:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">nginx</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">nginx</span></span><br></pre></td></tr></table></figure>
-
-<p>在此基础上，添加 nodeSelector:</p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Pod</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">nginx</span></span><br><span class="line">  <span class="attr">labels:</span></span><br><span class="line">    <span class="attr">env:</span> <span class="string">test</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">containers:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">nginx</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">nginx</span></span><br><span class="line">    <span class="attr">imagePullPolicy:</span> <span class="string">IfNotPresent</span></span><br><span class="line">  <span class="attr">nodeSelector:</span></span><br><span class="line">    <span class="attr">disktype:</span> <span class="string">ssd</span></span><br></pre></td></tr></table></figure>
-
-<p>而改文件可以在 <a href="https://k8s.io/examples/pods/pod-nginx.yaml" target="_blank" rel="noopener">https://k8s.io/examples/pods/pod-nginx.yaml</a> 得到。因此，使用如下命令创建 Pod:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f https://k8s.io/examples/pods/pod-nginx.yaml</span><br></pre></td></tr></table></figure>
-
-<p>之后，查看 Pod 所在的 Node 并验证约束是否有效:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">kubectl get pods -o wide</span><br><span class="line"></span><br><span class="line">kubectl describe node &lt;node-name&gt;</span><br></pre></td></tr></table></figure>
-
-<h3 id="Affinity-and-anti-affinity"><a href="#Affinity-and-anti-affinity" class="headerlink" title="Affinity and anti-affinity"></a>Affinity and anti-affinity</h3><p>Affinity and anti-affinity (亲和与反亲和) 是 nodeSelector 提供的一种非常简单的将 pod 约束到具有特定标签的节点上的方法，极大地扩展了用户可以表达约束的类型。关键增强表现为:</p>
-<ol>
-<li>语言更具表现力，不只是 “完全匹配的 AND” 语义</li>
-<li>规则可以是一种建议性的，而非硬性要求，即使调度器无法找到满足要求的 Node，依旧会调度该 pod</li>
-<li>除了可以使用 Node 本身的标签作为约束之外，还可以使用运行在 Node 上的 pod 的标签作为约束，表明可以或者不可以与哪些 pod 运行在同一 Node 上。</li>
-</ol>
-<p>Affinity 功能包含两种类型的 affinity: <strong>node affinity</strong> 与 <strong>inter-pod affinity/anti-affinity</strong>。<strong>node affinity</strong> 类似于 <strong>nodeSelector</strong>，对应上述 <strong>1,2</strong> 两点优势。而 <strong>inter-pod affinity/anti-affinity</strong> 具有上述 <strong>1,2,3</strong> 三点优势。</p>
-<h4 id="Node-affinity"><a href="#Node-affinity" class="headerlink" title="Node affinity"></a>Node affinity</h4><p><strong>Node affinity</strong> 概念上类似于 <strong>nodeSelector</strong>，可以根据节点上的标签来约束 pod 可以调度到哪些节点。</p>
-<p>目前有两种类型的 Node affinity，分别为 <strong>requiredDuringSchedulingIgnoredDuringExecution</strong> 和 <strong>preferredDuringSchedulingIgnoredDuringExecution</strong>。</p>
-<p><strong>requiredDuringSchedulingIgnoredDuringExecution</strong> 指定了将 pod 调度到一个节点上必须满足的规则，原则上等同于 nodeSelector，但语法更具有表现力。</p>
-<p><strong>preferredDuringSchedulingIgnoredDuringExecution</strong> 指定调度器将尝试执行但不能保证的偏好。</p>
-<p>名称中 <strong>IgnoredDuringExecution</strong> 类似于 <strong>nodeSelector</strong> 的用法，表明如果节点的标签在 Pod 运行时发生变更，从而不再满足 pod 上的 affinity 规则时，pod 将仍然继续运行在原节点上。<strong>requiredDuringSchedulingRequiredDuringExecution</strong> 还只存在于计划中。</p>
-<p>因此，在下面的示例中:</p>
-<ul>
-<li><strong>requiredDuringSchedulingIgnoredDuringExecution</strong> 的含义为: <strong>必须将 pod 运行在具有 kubernetes.io/e2e-az-name=e2e-az1 或 kubernetes.io/e2e-az-name=e2e-az2 标签的 Node 上</strong></li>
-<li><strong>preferredDuringSchedulingIgnoredDuringExecution</strong> 的含义为: <strong>尝试将 pod 运行具有 another-node-label-key=another-node-label-value 标签的 Node 上，如果这不可能的话，则允许 pod 在其他地方运行</strong></li>
-</ul>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Pod</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">with-node-affinity</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">affinity:</span></span><br><span class="line">    <span class="attr">nodeAffinity:</span></span><br><span class="line">      <span class="attr">requiredDuringSchedulingIgnoredDuringExecution:</span></span><br><span class="line">        <span class="attr">nodeSelectorTerms:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">matchExpressions:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">key:</span> <span class="string">kubernetes.io/e2e-az-name</span></span><br><span class="line">            <span class="attr">operator:</span> <span class="string">In</span></span><br><span class="line">            <span class="attr">values:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="string">e2e-az1</span></span><br><span class="line">            <span class="bullet">-</span> <span class="string">e2e-az2</span></span><br><span class="line">      <span class="attr">preferredDuringSchedulingIgnoredDuringExecution:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">weight:</span> <span class="number">1</span></span><br><span class="line">        <span class="attr">preference:</span></span><br><span class="line">          <span class="attr">matchExpressions:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">key:</span> <span class="string">another-node-label-key</span></span><br><span class="line">            <span class="attr">operator:</span> <span class="string">In</span></span><br><span class="line">            <span class="attr">values:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="string">another-node-label-value</span></span><br><span class="line">  <span class="attr">containers:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">with-node-affinity</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">k8s.gcr.io/pause:2.0</span></span><br></pre></td></tr></table></figure>
-
-<p>Node affinity 语法支持的操作符: In，NotIn，Exists，DoesNotExist，Gt，Lt。使用 NotIn 和 DoesNotExist 来实现 <strong>node anti-affinity</strong> 行为，或者使用 <a href="https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/" target="_blank" rel="noopener">node taints(节点污点将)</a> pod 从特定节点中驱逐。</p>
-<p>如果同时指定了 <strong>nodeSelector</strong> 和 <strong>nodeAffinity</strong>，则要求两者必须同时满足，才能将 pod 调度到候选 Node 上。</p>
-<p>如果指定了多个与 <strong>nodeAffinity</strong> 类型关联的 <strong>nodeSelectorTerms</strong>，则 Node 只需要满足其中任何一个 nodeSelectorTerms 即可将 pod 调度到 Node 上。</p>
-<p>如果指定了多个与 <strong>nodeSelectorTerms</strong> 关联的 <strong>matchExpressions</strong>，则当且仅当所有 <strong>matchExpressions</strong> 得到满足时才将 pod 调度到该 Node 上。</p>
-<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
-<li><a href="https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/" target="_blank" rel="noopener">Assigning Pods to Nodes</a></li>
-</ul>
-
-    
-
-    
-
-    
-
-  </div>
-  <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">kubernetes</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">scheduling</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-
-    
-    <p class="article-more-link">
-      <a class="article-more-a" href="/2020/11/15/scheduling-and-eviction-assigning-pods-to-nodes/">展开全文 >></a>
-    </p>
-    
-
-    
-    <div class="clearfix"></div>
-  </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <a class="extend prev" rel="prev" href="/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" href="/page/3/">Next &amp;raquo;</a>
@@ -1323,18 +1364,6 @@
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">linux</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">hard drive</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">archlinux</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">gpu</a>
               </li>
              
@@ -1352,6 +1381,18 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">index</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">linux</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">hard drive</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">archlinux</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1407,23 +1448,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">hexo</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">rss</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">git</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">nfs</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">filesystem</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1443,11 +1468,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
+                <a href="javascript:void(0)" class="js-tag color5">hexo</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">innnodb</a>
+                <a href="javascript:void(0)" class="js-tag color4">rss</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1459,7 +1484,27 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">containerd</a>
+                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">innnodb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">network programming</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">io</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">nfs</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">filesystem</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1471,6 +1516,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">containerd</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">volume</a>
               </li>
              
@@ -1479,11 +1528,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">linux performance</a>
+                <a href="javascript:void(0)" class="js-tag color3">mongodb</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">cpu performance</a>
+                <a href="javascript:void(0)" class="js-tag color3">linux performance</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1495,6 +1544,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">optimization</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">lsm tree</a>
               </li>
              
@@ -1503,7 +1556,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">optimization</a>
+                <a href="javascript:void(0)" class="js-tag color1">cpu performance</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1535,10 +1588,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">pytorch</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">rdma</a>
               </li>
              
@@ -1547,11 +1596,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">network</a>
+                <a href="javascript:void(0)" class="js-tag color3">pytorch</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">kubeadm</a>
+                <a href="javascript:void(0)" class="js-tag color3">network</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1563,15 +1612,19 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">kubeadm</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">terminal</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">paas</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">where clause</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">terminal</a>
               </li>
             
             <div class="clearfix"></div>

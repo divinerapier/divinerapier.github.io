@@ -172,6 +172,418 @@
             
 
   
+    <article id="post-kubernetes-volumes" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+  
+  
+    <h1 itemprop="name">
+	
+	  <a class="article-title" href="/2020/10/07/kubernetes-volumes/" target="_blank">Kubernetes 存储卷</a>
+  
+    </h1>
+  
+
+
+  
+  
+<a href="/2020/10/07/kubernetes-volumes/" class="archive-article-date">
+        <time datetime="2020-10-07T09:37:14.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-10-07</time>
+</a>
+
+  
+  
+    
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>在 <strong>Docker</strong> 中，<strong><a href="https://docs.docker.com/storage/" target="_blank" rel="noopener">Volume</a></strong> 概念表示磁盘上或者另外一个容器内的一个目录。 直到最近，Docker 才支持对基于本地磁盘的 Volume 的生存期进行管理。 虽然 Docker 现在也能提供 Volume 驱动程序，但是目前功能还非常有限 （例如，截至 Docker 1.7，每个容器只允许有一个 Volume 驱动程序，并且无法将参数传递给 Volume）。</p>
+<p>而在 <strong>Kubernetes</strong> 中，<strong>Volume</strong> 具有明确的生命周期——与其所属 <strong>Pod</strong> 相同。 因此，<strong>Volume 比 Pod 中运行的任何容器的存活期都长</strong>，在容器重新启动时数据也会得到保留。 当然，<strong>当一个 Pod 不再存在时，卷也将不再存在</strong>。 更重要的是，<strong>Kubernetes 可以支持许多类型的卷，Pod 也能同时使用任意数量的卷</strong>。</p>
+<p><strong>Volume</strong> 的核心是包含一些数据的目录，Pod 中的容器可以访问该目录。 特定的卷类型可以决定这个目录是如何形成的，并能决定它支持何种介质，以及目录中存放什么内容。</p>
+<p>使用 <strong>Volume</strong> 时, Pod 声明中需要提供卷的类型 (<strong>.spec.volumes</strong> 字段) 和 <strong>Volume</strong> 挂载的位置 (<strong>.spec.containers.volumeMounts</strong> 字段).</p>
+<p>容器中的进程能看到由它们的 Docker 镜像和卷组成的文件系统视图。 <a href="https://docs.docker.com/userguide/dockerimages/" target="_blank" rel="noopener">Docker 镜像</a> 位于文件系统层次结构的根部，并且任何 Volume 都挂载在镜像内的指定路径上。 卷不能挂载到其他卷，也不能与其他卷有硬链接。 Pod 中的每个容器必须独立地指定每个卷的挂载位置(<strong>Volumes</strong> 之间的挂载点应该相互独立)。</p>
+<h2 id="Volume-的类型"><a href="#Volume-的类型" class="headerlink" title="Volume 的类型"></a>Volume 的类型</h2><p>Kubernetes 支持下列类型的卷:</p>
+<ul>
+<li><a href="#Cephfs">cephfs</a></li>
+<li><a href="#ConfigMap">configMap</a></li>
+<li><a href="#CSI">csi</a></li>
+<li><a href="#DownwardAPI">downwardAPI</a></li>
+<li><a href="#EmptyDir">emptyDir</a></li>
+<li><a href="#HostPath">hostPath</a></li>
+<li><a href="#Local">local</a></li>
+<li><a href="#Nfs">nfs</a></li>
+<li><a href="#PersistentVolumeClaim">persistentVolumeClaim</a></li>
+<li><a href="#Projected">projected</a></li>
+<li><a href="#Secret">secret</a></li>
+</ul>
+<h3 id="Cephfs"><a href="#Cephfs" class="headerlink" title="Cephfs"></a>Cephfs</h3><p><strong>cephfs</strong> 允许用户将现存的 <strong>CephFS</strong> 卷挂载到 <strong>Pod</strong> 中。 与 <strong><a href="#EmptyDir">emptyDir</a></strong> 不同的是，<strong>emptyDir</strong> 会在删除 Pod 的同时<strong>一并被删除</strong>，<strong>cephfs</strong> 卷的内容在删除 Pod 时会被保留，卷只是被卸载掉了。 这意味着 <strong>CephFS 卷可以被预先填充数据，并且这些数据可以在 Pod 之间”传递”</strong>。CephFS 卷可同时被多个写者挂载。</p>
+<blockquote>
+<p>注意： 在您使用 Ceph 卷之前，您的 Ceph 服务器必须正常运行并且要使用的 share 被导出（exported）。</p>
+</blockquote>
+<p>更多信息请参考 <a href="https://github.com/kubernetes/examples/tree/master/volumes/cephfs/" target="_blank" rel="noopener">CephFS 示例</a>。</p>
+<h3 id="ConfigMap"><a href="#ConfigMap" class="headerlink" title="ConfigMap"></a>ConfigMap</h3><p><strong>configMap</strong> 资源提供了向 Pod <strong>注入配置数据</strong>的方法。 ConfigMap 对象中存储的数据可以被 configMap 类型的卷引用，然后被应用到 Pod 中运行的容器化应用。</p>
+<p>当引用 configMap 对象时，你可以简单的在 Volume 中通过它名称来引用。 还可以自定义 ConfigMap 中特定条目所要使用的路径。 例如，要将名为 log-config 的 ConfigMap 挂载到名为 configmap-pod 的 Pod 中，您可以使用下面的 YAML:</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Pod</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">configmap-pod</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">containers:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">test</span></span><br><span class="line">      <span class="attr">image:</span> <span class="string">busybox</span></span><br><span class="line">      <span class="attr">volumeMounts:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">config-vol</span></span><br><span class="line">          <span class="attr">mountPath:</span> <span class="string">/etc/config</span></span><br><span class="line">  <span class="attr">volumes:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">config-vol</span></span><br><span class="line">      <span class="attr">configMap:</span></span><br><span class="line">        <span class="attr">name:</span> <span class="string">log-config</span></span><br><span class="line">        <span class="attr">items:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">key:</span> <span class="string">log_level</span></span><br><span class="line">            <span class="attr">path:</span> <span class="string">log_level</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="CSI"><a href="#CSI" class="headerlink" title="CSI"></a>CSI</h3><p><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md" target="_blank" rel="noopener">容器存储接口 (CSI)</a> 为容器编排系统（如 Kubernetes）定义标准接口，以将任意存储系统暴露给它们的容器工作负载。</p>
+<p>更多详情请阅读 <a href="https://github.com/kubernetes/community/blob/master/contributors/design-proposals/storage/container-storage-interface.md" target="_blank" rel="noopener">CSI 设计方案</a>。</p>
+<p>CSI 的支持在 Kubernetes v1.9 中作为 alpha 特性引入，在 Kubernetes v1.10 中转为 beta 特性，并在 Kubernetes v1.13 正式 GA。</p>
+<blockquote>
+<p><strong>说明:</strong> CSI驱动程序可能并非在所有Kubernetes版本中都兼容。 请查看特定CSI驱动程序的文档，以获取每个 Kubernetes 版本所支持的部署步骤以及兼容性列表。</p>
+</blockquote>
+<p>一旦在 <strong>Kubernetes</strong> 集群上部署了 CSI 兼容卷驱动程序，用户就可以使用 <strong>csi</strong> 作为卷类型来关联、挂载 <strong>CSI Driver</strong> 暴露出来的卷。</p>
+<p>允许如下三种方式，在 Pod 中使用 <strong>csi</strong> 类型的卷:</p>
+<ul>
+<li>通过 <strong>PersistentVolumeClaim</strong></li>
+<li>通过 <strong><a href="https://kubernetes.io/docs/concepts/storage/ephemeral-volumes/#generic-ephemeral-volumes" target="_blank" rel="noopener">Generic ephemeral volumes</a></strong></li>
+<li>通过 <strong><a href="https://kubernetes.io/docs/concepts/storage/ephemeral-volumes/#csi-ephemeral-volumes" target="_blank" rel="noopener">CSI ephemeral volumes</a></strong></li>
+</ul>
+<p>存储管理员可以使用以下字段来配置 CSI 持久卷(CSI persistent volume):</p>
+<ul>
+<li><p><strong>driver</strong>：指定要使用的卷 驱动程序(CSI Driver) 名称的字符串值。 这个值必须与 <strong>CSI Driver</strong> 的 <strong><a href="(https://github.com/container-storage-interface/spec/blob/master/spec.md#getplugininfo)">GetPluginInfoResponse</a></strong> 的 <strong>name</strong> 字段相同。 <strong>Kubernetes</strong> 使用所给的值来标识要调用的 <strong>CSI Driver</strong>；<strong>CSI Driver</strong> 也使用该值来<strong>辨识哪些 PV 对象属于该 CSI Driver</strong>。</p>
+</li>
+<li><p><strong>volumeHandle</strong>：唯一标识卷的字符串值。 该值必须与 <strong>CSI Driver</strong> 的 <strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#createvolume" target="_blank" rel="noopener">CreateVolumeResponse</a></strong> 的 <strong>volume.id</strong> 字段相同。 在所有对 <strong>CSI Driver</strong> 的调用中，引用该 <strong>Volume</strong> 时都使用此值作为 <strong>volume_id</strong> 参数。</p>
+</li>
+<li><p><strong>readOnly</strong>：一个可选的布尔值，指示通过 <strong>ControllerPublished</strong> 关联该卷时是否设置该卷为只读。 <strong>默认值是 false</strong>。 该值通过 <strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#controllerpublishvolume" target="_blank" rel="noopener">ControllerPublishVolumeRequest</a></strong> 中的 <strong>readonly</strong> 字段传递给 <strong>CSI Driver</strong>。</p>
+</li>
+<li><p><strong>fsType</strong>：如果 <strong>PV</strong> 的 <strong>VolumeMode</strong> 为 <strong>Filesystem</strong>，则该字段指定挂载卷时应该使用的文件系统。 倘若 <strong>Volume</strong> 尚未完成格式化，且支持格式化，则该值将被用于格式化。 可以通过 <strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#controllerpublishvolume" target="_blank" rel="noopener">ControllerPublishVolumeRequest</a></strong>、<strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#nodestagevolume" target="_blank" rel="noopener">NodeStageVolumeRequest</a></strong> 和 <strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#nodepublishvolume" target="_blank" rel="noopener">NodePublishVolumeRequest</a></strong> 的 <strong>volume_capability</strong> 字段将该值传递给 <strong>CSI Driver</strong>。</p>
+</li>
+<li><p><strong>volumeAttributes</strong>：一个 <strong>map[string]string</strong> 类型的映射表，用来设置 <strong>Volume</strong> 的静态属性。 该映射表必须与 <strong>CSI Driver</strong> 返回的 <strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#createvolume" target="_blank" rel="noopener">CreateVolumeResponse</a></strong> 中的 volume.attributes 字段的映射相对应。 该映射表通过 <strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#controllerpublishvolume" target="_blank" rel="noopener">ControllerPublishVolumeRequest</a></strong>、<strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#nodestagevolume" target="_blank" rel="noopener">NodeStageVolumeRequest</a></strong>、和 <strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#nodepublishvolume" target="_blank" rel="noopener">NodePublishVolumeRequest</a></strong> 中的 <strong>volume_attributes</strong> 字段传递给 <strong>CSI Driver</strong>。</p>
+<ul>
+<li><strong>注意</strong>: 在 <a href="https://github.com/container-storage-interface/spec/blob/master/spec.md" target="_blank" rel="noopener">spec</a> 中只看到了 <strong>volume_context</strong>，并没有 <strong>attributes</strong>，根据注释与数据类型来分析，或许是指这个字段？</li>
+</ul>
+</li>
+<li><p><strong>controllerPublishSecretRef</strong>：对包含敏感信息的 secret 对象的引用；该敏感信息会被传递给 <strong>CSI Driver</strong> 来完成 <strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#controllerpublishvolume" target="_blank" rel="noopener">ControllerPublishVolume</a></strong> 和 <strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#controllerunpublishvolume" target="_blank" rel="noopener">ControllerUnpublishVolume</a></strong> 调用。 该字段为可选字段；为空表示不需要 secret。 如果 secret 对象包含多个 secret，则所有的 secret 都会被传递。</p>
+</li>
+<li><p><strong>nodeStageSecretRef</strong>：对包含敏感信息的 secret 对象的引用，以传递给 <strong>CSI Driver</strong> 来完成 <strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#nodestagevolume" target="_blank" rel="noopener">NodeStageVolume</a></strong> 调用。 该字段为可选字段；为空表示不需要 secret。 如果 secret 对象包含多个 secret，则所有的 secret 都会被传递。</p>
+</li>
+<li><p><strong>nodePublishSecretRef</strong>：对包含敏感信息的 secret 对象的引用，以传递给 <strong>CSI Driver</strong> 来完成 <strong><a href="https://github.com/container-storage-interface/spec/blob/master/spec.md#nodepublishvolume" target="_blank" rel="noopener">NodePublishVolume</a></strong> 调用。 该字段为可选字段；为空表示不需要 secret。 如果 secret 对象包含多个 secret，则所有的 secret 都会被传递。</p>
+</li>
+</ul>
+<h3 id="DownwardAPI"><a href="#DownwardAPI" class="headerlink" title="DownwardAPI"></a>DownwardAPI</h3><p><strong>downwardAPI</strong> 类型的 <strong>Volume</strong> 被用于使 <strong>downward API</strong> 数据对应用程序可见。其表现形式为，挂载一个目录，并将请求的数据写入到纯文本文件中。</p>
+<h3 id="EmptyDir"><a href="#EmptyDir" class="headerlink" title="EmptyDir"></a>EmptyDir</h3><p>当 <strong>Pod</strong> 被指定到某个节点上时，首先创建的是一个 <strong>emptyDir</strong> 类型的 <strong>Volume</strong>，并且只要 <strong>Pod</strong> 保持在该节点上运行，<strong>Volume</strong> 就一直存在。正如名字所说的那样，<strong>Volume</strong> 的初始状态为空。虽然 <strong>Pod</strong> 中的容器挂载 <strong>emptyDir</strong> 类型 <strong>Volume</strong> 的路径可能不尽相同，但这都不重要，重要的是，这些容器都可以读写 <strong>emptyDir</strong> 类型 <strong>Volume</strong> 中的相同的文件。 无论因何种原因，只要 <strong>Pod</strong> 从节点上被删除，<strong>emptyDir</strong> 类型的 <strong>Volume</strong> 中的数据也会被永久删除。</p>
+<blockquote>
+<p><strong>说明</strong>: 容器崩溃并不会导致 <strong>Pod</strong> 从节点上被移除，因此容器崩溃时 <strong>emptyDir</strong> 类型 <strong>Volume</strong> 中的数据是安全的。</p>
+</blockquote>
+<p>有如下需求可以考虑使用 <strong>emptyDir</strong> 类型 <strong>Volume</strong>:</p>
+<ul>
+<li>缓存空间，例如基于磁盘的归并排序。</li>
+<li>为耗时较长的计算任务提供检查点，以便任务能方便地从崩溃前状态恢复执行。</li>
+<li>在 Web 服务器容器服务数据时，保存内容管理器容器获取的文件。</li>
+</ul>
+<p>默认情况下， <strong>emptyDir volume</strong> 所使用的的实际存储介质由节点使用何种存储介质决定: 可以是 <strong>HDD</strong> 或 <strong>SSD</strong> 或 <strong>NFS</strong> 等。但是，可以令 <strong>emptyDir.medium = Memory</strong> 使 <strong>Kubernetes</strong> 安装 <strong>tmpfs</strong>。但需要考虑到，<strong>tmpfs</strong> 的优势与劣势都很突出:</p>
+<ul>
+<li>优势: 基于 <strong>RAM</strong> 的文件系统，速度非常快</li>
+<li>劣势: 随节点重启被清除，且写入的所有文件都会计入容器的内存消耗，受容器内存限制约束</li>
+</ul>
+<h4 id="EmptyDir-示例"><a href="#EmptyDir-示例" class="headerlink" title="EmptyDir 示例"></a>EmptyDir 示例</h4><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Pod</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">test-pd</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">containers:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">image:</span> <span class="string">k8s.gcr.io/test-webserver</span></span><br><span class="line">    <span class="attr">name:</span> <span class="string">test-container</span></span><br><span class="line">    <span class="attr">volumeMounts:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">mountPath:</span> <span class="string">/cache</span></span><br><span class="line">      <span class="attr">name:</span> <span class="string">cache-volume</span></span><br><span class="line">  <span class="attr">volumes:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">cache-volume</span></span><br><span class="line">    <span class="attr">emptyDir:</span> <span class="string">&#123;&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="HostPath"><a href="#HostPath" class="headerlink" title="HostPath"></a>HostPath</h3><p>A hostPath volume mounts a file or directory from the host node’s filesystem into your Pod. This is not something that most Pods will need, but it offers a powerful escape hatch for some applications.</p>
+<p><strong>hostPath</strong> 类型的 <strong>Volume</strong> 会将宿主机节点的路径挂载到</p>
+<p>For example, some uses for a hostPath are:</p>
+<p>running a Container that needs access to Docker internals; use a hostPath of /var/lib/docker<br>running cAdvisor in a Container; use a hostPath of /sys<br>allowing a Pod to specify whether a given hostPath should exist prior to the Pod running, whether it should be created, and what it should exist as<br>In addition to the required path property, user can optionally specify a type for a hostPath volume.</p>
+<p>The supported values for field type are:</p>
+<p>Value    Behavior        Empty string (default) is for backward compatibility, which means that no checks will be performed before mounting the hostPath volume.    DirectoryOrCreate    If nothing exists at the given path, an empty directory will be created there as needed with permission set to 0755, having the same group and ownership with Kubelet.    Directory    A directory must exist at the given path    FileOrCreate    If nothing exists at the given path, an empty file will be created there as needed with permission set to 0644, having the same group and ownership with Kubelet.    File    A file must exist at the given path    Socket    A UNIX socket must exist at the given path    CharDevice    A character device must exist at the given path    BlockDevice    A block device must exist at the given path<br>Watch out when using this type of volume, because:</p>
+<p>Pods with identical configuration (such as created from a podTemplate) may behave differently on different nodes due to different files on the nodes<br>when Kubernetes adds resource-aware scheduling, as is planned, it will not be able to account for resources used by a hostPath<br>the files or directories created on the underlying hosts are only writable by root. You either need to run your process as root in a privileged Container or modify the file permissions on the host to be able to write to a hostPath volume</p>
+<h3 id="Local"><a href="#Local" class="headerlink" title="Local"></a>Local</h3><h3 id="Nfs"><a href="#Nfs" class="headerlink" title="Nfs"></a>Nfs</h3><h3 id="PersistentVolumeClaim"><a href="#PersistentVolumeClaim" class="headerlink" title="PersistentVolumeClaim"></a>PersistentVolumeClaim</h3><h3 id="Projected"><a href="#Projected" class="headerlink" title="Projected"></a>Projected</h3><h3 id="Secret"><a href="#Secret" class="headerlink" title="Secret"></a>Secret</h3><h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li><a href="https://kubernetes.io/docs/concepts/storage/volumes/" target="_blank" rel="noopener">Volumes</a></li>
+</ul>
+
+    
+
+    
+
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">kubernetes</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">storage</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+
+    
+    <p class="article-more-link">
+      <a class="article-more-a" href="/2020/10/07/kubernetes-volumes/">展开全文 >></a>
+    </p>
+    
+
+    
+    <div class="clearfix"></div>
+  </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-kubernetes-persistent-volume" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+  
+  
+    <h1 itemprop="name">
+	
+	  <a class="article-title" href="/2020/10/07/kubernetes-persistent-volume/" target="_blank">Kubernetes 持久卷</a>
+  
+    </h1>
+  
+
+
+  
+  
+<a href="/2020/10/07/kubernetes-persistent-volume/" class="archive-article-date">
+        <time datetime="2020-10-07T09:30:27.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-10-07</time>
+</a>
+
+  
+  
+    
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    
+    
+
+    
+
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">kubernetes</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">volume</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+
+    
+    <p class="article-more-link">
+      <a class="article-more-a" href="/2020/10/07/kubernetes-persistent-volume/">展开全文 >></a>
+    </p>
+    
+
+    
+    <div class="clearfix"></div>
+  </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-kubernetes-controllers" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+  
+  
+    <h1 itemprop="name">
+	
+	  <a class="article-title" href="/2020/10/06/kubernetes-controllers/" target="_blank">Kubernetes 控制器</a>
+  
+    </h1>
+  
+
+
+  
+  
+<a href="/2020/10/06/kubernetes-controllers/" class="archive-article-date">
+        <time datetime="2020-10-06T05:13:35.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-10-06</time>
+</a>
+
+  
+  
+    
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    <p>在机器人技术和自动化领域，控制回路（Control Loop）是一个非终止回路，用于调节系统状态。</p>
+<p>这是一个控制环的例子：房间里的温度自动调节器。</p>
+<p>当你设置了温度，告诉了温度自动调节器你的期望状态（Desired State）。 房间的实际温度是当前状态（Current State）。 通过对设备的开关控制，温度自动调节器让其当前状态接近期望状态。</p>
+<p>控制器通过 <a href="https://kubernetes.io/docs/reference/generated/kube-apiserver/" target="_blank" rel="noopener">apiserver</a> 监控集群的公共状态，并致力于将当前状态转变为期望的状态。</p>
+<h2 id="控制器模式"><a href="#控制器模式" class="headerlink" title="控制器模式"></a>控制器模式</h2><p>一个控制器至少追踪一种类型的 Kubernetes 资源。这些 <a href="https://kubernetes.io/docs/concepts/overview/working-with-objects/kubernetes-objects/" target="_blank" rel="noopener">对象</a> 有一个代表期望状态的 spec 字段。 该资源的控制器负责确保其当前状态接近期望状态。</p>
+<p>控制器可能会自行执行操作；在 Kubernetes 中更常见的是一个控制器会发送信息给 <a href="https://kubernetes.io/docs/reference/generated/kube-apiserver/" target="_blank" rel="noopener">API 服务器</a>，这会有副作用。 具体可参看后文的例子。</p>
+<h3 id="通过-API-服务器来控制"><a href="#通过-API-服务器来控制" class="headerlink" title="通过 API 服务器来控制"></a>通过 API 服务器来控制</h3><p><a href="https://kubernetes.io/docs/concepts/workloads/controllers/jobs-run-to-completion" target="_blank" rel="noopener">Job</a> 控制器是一个 Kubernetes 内置控制器的例子。 内置控制器通过和集群 API 服务器交互来管理状态。</p>
+<p>Job 是一种 Kubernetes 资源，它运行一个或者多个 Pod， 来执行一个任务然后停止。 （一旦被调度了，对 kubelet 来说 Pod 对象就会变成了期望状态的一部分）。</p>
+<p>在集群中，当 Job 控制器拿到新任务时，它会保证一组 Node 节点上的 kubelet 可以运行正确数量的 Pod 来完成工作。 Job 控制器不会自己运行任何的 Pod 或者容器。Job 控制器是通知 API 服务器来创建或者移除 Pod。<a href="https://kubernetes.io/docs/reference/glossary/?all=true#term-control-plane" target="_blank" rel="noopener">控制面</a>中的其它组件 根据新的消息作出反应（调度并运行新 Pod）并且最终完成工作。</p>
+<p>创建新 Job 后，所期望的状态就是完成这个 Job。Job 控制器会让 Job 的当前状态不断接近期望状态：创建为 Job 要完成工作所需要的 Pod，使 Job 的状态接近完成。</p>
+<p>控制器也会更新配置对象。例如：一旦 Job 的工作完成了，Job 控制器会更新 Job 对象的状态为 Finished。</p>
+<p>（这有点像温度自动调节器关闭了一个灯，以此来告诉你房间的温度现在到你设定的值了）。</p>
+<h3 id="直接控制"><a href="#直接控制" class="headerlink" title="直接控制"></a>直接控制</h3><p>相比 Job 控制器，有些控制器需要对集群外的一些东西进行修改。</p>
+<p>例如，如果你使用一个控制环来保证集群中有足够的<a href="https://kubernetes.io/docs/concepts/architecture/nodes/" target="_blank" rel="noopener">节点</a>，那么控制就需要当前集群外的一些服务在需要时创建新节点。</p>
+<p>和外部状态交互的控制器从 API 服务器获取到它想要的状态，然后直接和外部系统进行通信并使当前状态更接近期望状态。</p>
+<p>（实际上有一个控制器可以水平地扩展集群中的节点。请参阅 <a href="https://kubernetes.io/docs/tasks/administer-cluster/cluster-management/#cluster-autoscaling" target="_blank" rel="noopener">集群自动扩缩容</a>）。</p>
+<h2 id="设计"><a href="#设计" class="headerlink" title="设计"></a>设计</h2><p>作为设计原则之一，Kubernetes 使用了很多控制器，每个控制器管理集群状态的一个特定方面。 最常见的一个特定的控制器使用一种类型的资源作为它的期望状态， 控制器管理控制另外一种类型的资源向它的期望状态演化。</p>
+<p>使用简单的控制器而不是一组相互连接的单体控制回路是很有用的。 控制器会失败，所以 Kubernetes 的设计正是考虑到了这一点。</p>
+<blockquote>
+<p>说明：<br>可以有多个控制器来创建或者更新相同类型的对象。 在后台，Kubernetes 控制器确保它们只关心与其控制资源相关联的资源。</p>
+<p>例如，你可以创建 Deployment 和 Job；它们都可以创建 Pod。 Job 控制器不会删除 Deployment 所创建的 Pod，因为有信息 （<a href="https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/" target="_blank" rel="noopener">标签</a>）让控制器可以区分这些 Pod。</p>
+</blockquote>
+<h2 id="运行控制器的方式"><a href="#运行控制器的方式" class="headerlink" title="运行控制器的方式"></a>运行控制器的方式</h2><p>Kubernetes 内置一组控制器，运行在 <a href="https://kubernetes.io/docs/reference/command-line-tools-reference/kube-controller-manager/" target="_blank" rel="noopener">kube-controller-manager</a> 内。 这些内置的控制器提供了重要的核心功能。</p>
+<p>Deployment 控制器和 Job 控制器是 Kubernetes 内置控制器的典型例子。 Kubernetes 允许你运行一个稳定的控制平面，这样即使某些内置控制器失败了， 控制平面的其他部分会接替它们的工作。</p>
+<p>你会遇到某些控制器运行在控制面之外，用以扩展 Kubernetes。 或者，如果你愿意，你也可以自己编写新控制器。 你可以以一组 Pod 来运行你的控制器，或者运行在 Kubernetes 之外。 最合适的方案取决于控制器所要执行的功能是什么。</p>
+<h2 id="举例说明"><a href="#举例说明" class="headerlink" title="举例说明"></a>举例说明</h2><p>以 <strong>Deployment</strong> 为例:</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">apps/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Deployment</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">nginx-deployment</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">selector:</span></span><br><span class="line">    <span class="attr">matchLabels:</span></span><br><span class="line">      <span class="attr">app:</span> <span class="string">nginx</span></span><br><span class="line">  <span class="attr">replicas:</span> <span class="number">2</span></span><br><span class="line">  <span class="attr">template:</span></span><br><span class="line">    <span class="attr">metadata:</span></span><br><span class="line">      <span class="attr">labels:</span></span><br><span class="line">        <span class="attr">app:</span> <span class="string">nginx</span></span><br><span class="line">    <span class="attr">spec:</span></span><br><span class="line">      <span class="attr">containers:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">nginx</span></span><br><span class="line">        <span class="attr">image:</span> <span class="string">nginx:1.7.9</span></span><br><span class="line">        <span class="attr">ports:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">containerPort:</span> <span class="number">80</span></span><br></pre></td></tr></table></figure>
+
+<p>该 Deployment 定义的编排动作要求: 确保携带了 <strong>app=nginx</strong> 标签的 Pod 的个数，永远等于 <strong>spec.replicas</strong> 指定的个数，即 <strong>2</strong> 个。</p>
+<p>集群会根据携带 <strong>app=nginx</strong> 标签的 <strong>Pod</strong> 的实际数量来执行创建或者删除 Pod 操作，使数量收敛于 <strong>2</strong>。</p>
+<p>这时，你也许就会好奇：究竟是 Kubernetes 项目中的哪个组件，在执行这些操作呢？</p>
+<p>在上一小节提到的 <strong>kube-controller-manager</strong> 就是负责管理 <strong>Controllers</strong> 的服务组件。并且，<strong>Kubernetes</strong> 项目已经包含了若干的 <strong>Controllers</strong>:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cd</span> kubernetes/pkg/controller/</span><br><span class="line">$ ls -d */</span><br><span class="line">deployment/             job/                    podautoscaler/</span><br><span class="line">cloud/                  disruption/             namespace/</span><br><span class="line">replicaset/             serviceaccount/         volume/</span><br><span class="line">cronjob/                garbagecollector/       nodelifecycle/          replication/            statefulset/            daemon/</span><br></pre></td></tr></table></figure>
+
+<h3 id="控制循环"><a href="#控制循环" class="headerlink" title="控制循环"></a>控制循环</h3><p>正如本文开篇所说，<strong>Kubernetes</strong> 的 <strong>Controllers</strong> 遵循 <strong>控制回路（Control Loop）</strong> 的工作模式。</p>
+<p>比如，对于编排的对象 X，可以用一段 Go 语言风格的伪代码，来描述其 Controller 的控制循环：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> &#123;</span><br><span class="line">    实际状态 := 获取集群中对象X的实际状态（Actual State）</span><br><span class="line">    期望状态 := 获取集群中对象X的期望状态（Desired State）</span><br><span class="line">    <span class="keyword">if</span> 实际状态 == 期望状态&#123;</span><br><span class="line">        什么都不做</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        执行编排动作，将实际状态调整为期望状态</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>一般情况:</p>
+<ul>
+<li><strong>实际状态来自于 Kubernetes 集群本身</strong>: 比如，kubelet 通过心跳汇报的容器状态和节点状态，或者监控系统中保存的应用监控数据，或者控制器主动收集的它自己感兴趣的信息，这些都是常见的实际状态的来源。</li>
+<li><strong>期望状态来自于用户提交的 YAML 文件</strong>: 比如，Deployment 对象中 Replicas 字段的值。很明显，这些信息往往都保存在 Etcd 中。</li>
+</ul>
+<p>具体到本示例，Deployment 控制器的工作流程为:</p>
+<ol>
+<li>从 Etcd 中获取到所有携带了 <strong>app: nginx</strong> 标签的 Pod，统计其数量，作为实际状态</li>
+<li>从 Template 中获取 Deployment 对象的 <strong>spec.replicas</strong> 值，作为期望状态</li>
+<li>将两个状态做比较，然后根据比较结果，确定是创建 Pod，还是删除已有的 Pod</li>
+</ol>
+<p>以上即为 <strong>Kubernetes Controller</strong> 的工作模式。</p>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li><a href="https://kubernetes.io/docs/concepts/architecture/controller/" target="_blank" rel="noopener">Architecture-Controllers</a></li>
+<li><a href="https://kubernetes.io/docs/concepts/workloads/controllers/" target="_blank" rel="noopener">Workloads-Controllers</a></li>
+</ul>
+
+    
+
+    
+
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">kubernetes</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">controllers</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+
+    
+    <p class="article-more-link">
+      <a class="article-more-a" href="/2020/10/06/kubernetes-controllers/">展开全文 >></a>
+    </p>
+    
+
+    
+    <div class="clearfix"></div>
+  </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-how-to-use-nfs" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1233,402 +1645,6 @@
 
 
   
-    <article id="post-enable-rss-on-hexo" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-  
-  
-    <h1 itemprop="name">
-	
-	  <a class="article-title" href="/2020/09/02/enable-rss-on-hexo/" target="_blank">让你的 Hexo 博客支持 RSS</a>
-  
-    </h1>
-  
-
-
-  
-  
-<a href="/2020/09/02/enable-rss-on-hexo/" class="archive-article-date">
-        <time datetime="2020-09-02T12:37:46.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-09-02</time>
-</a>
-
-  
-  
-    
-
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-    <p>让博客支持 <code>RSS</code> 是一种美好的品德。</p>
-<ul>
-<li><p>安装 <code>RSS</code> 插件</p>
-  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install hexo-generator-feed</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>配置博客 <code>_config.uml</code></p>
-  <figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Extensions</span></span><br><span class="line"><span class="attr">plugins:</span></span><br><span class="line"><span class="bullet">-</span> <span class="string">hexo-generator-feed</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#Feed Atom</span></span><br><span class="line"><span class="attr">feed:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">atom</span></span><br><span class="line">  <span class="attr">path:</span> <span class="string">atom.xml</span></span><br><span class="line">  <span class="attr">limit:</span> <span class="number">20</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>配置主题 <code>_config.yml</code></p>
-  <figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># RSS订阅</span></span><br><span class="line"><span class="attr">rss:</span> <span class="string">/atom.xml</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>客户端订阅</p>
-<p>  使用 <code>RSS</code> 客户端订阅 <code>http(s)://${YOUR_BLOG_HOST}/atom.xml</code>。</p>
-</li>
-</ul>
-
-    
-
-    
-
-    
-
-  </div>
-  <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">hexo</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">rss</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-
-    
-    <p class="article-more-link">
-      <a class="article-more-a" href="/2020/09/02/enable-rss-on-hexo/">展开全文 >></a>
-    </p>
-    
-
-    
-    <div class="clearfix"></div>
-  </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-why-do-we-need-pods" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-  
-  
-    <h1 itemprop="name">
-	
-	  <a class="article-title" href="/2020/08/31/why-do-we-need-pods/" target="_blank">Pod 的意义</a>
-  
-    </h1>
-  
-
-
-  
-  
-<a href="/2020/08/31/why-do-we-need-pods/" class="archive-article-date">
-        <time datetime="2020-08-31T08:34:52.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-31</time>
-</a>
-
-  
-  
-    
-
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-    <h2 id="容器的局限性"><a href="#容器的局限性" class="headerlink" title="容器的局限性"></a>容器的局限性</h2><p>既然要讨论 <code>Pod</code> 的意义，或许可以想象一个如果没有 <code>Pod</code> 会是什么样子。</p>
-<p>假设，有如下需求: 使用容器化来部署一个支持自动更新数据的文件服务。可以使用如下方法解决:</p>
-<ol>
-<li>在一个容器中，同时运行两个进程，一个进程提供文件服务，一个进程定时更新数据。<ul>
-<li>优点:<ol>
-<li>无论是编码，还是部署都十分的容易，就像在物理机或者虚拟机里面一样</li>
-</ol>
-</li>
-<li>缺点:<ol>
-<li>容器的本质是进程，对操作系统而言是那个由 <code>entrypoint</code> 指定的进程，其他进程都是其子进程，或子进程的子进程等。而且，<code>entrypoint</code> 没有回收僵尸进程的能力。</li>
-<li>耦合严重</li>
-</ol>
-</li>
-</ul>
-</li>
-<li>每个进程分别位于各自的容器，两个容器之间通过挂载相同的外部 <code>volume</code> 实现容器间共享文件系统。<ul>
-<li>优点:<ol>
-<li>将两个容器解耦，保证功能单一性</li>
-</ol>
-</li>
-<li>缺点:<ol>
-<li>通过共享外部 <code>volume</code> 的方式无法保证数据安全性，其他容器，或宿主机也能直接访问 <code>volume</code></li>
-</ol>
-</li>
-</ul>
-</li>
-<li>在上一个方法的基础上，通过 <code>--volume-from</code> 指定从其他的 <code>container</code> 挂载 <code>volume</code>。<ul>
-<li>优点:<ol>
-<li>避免对外直接暴露 <code>volume</code></li>
-</ol>
-</li>
-</ul>
-</li>
-</ol>
-<p>到此为止，一切似乎很顺利，没有在创建 <code>Pod</code> 这样一个新的概念。</p>
-<p>但上述方案有一个局限性，<code>--volume-from</code> 的目标容器只能是本地的其他 <code>container</code>。</p>
-<p>假设，使用 <code>Docker Swarm</code> 部署服务。为了便于叙述，做出如下定义:</p>
-<ul>
-<li>集群中存在两个节点。<strong><code>node-0</code></strong> 剩余 <code>2G</code> 内存，<strong><code>node-1</code></strong> 剩余 <code>1.5G</code> 内存</li>
-<li>两个容器 <code>container-0</code> 与 <code>container-1</code> 各需要 <code>1G</code> 内存</li>
-<li>部署过程，先启动 <code>container-0</code>，后启动 <code>container-1</code></li>
-</ul>
-<p>因此，为了让两个容器能够运行在同一个 <code>Node</code> 上，需要在启动 <code>container-1</code> 时增加限制 <code>affinity=container-0</code>。</p>
-<p>此时，如果 <code>container-0</code> 被调度到了 <code>node-1</code> 上，<code>node-1</code> 将剩余 <code>0.5G</code> 内存。接下来，调度 <code>container-1</code> 时，<code>Docker Swarm</code> 就会发现无法找到一个合适的 <code>Node</code> 来启动 <code>container-1</code>。</p>
-<p>以上问题被称作 <a href="https://en.wikipedia.org/wiki/Gang_scheduling" target="_blank" rel="noopener">Gang Scheduling</a>。</p>
-<p>而 <code>Kuberntes</code> 则通过 <code>Pod</code> 解决了这个问题。</p>
-<p><code>Pod</code> 是 <code>Kubernetes</code> 中最小的可调度计算单元。在处理上述问题中，如果将 <code>container-0</code> 与 <code>container-1</code> 同时包含在一个 <code>Pod</code> 中，<code>Kubernetes</code> 在调度这个 <code>Pod</code> 时就只会考虑剩余内存不小于 <code>2G</code> 的 <code>node-0</code>。</p>
-<p>对于上面这种，相互之间直接访问文件系统、使用 <code>localhost</code> 或 <code>socket</code> 文件进行本地通信，共享某些 <code>Namespace</code> 的一组容器，称之为 <strong>超亲密关系</strong>。</p>
-<h2 id="Pod-实现原理"><a href="#Pod-实现原理" class="headerlink" title="Pod 实现原理"></a>Pod 实现原理</h2><p><code>Pod</code> 是一个逻辑概念。其本质是一组共享了 <code>Network Namespace</code>，并且可以声明共享同一个 <code>Volume</code> 的容器。</p>
-<p>比如，一个包含了 <code>A</code> 与 <code>B</code> 两个容器的 <code>Pod</code>，按照 <a href="https://kubernetes.io/docs/concepts/workloads/pods/#what-is-a-pod" target="_blank" rel="noopener">定义</a> 的描述，可以使用如下 <code>Docker</code> 命令模拟:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># start container A</span></span><br><span class="line">$ docker run --net=B --volumes-from=B --name=A image-A ...</span><br></pre></td></tr></table></figure>
-
-<p>但此时会发现，<code>Pod</code> 内的一组容器要遵循某个特定的顺序启动，容器与容器之间不再是对等关系，而是拓扑关系。</p>
-<p>所以，在 <code>Kubernetes</code> 项目里，通过增加一个被称作 <code>Infra</code> 的容器作为 <code>Pod</code> 里第一个启动的容器。用户定义的其他容器通过 <code>Join Network Namespace</code> 的方式，关联到 <code>Infra</code> 容器。这样的组织关系，可以用下面这样一个示意图来表达:</p>
-<p><img src="/images/why-do-we-need-pods/01.png" alt="pause container"></p>
-<p>如上图所示，这个 <code>Pod</code> 里有两个用户容器 <code>A</code> 和 <code>B</code>，还有一个 <code>Infra</code> 容器。这个特殊容器的镜像地址为 <code>k8s.gcr.io/pause</code>，源代码位于 <a href="https://github.com/kubernetes/kubernetes/blob/master/build/pause/pause.c" target="_blank" rel="noopener">github</a>。同时，<code>kubelet</code> 提供参数 <code>--pod-infra-container-image</code> 支持自定义镜像。</p>
-<p>所以，当容器 <code>A</code>、<code>B</code> 加入到 <code>Infra</code> 容器的 <code>Network Namespace</code> 后，对于容器 <code>A</code>、<code>B</code> 而言:</p>
-<ul>
-<li>可以直接使用 <code>localhost</code> 进行通信</li>
-<li>看到的网络设备跟 <code>Infra</code> 容器看到的完全一样</li>
-<li>一个 <code>Pod</code> 只有一个 <code>IP</code> 地址，也就是这个 <code>Pod</code> 的 <code>Network Namespace</code> 对应的 <code>IP</code> 地址</li>
-<li>其他的所有网络资源，都是一个 <code>Pod</code> 一份，并且被该 <code>Pod</code> 中的所有容器共享</li>
-<li><code>Pod</code> 的生命周期只跟 <code>Infra</code> 容器一致，而与容器 <code>A</code>、<code>B</code> 无关。</li>
-</ul>
-<p>而对于同一个 <code>Pod</code> 里面的所有用户容器来说，它们的进出流量，也可以认为都是通过 <code>Infra</code> 容器完成的。这一点很重要，因此为 <code>Kubernetes</code> 开发网络插件时，应该重点考虑的是如何配置这个 <code>Pod</code> 的 <code>Network Namespace</code>，而不是每一个用户容器如何使用网络配置。</p>
-<p>而且，在这这个设计模型之下，可以方便的共享 <code>volume</code>: <code>Kubernetes</code> 项目只要把所有 <code>volume</code> 的定义都设计在 <code>Pod</code> 层级即可。之后，<code>Pod</code> 内的容器再声明挂载这个 <code>volume</code> 从而达到共享 <code>volume</code> 的目的。</p>
-<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Pod</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">two-containers</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">restartPolicy:</span> <span class="string">Never</span></span><br><span class="line">  <span class="attr">volumes:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">shared-data</span></span><br><span class="line">    <span class="attr">hostPath:</span></span><br><span class="line">      <span class="attr">path:</span> <span class="string">/data</span></span><br><span class="line">  <span class="attr">containers:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">nginx-container</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">nginx</span></span><br><span class="line">    <span class="attr">volumeMounts:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">shared-data</span></span><br><span class="line">      <span class="attr">mountPath:</span> <span class="string">/usr/share/nginx/html</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">debian-container</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">debian</span></span><br><span class="line">    <span class="attr">volumeMounts:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">shared-data</span></span><br><span class="line">      <span class="attr">mountPath:</span> <span class="string">/pod-data</span></span><br><span class="line">    <span class="attr">command:</span> <span class="string">["/bin/sh"]</span></span><br><span class="line">    <span class="attr">args:</span> <span class="string">["-c",</span> <span class="string">"echo Hello from the debian container &gt; /pod-data/index.html"</span><span class="string">]</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="容器设计模式"><a href="#容器设计模式" class="headerlink" title="容器设计模式"></a>容器设计模式</h2><p><code>Pod</code> 这种 <strong>超亲密关系</strong> 容器的设计思想，实际上就是希望，当用户想在一个容器里运行多个功能并不相关的应用时，应该优先考虑它们是不是更应该被描述成一个 <code>Pod</code> 里的多个容器。</p>
-<p>要理解这个概念，也很容易。只需要将 <code>Pod</code> 理解为原来的虚拟机即可。</p>
-<p>在虚拟机时代，服务之间也存在一定的关系。有上述那样需要共享本地文件系统的关系，也有 <code>API Service</code> 与 <code>DB</code> 之间的关系。</p>
-<p>当需要考虑是否需要将多个容器描述成一个 <code>Pod</code> 时，可以想象一下: 如果使用虚拟机部署，是否应该将这些服务部署在同一台虚拟机上。如果需要部署在一台虚拟机才能工作，那么就需要描述为一个 <code>Pod</code>。</p>
-<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
-<li><a href="https://kubernetes.io/docs/concepts/workloads/pods/" target="_blank" rel="noopener">Kuberntes Documentation: Pod</a></li>
-<li><a href="https://cloud.tencent.com/developer/article/1513369" target="_blank" rel="noopener">为什么说容器是单进程模型</a></li>
-<li><a href="https://forums.docker.com/t/use-affinity-filter-in-docker-service-create/78402" target="_blank" rel="noopener">Use “affinity filter” in “docker service create”</a></li>
-<li><a href="https://www.ianlewis.org/en/almighty-pause-container" target="_blank" rel="noopener">The Almighty Pause Container</a></li>
-<li><a href="https://developers.redhat.com/blog/2019/01/15/podman-managing-containers-pods/" target="_blank" rel="noopener">Podman: Managing pods and containers in a local container runtime</a></li>
-<li><a href="https://www.usenix.org/system/files/conference/hotcloud16/hotcloud16_burns.pdf" target="_blank" rel="noopener">Design patterns for container-based distributed systems</a></li>
-</ul>
-
-    
-
-    
-
-    
-
-  </div>
-  <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">kubernetes</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">pod</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-
-    
-    <p class="article-more-link">
-      <a class="article-more-a" href="/2020/08/31/why-do-we-need-pods/">展开全文 >></a>
-    </p>
-    
-
-    
-    <div class="clearfix"></div>
-  </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-log-structured-merge-trees" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-  
-  
-    <h1 itemprop="name">
-	
-	  <a class="article-title" href="/2020/08/26/log-structured-merge-trees/" target="_blank">Log Structured Merge Trees</a>
-  
-    </h1>
-  
-
-
-  
-  
-<a href="/2020/08/26/log-structured-merge-trees/" class="archive-article-date">
-        <time datetime="2020-08-26T13:37:03.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-26</time>
-</a>
-
-  
-  
-    
-
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-    <p>转自 <a href="https://medium.com/swlh/log-structured-merge-trees-9c8e2bea89e8" target="_blank" rel="noopener">Log Structured Merge Trees</a>。</p>
-<p>LSM tree is at the heart of most storage systems that provide high write throughput, be it a key-value storage like dynamodb/cassandra or a messaging system like pulsar which is backed by bookkeeper.</p>
-<p>The various components of a typical LSM backed system are shown below.</p>
-<p><img src="/images/log-structured-merge-trees/01.png" alt="01"></p>
-<p>The main reason why LSM provides high write throughput is that every write request is actually performed only <strong>in-memory</strong> in contrast to traditional B-Tree based implementation where the updates are done to disk which can trigger an update to an index making it very expensive.</p>
-<p>So the obvious question is, how does LSM achieve durability? that’s where WAL comes into the picture.</p>
-<h2 id="WAL"><a href="#WAL" class="headerlink" title="WAL"></a>WAL</h2><p>WAL is a write-ahead log that is used to provide the durability of data during system failures, what it means is that when a request for write comes in, the data is first added to a WAL file (sometimes called journal) and flushed to the disk (using <a href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/5/html/global_file_system/s1-manage-direct-io" target="_blank" rel="noopener">direct io</a>) before updating the in-memory data structure.</p>
-<p>This allows for systems to recover from the WAL if it crashes before persisting the in-memory data structure to disk.</p>
-<p>Why not directly update the write to the disk instead of updating WAL? it’s because WAL updates are cheaper as it’s append-only and doesn’t require any restructuring of data on disk.</p>
-<h2 id="MemTable"><a href="#MemTable" class="headerlink" title="MemTable"></a>MemTable</h2><p>The in-memory data structure is called a memtable, there are various implementations of memtable, but you can think of memtable as just a binary search tree for the sake of simplicity.</p>
-<p>So now for every write request, the data is appended to WAL and the memtable is updated and a successful response is returned to the client.</p>
-<p>For java implementations, the memtable is usually stored off-heap (direct memory) to avoid GC load</p>
-<h2 id="SSTable-Sorted-Strings-Table"><a href="#SSTable-Sorted-Strings-Table" class="headerlink" title="SSTable (Sorted Strings Table)"></a>SSTable (Sorted Strings Table)</h2><p>As it’s obvious that we cannot keep adding data to memtable to bloat the RAM, the memtable is frequently flushed to disk as an SSTable.</p>
-<p>SSTable, as the name indicates, is a sorted array of keys persisted on disk.</p>
-<p>The reason it is sorted is to make it easy to look up the data for readings.</p>
-<p>Okay, now that is the essence of how LSM provides high throughput using a WAL, MemTable &amp; SSTable.</p>
-<p>Usually, even every delete request for a key is also added to memtable with a marker indicating it’s deleted and the same information is flushed to the SSTable.</p>
-<h2 id="Compactor"><a href="#Compactor" class="headerlink" title="Compactor"></a>Compactor</h2><p>As we keep flushing SSTables to disk, the same key may be present in multiple SSTables, although the latest data of a key is present in the most recent SSTable, it’s presence in all previous SSTable needs to be cleaned up.</p>
-<p>This is the job of a compactor which usually runs in the background, It merges SSTables by removing redundant &amp; deleted keys and creating a compacted/merged SSTables.</p>
-<p>the compactor also is responsible for updating an index (typical B-Tree based index) to locate SSTable a key is present in.</p>
-<h2 id="Index"><a href="#Index" class="headerlink" title="Index"></a>Index</h2><p>The index data structure created is used to locate the correct SSTable for a key, once an SSTable is located, it is easy to locate the actual key inside the SSTable as it’s sorted, a binary search in-memory is sufficient.</p>
-<p>Also, the size of SSTables is chosen in such a way that it corresponds to the operating system <a href="https://en.wikipedia.org/wiki/Page_(computer_memory)" target="_blank" rel="noopener">page size</a> (usually multiples of disk bock size) making it easier to load the data to memory faster.</p>
-<p>Although the Index along with SSTable help in faster lookup of keys, all read requests are first consulted in the memtable as it should contain the most recent change. If the key is not in the memtable, then the index is used to identify the possible SSTable the key may be present and then search inside the SSTable in-memory.</p>
-<p>Since every read has to check the memtable, index &amp; SSTable to look for a key, it makes read requests very expensive especially for keys that are not present!</p>
-<p>For keys that are recently updated, the read request will easily locate it in the memtable, but for keys not recently updated, and for keys that are not present in the system the read path is expensive!</p>
-<p>Bloom Filters are used to improve read performance especially for the cases where the key is not present in the system.</p>
-<h2 id="Bloom-Filter"><a href="#Bloom-Filter" class="headerlink" title="Bloom Filter"></a>Bloom Filter</h2><p>A Bloom filter is a probabilistic data structure, which at a high level helps you check if a key is present or not in the system with O(1) complexity in memory.</p>
-<p>With bloom filter, False positive match is possible, which means, it may indicate a key is present although it’s not in the system. But false-negative match won’t happen, which means if bloom filter indicates a key is not present, then it is definitely not present in the system, so we could avoid taking the expensive read path.</p>
-<p>So the presence of a bloom filter improves the read performance for keys that are missing in the system but for the keys that are present in the system, the read is still expensive as we have to look into the memtable, index and the SSTable.</p>
-<h2 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h2><p>So every time you come across a system that promises high write throughput, you can assume there will be a variant of LSM tree underneath that helps achieve the throughput and also understand why reads are expensive.</p>
-
-    
-
-    
-
-    
-
-  </div>
-  <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">storage engine</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">lsm tree</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">sstable</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-
-    
-    <p class="article-more-link">
-      <a class="article-more-a" href="/2020/08/26/log-structured-merge-trees/">展开全文 >></a>
-    </p>
-    
-
-    
-    <div class="clearfix"></div>
-  </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <a class="extend prev" rel="prev" href="/page/4/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" href="/page/6/">Next &amp;raquo;</a>
@@ -1762,18 +1778,6 @@
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">linux</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">hard drive</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">archlinux</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">gpu</a>
               </li>
              
@@ -1791,6 +1795,18 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">index</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">linux</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">hard drive</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">archlinux</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1846,23 +1862,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">hexo</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">rss</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">git</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">nfs</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">filesystem</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1882,11 +1882,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
+                <a href="javascript:void(0)" class="js-tag color5">hexo</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">innnodb</a>
+                <a href="javascript:void(0)" class="js-tag color4">rss</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1898,7 +1898,27 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">containerd</a>
+                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">innnodb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">network programming</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">io</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">nfs</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">filesystem</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1910,6 +1930,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">containerd</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">volume</a>
               </li>
              
@@ -1918,11 +1942,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">linux performance</a>
+                <a href="javascript:void(0)" class="js-tag color3">mongodb</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">cpu performance</a>
+                <a href="javascript:void(0)" class="js-tag color3">linux performance</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1934,6 +1958,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">optimization</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">lsm tree</a>
               </li>
              
@@ -1942,7 +1970,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">optimization</a>
+                <a href="javascript:void(0)" class="js-tag color1">cpu performance</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1974,10 +2002,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">pytorch</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">rdma</a>
               </li>
              
@@ -1986,11 +2010,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">network</a>
+                <a href="javascript:void(0)" class="js-tag color3">pytorch</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">kubeadm</a>
+                <a href="javascript:void(0)" class="js-tag color3">network</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2002,15 +2026,19 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">kubeadm</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">terminal</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">paas</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">where clause</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">terminal</a>
               </li>
             
             <div class="clearfix"></div>
