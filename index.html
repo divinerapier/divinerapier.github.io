@@ -172,6 +172,251 @@
             
 
   
+    <article id="post-run-async-block-in-non-async-function" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+  
+  
+    <h1 itemprop="name">
+	
+	  <a class="article-title" href="/2021/05/29/run-async-block-in-non-async-function/" target="_blank">在非 async 函数中执行 async 语句块</a>
+  
+    </h1>
+  
+
+
+  
+  
+<a href="/2021/05/29/run-async-block-in-non-async-function/" class="archive-article-date">
+        <time datetime="2021-05-29T11:53:22.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-05-29</time>
+</a>
+
+  
+  
+    
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    <p>在使用 <code>mongodb</code>，在未启用 <code>#[feature = &quot;sync&quot;]</code> 时，解析 <code>url</code> 的函数是一个 <code>async</code> 函数:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// crate: mongodb::options</span></span><br><span class="line"><span class="keyword">impl</span> ClientOptions &#123;</span><br><span class="line">    <span class="meta">#[cfg(not(feature = <span class="meta-string">"sync"</span>))]</span></span><br><span class="line">    <span class="keyword">pub</span> <span class="keyword">async</span> <span class="function"><span class="keyword">fn</span> <span class="title">parse</span></span>(s: <span class="keyword">impl</span> <span class="built_in">AsRef</span>&lt;<span class="built_in">str</span>&gt;) -&gt; <span class="built_in">Result</span>&lt;<span class="keyword">Self</span>&gt; &#123;</span><br><span class="line">        Self::parse_uri(s, <span class="literal">None</span>).<span class="keyword">await</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>个人习惯，在业务项目中定义一个专属的配置类型:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">pub</span> <span class="class"><span class="keyword">struct</span> <span class="title">ClientOptions</span></span> &#123;</span><br><span class="line">    <span class="keyword">pub</span> uri: <span class="built_in">Option</span>&lt;<span class="built_in">String</span>&gt;,</span><br><span class="line">    <span class="keyword">pub</span> database: <span class="built_in">Option</span>&lt;<span class="built_in">String</span>&gt;,</span><br><span class="line">    <span class="keyword">pub</span> collection: <span class="built_in">Option</span>&lt;<span class="built_in">String</span>&gt;,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>并为该类型实现 <code>From Trait</code>:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">impl</span> <span class="built_in">From</span>&lt;ClientOptions&gt; <span class="keyword">for</span> mongodb::options::ClientOptions &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">from</span></span>(opts: ClientOptions) -&gt; <span class="keyword">Self</span> &#123;</span><br><span class="line">        todo!()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>由于，<code>Trait</code> 的函数签名是无法改动的，就导致需要在 <code>non-async</code> 函数中调用 <code>async</code> 函数。</p>
+<h2 id="创建一个新的-Runtime"><a href="#创建一个新的-Runtime" class="headerlink" title="创建一个新的 Runtime"></a>创建一个新的 Runtime</h2><p>通过查阅<a href="https://docs.rs/tokio/1.6.1/tokio/" target="_blank" rel="noopener">文档</a>，根据关键字 <code>current</code> 查找到 <a href="https://docs.rs/tokio/1.6.1/tokio/runtime/struct.Builder.html#method.new_current_thread" target="_blank" rel="noopener">tokio::runtime::Builder::new_current_thread</a>:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">impl</span> Builder &#123;</span><br><span class="line">    <span class="comment">/// Returns a new builder with the current thread scheduler selected.</span></span><br><span class="line">    <span class="comment">///</span></span><br><span class="line">    <span class="comment">/// Configuration methods can be chained on the return value.</span></span><br><span class="line">    <span class="comment">///</span></span><br><span class="line">    <span class="comment">/// To spawn non-`Send` tasks on the resulting runtime, combine it with a</span></span><br><span class="line">    <span class="comment">/// [`LocalSet`].</span></span><br><span class="line">    <span class="comment">///</span></span><br><span class="line">    <span class="comment">/// [`LocalSet`]: crate::task::LocalSet</span></span><br><span class="line">    <span class="keyword">pub</span> <span class="function"><span class="keyword">fn</span> <span class="title">new_current_thread</span></span>() -&gt; Builder &#123;</span><br><span class="line">        Builder::new(Kind::CurrentThread)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用当前线程创建一个调度器，看起来靠谱。由此，<code>from</code> 的实现如下:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> tokio::runtime::Builder <span class="keyword">as</span> RuntimeBuilder</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span> <span class="built_in">From</span>&lt;ClientOptions&gt; <span class="keyword">for</span> mongodb::options::ClientOptions &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">from</span></span>(opts: ClientOptions) -&gt; <span class="keyword">Self</span> &#123;</span><br><span class="line">        RuntimeBuilder::new_current_thread()</span><br><span class="line">            .build()</span><br><span class="line">            .unwrap()</span><br><span class="line">            .block_on(<span class="keyword">async</span> &#123;</span><br><span class="line">                mongodb::options::ClientOptions::parse(opts.uri.as_ref().unwrap())</span><br><span class="line">                    .<span class="keyword">await</span></span><br><span class="line">                    .unwrap()</span><br><span class="line">            &#125;)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>但是，在执行时遇到一个错误:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">thread <span class="string">'main'</span> panicked at <span class="string">'Cannot start a runtime from within a runtime. This happens because a function (like `block_on`) attempted to block the current thread while the thread is being used to drive asynchronous tasks.'</span>, /home/divinerapier/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.6.0/src/runtime/enter.rs:39:9</span><br></pre></td></tr></table></figure>
+
+<p>提示，不能在 <code>Runtime</code> 中执行另一个 <code>Runtime</code>。这里的第一个 <code>Runtime</code> 应该就是由 <code>#[tokio::main]</code> 自动创建的。</p>
+<h2 id="使用当前的-Runtime"><a href="#使用当前的-Runtime" class="headerlink" title="使用当前的 Runtime"></a>使用当前的 Runtime</h2><p>在根据关键字 <code>current</code> 查找文档是，还存在另一个结果 <a href="https://docs.rs/tokio/1.6.1/tokio/runtime/struct.Handle.html#method.current" target="_blank" rel="noopener">tokio::runtime::Handle::current</a>:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">impl</span> Handle &#123;</span><br><span class="line">    <span class="comment">/// Returns a `Handle` view over the currently running `Runtime`</span></span><br><span class="line">    <span class="comment">///</span></span><br><span class="line">    <span class="comment">/// # Panic</span></span><br><span class="line">    <span class="comment">///</span></span><br><span class="line">    <span class="comment">/// This will panic if called outside the context of a Tokio runtime. That means that you must</span></span><br><span class="line">    <span class="comment">/// call this on one of the threads **being run by the runtime**. Calling this from within a</span></span><br><span class="line">    <span class="comment">/// thread created by `std::thread::spawn` (for example) will cause a panic.</span></span><br><span class="line">    <span class="comment">///</span></span><br><span class="line">    <span class="comment">/// # Examples</span></span><br><span class="line">    <span class="comment">///</span></span><br><span class="line">    <span class="comment">/// This can be used to obtain the handle of the surrounding runtime from an async</span></span><br><span class="line">    <span class="comment">/// block or function running on that runtime.</span></span><br><span class="line">    <span class="comment">///</span></span><br><span class="line">    <span class="comment">///</span></span><br></pre></td></tr></table></figure>
+<pre><code>/// # use std::thread;
+/// # use tokio::runtime::Runtime;
+/// # fn dox() {
+/// # let rt = Runtime::new().unwrap();
+/// # rt.spawn(async {
+/// use tokio::runtime::Handle;
+///
+/// // Inside an async block or function.
+/// let handle = Handle::current();
+/// handle.spawn(async {
+///     println!(&quot;now running in the existing Runtime&quot;);
+/// });
+///
+/// # let handle =
+/// thread::spawn(move || {
+///     // Notice that the handle is created outside of this thread and then moved in
+///     handle.spawn(async { /* ... */ })
+///     // This next line would cause a panic
+///     // let handle2 = Handle::current();
+/// });
+/// # handle.join().unwrap();
+/// # });
+/// # }
+/// ```
+pub fn current() -&gt; Self {
+    context::current().expect(CONTEXT_MISSING_ERROR)
+}</code></pre><p>}</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">通过 &#96;Handle::current&#96; 函数可以获得当前的 &#96;Runtime&#96; 对象。</span><br><span class="line"></span><br><span class="line">但是，需要注意，如下方式直接通过 &#96;Handle&#96; 调用 &#96;Handle::block_on&#96; 函数同样会遇到上面的错误。</span><br><span class="line"></span><br><span class="line">&#96;&#96;&#96; rust</span><br><span class="line">impl From&lt;ClientOptions&gt; for mongodb::options::ClientOptions &#123;</span><br><span class="line">    fn from(opts: ClientOptions) -&gt; Self &#123;</span><br><span class="line">        let handle &#x3D; Handle::current();</span><br><span class="line">        handle.enter();</span><br><span class="line">        handle.block_on(async &#123;&#125;)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>应通过 <code>futures::executor::block_on</code> 函数来执行 <code>async</code> 函数。</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">impl</span> <span class="built_in">From</span>&lt;ClientOptions&gt; <span class="keyword">for</span> mongodb::options::ClientOptions &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">from</span></span>(opts: ClientOptions) -&gt; <span class="keyword">Self</span> &#123;</span><br><span class="line">        <span class="keyword">let</span> handle = Handle::current();</span><br><span class="line">        handle.enter();</span><br><span class="line">        futures::executor::block_on(<span class="keyword">async</span> &#123;</span><br><span class="line">            mongodb::options::ClientOptions::parse(opts.uri.as_ref().unwrap())</span><br><span class="line">                .<span class="keyword">await</span></span><br><span class="line">                .unwrap()</span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="惊"><a href="#惊" class="headerlink" title="惊"></a>惊</h3><p>通过实验，只需要 <code>futures::executor::block_on</code> 函数就可以完成对 <code>async</code> 函数的调用。</p>
+<p>上面就不改了，当做备忘录，避免以后采坑。</p>
+<h2 id="通过新的线程执行-async-函数"><a href="#通过新的线程执行-async-函数" class="headerlink" title="通过新的线程执行 async 函数"></a>通过新的线程执行 async 函数</h2><p>上面的一系列想法都是基于 <strong>复用当前线程</strong>，下面来尝试通过创建新的线程解决问题。</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> tokio::runtime::Builder <span class="keyword">as</span> RuntimeBuilder;</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span> <span class="built_in">From</span>&lt;ClientOptions&gt; <span class="keyword">for</span> mongodb::options::ClientOptions &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">from</span></span>(opts: ClientOptions) -&gt; <span class="keyword">Self</span> &#123;</span><br><span class="line">        std::thread::spawn(<span class="keyword">move</span> || &#123;</span><br><span class="line">            RuntimeBuilder::new_current_thread()</span><br><span class="line">                .build()</span><br><span class="line">                .unwrap()</span><br><span class="line">                .block_on(<span class="keyword">async</span> &#123;</span><br><span class="line">                    mongodb::options::ClientOptions::parse(opts.uri.as_ref().unwrap())</span><br><span class="line">                        .<span class="keyword">await</span></span><br><span class="line">                        .unwrap()</span><br><span class="line">                &#125;)</span><br><span class="line">        &#125;)</span><br><span class="line">        .join()</span><br><span class="line">        .unwrap()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>确认同样可以解决问题。</p>
+<p>同样地，在新的线程中使用 <code>futures::executor::block_on</code> 同样可以解决问题。</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">impl</span> <span class="built_in">From</span>&lt;ClientOptions&gt; <span class="keyword">for</span> mongodb::options::ClientOptions &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">from</span></span>(opts: ClientOptions) -&gt; <span class="keyword">Self</span> &#123;</span><br><span class="line">        std::thread::spawn(<span class="keyword">move</span> || &#123;</span><br><span class="line">            futures::executor::block_on(<span class="keyword">async</span> &#123;</span><br><span class="line">                mongodb::options::ClientOptions::parse(opts.uri.as_ref().unwrap())</span><br><span class="line">                    .<span class="keyword">await</span></span><br><span class="line">                    .unwrap()</span><br><span class="line">            &#125;)</span><br><span class="line">        &#125;)</span><br><span class="line">        .join()</span><br><span class="line">        .unwrap()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li><a href="https://stackoverflow.com/a/66280983" target="_blank" rel="noopener">how-do-i-await-a-future-inside-a-non-async-method-which-was-called-from-an-async</a></li>
+</ul>
+
+    
+
+    
+
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">rust</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">async</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">tokio</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+
+    
+    <p class="article-more-link">
+      <a class="article-more-a" href="/2021/05/29/run-async-block-in-non-async-function/">展开全文 >></a>
+    </p>
+    
+
+    
+    <div class="clearfix"></div>
+  </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-thundering-herd-problem" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+  
+  
+    <h1 itemprop="name">
+	
+	  <a class="article-title" href="/2021/05/09/thundering-herd-problem/" target="_blank">惊群效应问题</a>
+  
+    </h1>
+  
+
+
+  
+  
+<a href="/2021/05/09/thundering-herd-problem/" class="archive-article-date">
+        <time datetime="2021-05-09T12:56:24.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-05-09</time>
+</a>
+
+  
+  
+    
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    <p>当计算机中存在大量的进程或线程被<strong>同一个事件</strong>唤醒，且该事件<strong>能且仅能</strong>被一个进程或线程响应的现象被称作<strong>惊群效应</strong>。此时，系统中相关的进程或线程都将争夺该资源，并大量浪费系统的性能。</p>
+<h2 id="Accept-惊群"><a href="#Accept-惊群" class="headerlink" title="Accept 惊群"></a>Accept 惊群</h2><h3 id="Accept-流程"><a href="#Accept-流程" class="headerlink" title="Accept 流程"></a>Accept 流程</h3><p><img src="/images/thndering-herd-problem/01-accept.png" alt="accept"></p>
+<h3 id="代码示例"><a href="#代码示例" class="headerlink" title="代码示例"></a>代码示例</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;arpa/inet.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;assert.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;errno.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;netinet/in.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/socket.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/wait.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SERVER_ADDRESS <span class="meta-string">"0.0.0.0"</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SERVER_PORT 10086</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> WORKER_COUNT 4</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">worker_process</span><span class="params">(<span class="keyword">int</span> listenfd, <span class="keyword">int</span> i)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">while</span> (<span class="number">1</span>) &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"I am work %d, my pid is %d, begin to accept connections \n"</span>, i,</span><br><span class="line">           getpid());</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sockaddr_in</span> <span class="title">client_info</span>;</span></span><br><span class="line">    <span class="keyword">socklen_t</span> client_info_len = <span class="keyword">sizeof</span>(client_info);</span><br><span class="line">    <span class="keyword">int</span> connection =</span><br><span class="line">        accept(listenfd, (struct sockaddr *)&amp;client_info, &amp;client_info_len);</span><br><span class="line">    <span class="keyword">if</span> (connection != <span class="number">-1</span>) &#123;</span><br><span class="line">      <span class="built_in">printf</span>(<span class="string">"worker %d accept success\n"</span>, i);</span><br><span class="line">      <span class="built_in">printf</span>(<span class="string">"ip :%s\t"</span>, inet_ntoa(client_info.sin_addr));</span><br><span class="line">      <span class="built_in">printf</span>(<span class="string">"port: %d \n"</span>, client_info.sin_port);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="built_in">printf</span>(<span class="string">"worker %d accept failed"</span>, i);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">close</span>(connection);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">sockaddr_in</span> <span class="title">address</span>;</span></span><br><span class="line">  bzero(&amp;address, <span class="keyword">sizeof</span>(address));</span><br><span class="line">  address.sin_family = AF_INET;</span><br><span class="line">  inet_pton(AF_INET, SERVER_ADDRESS, &amp;address.sin_addr);</span><br><span class="line">  address.sin_port = htons(SERVER_PORT);</span><br><span class="line">  <span class="keyword">int</span> listenfd = socket(PF_INET, SOCK_STREAM, <span class="number">0</span>);</span><br><span class="line">  <span class="keyword">int</span> ret = bind(listenfd, (struct sockaddr *)&amp;address, <span class="keyword">sizeof</span>(address));</span><br><span class="line">  ret = <span class="built_in">listen</span>(listenfd, <span class="number">5</span>);</span><br><span class="line">  <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; WORKER_COUNT; i++) &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"Create worker %d\n"</span>, i + <span class="number">1</span>);</span><br><span class="line">    <span class="keyword">pid_t</span> pid = fork();</span><br><span class="line">    <span class="comment">/*child  process */</span></span><br><span class="line">    <span class="keyword">if</span> (pid == <span class="number">0</span>) &#123;</span><br><span class="line">      worker_process(listenfd, i);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (pid &lt; <span class="number">0</span>) &#123;</span><br><span class="line">      <span class="built_in">printf</span>(<span class="string">"fork error"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/*wait child process*/</span></span><br><span class="line">  <span class="keyword">int</span> status;</span><br><span class="line">  wait(&amp;status);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="EPOLL"><a href="#EPOLL" class="headerlink" title="EPOLL"></a>EPOLL</h2><h2 id="Nginx"><a href="#Nginx" class="headerlink" title="Nginx"></a>Nginx</h2><h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="https://en.wikipedia.org/wiki/Thundering_herd_problem" target="_blank" rel="noopener">Wikipedia: Thundering herd problem</a></li>
+<li><a href="http://www.citi.umich.edu/projects/linux-scalability/reports/accept.html" target="_blank" rel="noopener">Linux scalability: Accept() scalability on Linux</a></li>
+<li><a href="https://github.com/torvalds/linux/commit/df0108c5da561c66c333bb46bfe3c1fc65905898" target="_blank" rel="noopener">epoll: add EPOLLEXCLUSIVE flag</a></li>
+<li><a href="https://manjusaka.itscoder.com/posts/2019/03/28/somthing-about-thundering-herd/" target="_blank" rel="noopener">聊聊网络事件中的惊群效应</a></li>
+<li><a href="https://blog.csdn.net/lyztyycode/article/details/78648798" target="_blank" rel="noopener">Linux惊群效应详解</a></li>
+<li><a href="https://pureage.info/2015/12/22/thundering-herd.html" target="_blank" rel="noopener">accept 与 epoll 惊群</a></li>
+</ul>
+
+    
+
+    
+
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
+    
+
+    
+    <p class="article-more-link">
+      <a class="article-more-a" href="/2021/05/09/thundering-herd-problem/">展开全文 >></a>
+    </p>
+    
+
+    
+    <div class="clearfix"></div>
+  </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-io-multiplexing-io-models" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1191,267 +1436,6 @@
 
 
   
-    <article id="post-pytorch-fails-without-shm" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-  
-  
-    <h1 itemprop="name">
-	
-	  <a class="article-title" href="/2021/03/05/pytorch-fails-without-shm/" target="_blank">未设置 shm 导致 PyTorch 任务失败</a>
-  
-    </h1>
-  
-
-
-  
-  
-<a href="/2021/03/05/pytorch-fails-without-shm/" class="archive-article-date">
-        <time datetime="2021-03-05T02:01:27.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-03-05</time>
-</a>
-
-  
-  
-    
-
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-    <p>最近，配合研发同学将原来在老集群上直接用 <code>docker</code> 运行的 <code>pytorch</code> 算法迁移到使用 <code>k8s</code> 的新集群上运行。结果，很不幸，研发同学说无法运行。错误日志如下:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-Traceback (most recent call last):</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-  File <span class="string">"/miniconda3/envs/pyasr/lib/python3.7/runpy.py"</span>, line 193, <span class="keyword">in</span> _run_module_as_main</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-<span class="string">"__main__"</span>, mod_spec)</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-  File <span class="string">"/miniconda3/envs/pyasr/lib/python3.7/runpy.py"</span>, line 85, <span class="keyword">in</span> _run_code</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-exec(code, run_globals)</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-  File <span class="string">"/pytorch-asr/egs/chn_40h/extend_code/launch.py"</span>, line 29, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-main()</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-  File <span class="string">"/pytorch-asr/asr/launch.py"</span>, line 10, <span class="keyword">in</span> main</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-launch(args)</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-  File <span class="string">"/pytorch-asr/asr/cli/launch.py"</span>, line 148, <span class="keyword">in</span> launch</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-trainer.train_on(data)</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-  File <span class="string">"/pytorch-asr/asr/trainer/trainer.py"</span>, line 77, <span class="keyword">in</span> train_on</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-self.train_epoch(data[<span class="string">'tr'</span>])</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-  File <span class="string">"/pytorch-asr/asr/trainer/trainer.py"</span>, line 41, <span class="keyword">in</span> train_epoch</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-return self._one_epoch(data_queue, is_training=True)</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-  File <span class="string">"/pytorch-asr/asr/trainer/trainer.py"</span>, line 63, <span class="keyword">in</span> _one_epoch</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-return self.one_epoch(data_queue, is_training)</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-  File <span class="string">"/pytorch-asr/asr/trainer/naive_trainer.py"</span>, line 115, <span class="keyword">in</span> one_epoch</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-for batch_idx, batch <span class="keyword">in</span> enumerate(self.timer[<span class="string">'io'</span>].profile(data_queue)):</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-  File <span class="string">"/pytorch-asr/asr/trainer/common.py"</span>, line 102, <span class="keyword">in</span> profile</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-value = next(iterator)</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-  File <span class="string">"&lt;string&gt;"</span>, line 2, <span class="keyword">in</span> get</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-  File <span class="string">"/miniconda3/envs/pyasr/lib/python3.7/multiprocessing/managers.py"</span>, line 834, <span class="keyword">in</span> _callmethod</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-raise convert_to_error(kind, result)</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-_queue</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-.</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-Empty</span><br><span class="line">11:12:55[asr.utils.bootstrap]-WARNING-Version 0.3.1.dev28</span><br></pre></td></tr></table></figure>
-
-<p>看到这个错误，就挺迷茫的。</p>
-<p>根据错误信息:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-  File <span class="string">"/pytorch-asr/asr/trainer/naive_trainer.py"</span>, line 115, <span class="keyword">in</span> one_epoch</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-for batch_idx, batch <span class="keyword">in</span> enumerate(self.timer[<span class="string">'io'</span>].profile(data_queue)):</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-  File <span class="string">"/pytorch-asr/asr/trainer/common.py"</span>, line 102, <span class="keyword">in</span> profile</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-value = next(iterator)</span><br></pre></td></tr></table></figure>
-
-<p>推断是读数据的时候出现了问题。虽然看起来与 <code>GPU</code> 没有关系，但是，为了保险起见，依然对比了前后环境的 <code>NVIDIA Driver</code>，<code>CUDA</code> 等版本信息，结果是一致的。而且，<code>NCCL</code> 是在镜像中安装的，不太可能有问题。</p>
-<p>之后，尝试在容器中安装 <code>perf</code>，但是失败了，尝试在容器中使用 <code>strace</code>，提示没有权限。</p>
-<p>正在我继续死磕的时候，研发提供了另一段错误日志:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pytorch-956sg:9319:9379 [0] include/shm.h:48 NCCL WARN Error <span class="keyword">while</span> creating shared memory segment nccl-shm-recv-183375136c5888b6-0-2-3 (size 9637888)</span><br></pre></td></tr></table></figure>
-
-<p>这个错误就很有价值啊，创建共享内存失败。</p>
-<p>此前，反复与研发同学确认过，是否只依赖于外部的 <code>NVIDIA Driver</code> 与 <code>CUDA</code>，得到了肯定的答复。因此，就一直以此为前提进行排查。但现在我产生了怀疑，问研发要来启动命令，隐藏敏感数据后如下:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -dit /data:/data --name asr --ipc=host image:latest /bin/bash</span><br></pre></td></tr></table></figure>
-
-<p>果然就发现了隐藏信息: <strong>–ipc=host</strong> 。</p>
-<p>因此，修改在原有创建任务的 <code>yaml</code> 文件中增加 <code>volume</code>:</p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">containers:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">asr</span></span><br><span class="line">      <span class="attr">image:</span> <span class="string">image:latest</span></span><br><span class="line">      <span class="attr">volumeMounts:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">mountPath:</span> <span class="string">/dev/shm</span></span><br><span class="line">          <span class="attr">name:</span> <span class="string">shm</span></span><br><span class="line">  <span class="attr">volumes:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">shm</span></span><br><span class="line">      <span class="attr">emptyDir:</span></span><br><span class="line">         <span class="attr">medium:</span> <span class="string">Memory</span></span><br></pre></td></tr></table></figure>
-
-<p>在容器内，挂载一个 <code>tmpfs</code> 到 <code>/dev/shm</code>。成功解决上述两个问题。</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ol>
-<li><p>虽然成功解决了两个问题，但是对于第一个问题还是感到迷惑。虽然，根据答案反推原因，可以查到 <code>DataLoader</code> 在工作的时候会依赖于 <code>shm</code>。但是，查到的错误却不同于第一份错误日志。</p>
-</li>
-<li><p>这次是运气好，遇到了第二个错误明显的提示。否则，可能就需要继续跟 <code>perf</code>，<code>strace</code> 作斗争了，甚至于调试 <code>coredump</code>。</p>
-</li>
-<li><p>在遇到错误二之前，已经决定自己在新集群上使用 <code>docker</code> 运行看看了，其实，这样的话也能发现被隐藏的 <code>--ipc=host</code>。</p>
-</li>
-<li><p>最终要的一点，不要轻易相信他人给定的条件。即使对方不是有意隐瞒，也可能会由于遗忘，或本来就不清楚等各种原因，导致丢失已知条件。</p>
-</li>
-</ol>
-
-    
-
-    
-
-    
-
-  </div>
-  <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">linux</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">docker</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">k8s</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">pytorch</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-
-    
-    <p class="article-more-link">
-      <a class="article-more-a" href="/2021/03/05/pytorch-fails-without-shm/">展开全文 >></a>
-    </p>
-    
-
-    
-    <div class="clearfix"></div>
-  </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-programming-open-closed-principle" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-  
-  
-    <h1 itemprop="name">
-	
-	  <a class="article-title" href="/2021/02/08/programming-open-closed-principle/" target="_blank">开闭原则</a>
-  
-    </h1>
-  
-
-
-  
-  
-<a href="/2021/02/08/programming-open-closed-principle/" class="archive-article-date">
-        <time datetime="2021-02-08T06:17:10.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-02-08</time>
-</a>
-
-  
-  
-    
-
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-    <h2 id="什么是开闭原则"><a href="#什么是开闭原则" class="headerlink" title="什么是开闭原则"></a>什么是开闭原则</h2><p><strong>需求变化</strong> 是让开发者最为头痛的问题之一。通常在新增一个功能的时候，都会伴随着修改原有的代码。因此，理想情况是在新增功能时尽可能减少对已有代码的改动，避免因改动代码引入新的问题。</p>
-<p>由此产生了一个编码设计原则: 开闭原则 (Open Close Principle)。</p>
-<blockquote>
-<p>Software entities like classes, modules and functions should be <strong>open for extension</strong> but <strong>closed for modifications</strong>.</p>
-</blockquote>
-<h2 id="举个栗子-——-用户注册模块"><a href="#举个栗子-——-用户注册模块" class="headerlink" title="举个栗子 —— 用户注册模块"></a>举个栗子 —— 用户注册模块</h2><h3 id="原始需求"><a href="#原始需求" class="headerlink" title="原始需求"></a>原始需求</h3><p>业务初期，只允许使用邮箱注册，因此，需要实现向邮箱发送验证码的功能。</p>
-<p>定义邮箱发送类，用于发送验证码:</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> EmailMessageSender <span class="keyword">struct</span> &#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(e *EmailMessageSender)</span> <span class="title">SendVerificationCode</span><span class="params">(code <span class="keyword">string</span>)</span></span> &#123;</span><br><span class="line">  fmt.Println(<span class="string">"Code: "</span>, code)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>定义服务类，调用邮箱发送类发送消息:</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> MessageService <span class="keyword">struct</span> &#123;</span><br><span class="line">  emailSender *EmailMessageSender</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewMessageService</span><span class="params">()</span> *<span class="title">MessageService</span></span> &#123;</span><br><span class="line">  <span class="keyword">return</span> &amp;MessageService&#123;</span><br><span class="line">    emailSender: &amp;EmailMessageSender&#123;&#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *MessageService)</span> <span class="title">SendVerificationCode</span><span class="params">(code <span class="keyword">string</span>)</span></span> &#123;</span><br><span class="line">  s.emailSender.SendVerificationCode(code)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>调用方式为:</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">  service := NewMessageService()</span><br><span class="line">  service.SendVerificationCode(<span class="string">"10086"</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="增加需求"><a href="#增加需求" class="headerlink" title="增加需求"></a>增加需求</h3><p>后来业务要求，允许使用手机号注册，通过短信的方式接受验证码。</p>
-<p>因此，增加发送短信类:</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> ShortMessageSender <span class="keyword">struct</span> &#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(e *ShortMessageSender)</span> <span class="title">SendVerificationCode</span><span class="params">(code <span class="keyword">string</span>)</span></span> &#123;</span><br><span class="line">  fmt.Println(<span class="string">"Code: "</span>, code)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>同时，需要修改 <code>MessageService</code> 类:</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> MessageService <span class="keyword">struct</span> &#123;</span><br><span class="line">  emailSender        *EmailMessageSender</span><br><span class="line">  shortMessageSender *ShortMessageSender</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>还需要通过某种方式制定使用哪种途径发送消息，例如增加一个表示类型的参数:</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> MessageSender <span class="keyword">int</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> (</span><br><span class="line">  MessageSenderEmail        MessageSender = <span class="literal">iota</span></span><br><span class="line">  MessageSenderShortMessage</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewMessageService</span><span class="params">(typ MessageSender)</span> *<span class="title">MessageService</span></span> &#123;</span><br><span class="line">  <span class="keyword">switch</span> typ &#123;</span><br><span class="line">    <span class="keyword">case</span> MessageSenderEmail:</span><br><span class="line">      <span class="keyword">return</span> &amp;MessageService&#123;</span><br><span class="line">        emailSender: &amp;EmailMessageSender&#123;&#125;</span><br><span class="line">      &#125;</span><br><span class="line">    <span class="keyword">case</span> MessageSenderShortMessage:</span><br><span class="line">      <span class="keyword">return</span> &amp;MessageService&#123;</span><br><span class="line">        shortMessageSender: &amp;ShortMessageSender&#123;&#125;</span><br><span class="line">      &#125;</span><br><span class="line">    <span class="keyword">default</span>:</span><br><span class="line">      <span class="built_in">panic</span>(fmt.Sprintf(<span class="string">"unknown sender type: %s"</span>, typ))</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *MessageService)</span> <span class="title">SendVerificationCode</span><span class="params">(code <span class="keyword">string</span>)</span></span> &#123;</span><br><span class="line">  <span class="keyword">if</span> s.emailSender != <span class="literal">nil</span> &#123;</span><br><span class="line">    s.emailSender.SendVerificationCode(code)</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> s.shortMessageSender != <span class="literal">nil</span> &#123;</span><br><span class="line">    s.shortMessageSender.SendVerificationCode(code)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>调用方式为:</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">  &#123;</span><br><span class="line">    service := NewMessageService(MessageSenderEmail)</span><br><span class="line">    service.SendVerificationCode(<span class="string">"10086"</span>)</span><br><span class="line">  &#125;</span><br><span class="line">  &#123;</span><br><span class="line">    service := NewMessageService(MessageSenderShortMessage)</span><br><span class="line">    service.SendVerificationCode(<span class="string">"10086"</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p>上面的实现方式违背了 <code>OCP</code>: 在增加新类型 <code>ShortMessageSender</code> 的同时，为了能使用这个类，需要同时修改函数 <code>NewMessageService</code> 与函数 <code>MessageService::SendVerificationCode</code>，手动确定使用哪种方式发送消息。</p>
-<p>并且可以确定以后每增加一种发送消息的类型，都需要同时修改这两个函数。</p>
-<h3 id="重构"><a href="#重构" class="headerlink" title="重构"></a>重构</h3><p>首先，可以观察到，无论是通过类型 <code>EmailMessageSender</code> 发送消息，亦或是通过类型 <code>ShortMessageSender</code> 发送消息，二者对于 <code>MessageService</code> 都只是发送消息的一种实现方式，而 <code>MessageService</code> 并不关心具体使用的方式是什么。由此可以考虑将这个功能抽象为一个接口:</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Sender <span class="keyword">interface</span> &#123;</span><br><span class="line">  SendVerificationCode(code <span class="keyword">string</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><code>MessageService</code> 只需要持有这个接口即可:</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> MessageService <span class="keyword">struct</span> &#123;</span><br><span class="line">  sender Sender</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewMessageService</span><span class="params">(sender Sender)</span> *<span class="title">MessageService</span></span> &#123;</span><br><span class="line">  <span class="keyword">return</span> &amp;MessageService&#123;</span><br><span class="line">    sender: sender,</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> (s *MessageService) SendVerificationCode(code <span class="keyword">string</span>) &#123;</span><br><span class="line">  s.sender.SendVerificationCode(code)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>接下来就是水到渠成的事情，让 <code>EmailMessageSender</code> 与 <code>ShortMessageSender</code> 分别实现接口 <code>Sender</code>:</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> EmailMessageSender <span class="keyword">struct</span> &#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(e *EmailMessageSender)</span> <span class="title">SendVerificationCode</span><span class="params">(code <span class="keyword">string</span>)</span></span> &#123;</span><br><span class="line">  fmt.Println(<span class="string">"Code: "</span>, code)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> ShortMessageSender <span class="keyword">struct</span> &#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(e *ShortMessageSender)</span> <span class="title">SendVerificationCode</span><span class="params">(code <span class="keyword">string</span>)</span></span> &#123;</span><br><span class="line">  fmt.Println(<span class="string">"Code: "</span>, code)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>最后，调用方式为:</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">  &#123;</span><br><span class="line">    service := NewMessageService(&amp;EmailMessageSender&#123;&#125;)</span><br><span class="line">    service.SendVerificationCode(<span class="string">"10086"</span>)</span><br><span class="line">  &#125;</span><br><span class="line">  &#123;</span><br><span class="line">    service := NewMessageService(&amp;ShortMessageSender&#123;&#125;)</span><br><span class="line">    service.SendVerificationCode(<span class="string">"10086"</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>使用这种方式，若要增加新的发送方式，只需要增加对应的类型，并使其实现接口 <code>Sender</code> 即可，而无需修改除 <code>main</code> 以外的其他函数。达到 <strong>open for extension</strong> but <strong>closed for modifications</strong>。</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p><strong>开闭原则</strong> 的目标是指导如何 <strong>提高代码可扩展性</strong>，因此是众多设计模式主要遵从的设计原则。</p>
-<p>熟练使用这项原则，需要开发者具备扩展意识、抽象意识、封装意识等。在写代码之前，要认真思考，未来的需求可能会改变哪里。将可能的变化进行抽象，对外提供不变的接口。</p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
-<li><a href="https://www.oodesign.com/open-close-principle.html" target="_blank" rel="noopener">open close principle</a></li>
-</ul>
-
-    
-
-    
-
-    
-
-  </div>
-  <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">programming</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-
-    
-    <p class="article-more-link">
-      <a class="article-more-a" href="/2021/02/08/programming-open-closed-principle/">展开全文 >></a>
-    </p>
-    
-
-    
-    <div class="clearfix"></div>
-  </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" href="/page/2/">Next &amp;raquo;</a>
@@ -1585,7 +1569,7 @@
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">gpu</a>
+                <a href="javascript:void(0)" class="js-tag color5">archlinux</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1613,7 +1597,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">archlinux</a>
+                <a href="javascript:void(0)" class="js-tag color4">gpu</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1634,10 +1618,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">networks</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">container orchestration</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1673,19 +1653,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">tls</a>
+                <a href="javascript:void(0)" class="js-tag color4">container orchestration</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">ssl</a>
+                <a href="javascript:void(0)" class="js-tag color4">nfs</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">https</a>
+                <a href="javascript:void(0)" class="js-tag color1">filesystem</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">mutual authentication</a>
+                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">innnodb</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1705,11 +1689,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">innnodb</a>
+                <a href="javascript:void(0)" class="js-tag color1">parallel programming</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1721,15 +1701,19 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">nfs</a>
+                <a href="javascript:void(0)" class="js-tag color4">tls</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">filesystem</a>
+                <a href="javascript:void(0)" class="js-tag color4">ssl</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">parallel programming</a>
+                <a href="javascript:void(0)" class="js-tag color1">https</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">mutual authentication</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1737,19 +1721,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">containerd</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">volume</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">storage</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">mongodb</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1757,15 +1729,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">mpi</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">operator</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">optimization</a>
+                <a href="javascript:void(0)" class="js-tag color3">storage</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1778,6 +1742,22 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">cpu performance</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">mpi</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">operator</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">mongodb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">optimization</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1805,7 +1785,27 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rust</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">async</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">tokio</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">pod</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">containerd</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">pytorch</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1817,10 +1817,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">pytorch</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">network</a>
               </li>
              
@@ -1829,19 +1825,19 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">scheduler</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">kubeadm</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">terminal</a>
+                <a href="javascript:void(0)" class="js-tag color5">scheduler</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">paas</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">terminal</a>
               </li>
              
               <li class="article-tag-list-item">

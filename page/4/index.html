@@ -172,6 +172,336 @@
             
 
   
+    <article id="post-kubernetes-deployment" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+  
+  
+    <h1 itemprop="name">
+	
+	  <a class="article-title" href="/2020/10/27/kubernetes-deployment/" target="_blank">Kubernetes Deployment</a>
+  
+    </h1>
+  
+
+
+  
+  
+<a href="/2020/10/27/kubernetes-deployment/" class="archive-article-date">
+        <time datetime="2020-10-27T02:48:23.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-10-27</time>
+</a>
+
+  
+  
+    
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    <p>一个 Deployment 控制器为 <a href="https://kubernetes.io/docs/concepts/workloads/pods/" target="_blank" rel="noopener">Pods</a> 和 <a href="https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/" target="_blank" rel="noopener">ReplicaSets</a> 提供声明式的更新能力。</p>
+<p>用户负责描述 Deployment 中的 <strong>目标状态</strong>，而 Deployment 控制器以受控速率更改 <strong>实际状态</strong>，使其变为 <strong>期望状态</strong>。用户可以定义 Deployment 以创建新的 ReplicaSet，或删除现有 Deployment， 并通过新的 Deployment 接收(adopt)其资源。</p>
+<blockquote>
+<p><strong>说明</strong>： 不要管理 Deployment 所拥有的 ReplicaSet 。 如果存在下面未覆盖的使用场景，请考虑在 Kubernetes 仓库中提出 Issue。</p>
+</blockquote>
+<h2 id="用例"><a href="#用例" class="headerlink" title="用例"></a>用例</h2><p>以下是 Deployments 的典型用例：</p>
+<ul>
+<li><a href="#Deployment">创建 Deployment 使 ReplicaSet 上线(rollout)</a>。 ReplicaSet 在后台创建 Pods。 检查 ReplicaSet 的上线状态，查看其是否成功。</li>
+<li>通过更新 Deployment 的 PodTemplateSpec，声明 Pod 的新状态 。 新的 ReplicaSet 会被创建，Deployment 以受控速率将 Pod 从旧 ReplicaSet 迁移到新 ReplicaSet。 每个新的 ReplicaSet 都会更新 Deployment 的修订版本。</li>
+<li>如果 Deployment 的当前状态不稳定，回滚到较早的 Deployment 版本。 每次回滚都会更新 Deployment 的修订版本。</li>
+<li>扩大 Deployment 规模以承担更多负载。</li>
+<li>暂停 Deployment 以应用对 PodTemplateSpec 所作的多项修改， 然后恢复其执行以启动新的上线版本。</li>
+<li>使用 Deployment 状态 来判定上线过程是否出现停滞。</li>
+<li>清理较旧的不再需要的 ReplicaSet。</li>
+</ul>
+<h2 id="创建-Deployment"><a href="#创建-Deployment" class="headerlink" title="创建 Deployment"></a>创建 Deployment</h2><p>下面是 Deployment 示例。Deployment 创建一个 ReplicaSet，负责启动三个 <strong>nginx</strong> Pods:</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">apps/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Deployment</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">nginx-deployment</span></span><br><span class="line">  <span class="attr">labels:</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">nginx</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">replicas:</span> <span class="number">3</span></span><br><span class="line">  <span class="attr">selector:</span></span><br><span class="line">    <span class="attr">matchLabels:</span></span><br><span class="line">      <span class="attr">app:</span> <span class="string">nginx</span></span><br><span class="line">  <span class="attr">template:</span></span><br><span class="line">    <span class="attr">metadata:</span></span><br><span class="line">      <span class="attr">labels:</span></span><br><span class="line">        <span class="attr">app:</span> <span class="string">nginx</span></span><br><span class="line">    <span class="attr">spec:</span></span><br><span class="line">      <span class="attr">containers:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">nginx</span></span><br><span class="line">        <span class="attr">image:</span> <span class="string">nginx:1.14.2</span></span><br><span class="line">        <span class="attr">ports:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">containerPort:</span> <span class="number">80</span></span><br></pre></td></tr></table></figure>
+
+<p>在该例中:</p>
+<ul>
+<li><p>创建名为 <strong>nginx-deployment</strong> (由 <strong>.metadata.name</strong> 字段标明) 的 Deployment。</p>
+</li>
+<li><p>该 Deployment 创建三个 (由 <strong>.spec.replicas</strong> 字段标明) Pod 副本。</p>
+</li>
+<li><p><strong>.spec.selector</strong> 字段定义 Deployment 如何查找要管理的 Pods。 在这里，你只需选择在 Pod 模板中定义的标签（app: nginx）。 不过，更复杂的选择规则是也可能的，只要 Pod 模板</p>
+<blockquote>
+<p><strong>说明</strong>： <strong>matchLabels</strong> 字段是 {key,value} 字典映射。在 <strong>matchLabels</strong> 映射中的单个 {key,value} 映射等效于 <strong>matchExpressions</strong> 中的一个元素，即其 key 字段是 “key”，operator 为 “In”，value 数组仅包含 “value”。在 <strong>matchLabels</strong> 和 <strong>matchExpressions</strong> 中给出的所有条件都必须满足才能匹配。</p>
+</blockquote>
+</li>
+<li><p><strong>.spec.template</strong> 字段包含以下子字段:</p>
+<ul>
+<li>使用 <strong>.metadata.labels</strong> 字段为 Pod 设置标签 <strong>app: nginx</strong></li>
+<li><strong>.template.spec</strong> 字段表示 Pod 的模板，指示 Pods 运行一个 <strong>nginx</strong> 容器，该容器运行 <strong>nginx:1.14.2</strong> 镜像。</li>
+<li>创建一个容器，使用 <strong>.spec.template.spec.containers[0].name</strong> 字段 <strong>nginx</strong> 作为名字</li>
+</ul>
+</li>
+</ul>
+<p>开始之前，请确保的 Kubernetes 集群已启动并运行。 按照以下步骤创建上述 Deployment:</p>
+<ol>
+<li><p>通过运行以下命令创建 Deployment:</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f https://k8s.io/examples/controllers/nginx-deployment.yaml</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>检查 Deployment 是否已创建。如果仍在创建 Deployment， 则输出类似于:</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">kubectl get deployments</span><br><span class="line"></span><br><span class="line">NAME               READY   UP-TO-DATE   AVAILABLE   AGE</span><br><span class="line">nginx-deployment   0/3     0            0           1s</span><br></pre></td></tr></table></figure>
+
+<p> 在检查集群中的 Deployment 时，所显示的字段有：</p>
+<ul>
+<li>NAME 列出了集群中 Deployment 的名称。</li>
+<li>READY 显示应用程序的可用的 <strong>副本</strong> 数。显示的模式是“就绪个数/期望个数”。</li>
+<li>UP-TO-DATE 显示为了打到期望状态已经更新的副本数。</li>
+<li>AVAILABLE 显示应用可供用户使用的副本数。</li>
+<li>AGE 显示应用程序运行的时间。<br>请注意期望副本数是根据 <strong>.spec.replicas</strong> 字段设置 3。</li>
+</ul>
+</li>
+<li><p>查看 Deployment 上线状态:</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">kubectl rollout status deployment.v1.apps/nginx-deployment</span><br><span class="line"></span><br><span class="line">Waiting <span class="keyword">for</span> rollout to finish: 2 out of 3 new replicas have been updated...</span><br><span class="line">deployment <span class="string">"nginx-deployment"</span> successfully rolled out</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查看 Deployment 创建的 ReplicaSet (rs):</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">kubectl get rs</span><br><span class="line"></span><br><span class="line">NAME                          DESIRED   CURRENT   READY   AGE</span><br><span class="line">nginx-deployment-75675f5897   3         3         3       18s</span><br></pre></td></tr></table></figure>
+
+<p> ReplicaSet 输出中包含以下字段:</p>
+<ul>
+<li>NAME 列出名字空间中 ReplicaSet 的名称；</li>
+<li>DESIRED 显示应用的期望副本个数，即在创建 Deployment 时所定义的值。 此为期望状态；</li>
+<li>CURRENT 显示当前运行状态中的副本个数；</li>
+<li>READY 显示应用中有多少副本可以为用户提供服务；</li>
+<li>AGE 显示应用已经运行的时间长度。<blockquote>
+<p><strong>注意</strong>: ReplicaSet 的名称始终被格式化为 <strong>[Deployment名称]-[随机字符串]</strong>。 其中的随机字符串是使用 <strong>pod-template-hash</strong> 作为种子随机生成的。</p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li><p>查看每个 Pod 自动生成的标签:</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">kubectl get pods --show-labels</span><br><span class="line"></span><br><span class="line">NAME                                READY     STATUS    RESTARTS   AGE       LABELS</span><br><span class="line">nginx-deployment-75675f5897-7ci7o   1/1       Running   0          18s       app=nginx,pod-template-hash=3123191453</span><br><span class="line">nginx-deployment-75675f5897-kzszj   1/1       Running   0          18s       app=nginx,pod-template-hash=3123191453</span><br><span class="line">nginx-deployment-75675f5897-qqcnn   1/1       Running   0          18s       app=nginx,pod-template-hash=3123191453</span><br></pre></td></tr></table></figure>
+
+<p> 所创建的 ReplicaSet 确保总是存在三个 <strong>nginx</strong> Pod。</p>
+</li>
+</ol>
+<blockquote>
+<p><strong>说明</strong>: 必须在 Deployment 中指定适当的 <strong>.spec.selector</strong> 和 <strong>.spec.template.metadata.labels</strong>。不要与其他控制器重叠。 Kubernetes 不会阻止这样做，但是如果多个控制器具有重叠的 selector，它们可能会发生冲突 执行难以预料的操作。</p>
+</blockquote>
+<h3 id="Pod-template-hash-标签"><a href="#Pod-template-hash-标签" class="headerlink" title="Pod-template-hash 标签"></a>Pod-template-hash 标签</h3><blockquote>
+<p><strong>注意</strong>: 不要更改此标签</p>
+</blockquote>
+<p>Deployment 控制器将 <strong>pod-template-hash</strong> 标签添加到 Deployment 所创建或接收(adopt) 的 每个 ReplicaSet 。</p>
+<p>此标签可确保 Deployment 的子 ReplicaSets 不重叠。 标签是通过对 ReplicaSet 的 PodTemplate 进行哈希处理。 所生成的哈希值被添加到 ReplicaSet 的 <strong>selector</strong>、Pod 的 <strong>label</strong>，并存在于在 ReplicaSet 可能拥有的任何现有 Pod 中。</p>
+<h2 id="更新-Deployment"><a href="#更新-Deployment" class="headerlink" title="更新 Deployment"></a>更新 Deployment</h2><blockquote>
+<p><strong>说明</strong>: 仅当 Deployment 的 <strong>.spec.template</strong> 发生改变时，例如模板的标签或容器镜像被更新，才会触发 Deployment 上线。其他更新(如对 Deployment 执行扩缩容的操作) 不会触发上线动作。</p>
+</blockquote>
+<p>按照以下步骤更新 Deployment:</p>
+<ol>
+<li><p>更新 <strong>nginx</strong> Pod 镜像，从 <strong>nginx:1.14.2</strong> 到 <strong>nginx:1.16.1</strong>:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl --record deployment.apps/nginx-deployment <span class="built_in">set</span> image \</span><br><span class="line">   deployment.v1.apps/nginx-deployment nginx=nginx:1.16.1</span><br><span class="line"></span><br><span class="line">deployment.apps/nginx-deployment image updated</span><br></pre></td></tr></table></figure>
+
+<p>或者使用下面的命令:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl <span class="built_in">set</span> image deployment/nginx-deployment nginx=nginx:1.16.1 --record</span><br><span class="line"></span><br><span class="line">deployment.apps/nginx-deployment image updated</span><br></pre></td></tr></table></figure>
+
+<p>或者，可以 <strong>edit</strong> Deployment 并将 <strong>.spec.template.spec.containers[0].image</strong> 从 <strong>nginx:1.14.2</strong> 更改至 <strong>nginx:1.16.1</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl edit deployment.v1.apps/nginx-deployment</span><br><span class="line"></span><br><span class="line">deployment.apps/nginx-deployment edited</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查看上线状态，运行:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl rollout status deployment.v1.apps/nginx-deployment</span><br><span class="line"></span><br><span class="line">Waiting <span class="keyword">for</span> rollout to finish: 2 out of 3 new replicas have been updated...</span><br><span class="line"></span><br><span class="line"><span class="comment"># 或者</span></span><br><span class="line"></span><br><span class="line">deployment <span class="string">"nginx-deployment"</span> successfully rolled out</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<p>获取关于已更新的 Deployment 的更多信息:</p>
+<ul>
+<li><p>查看 Deployment:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl get deployments</span><br><span class="line"></span><br><span class="line">NAME               DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE</span><br><span class="line">nginx-deployment   3         3         3            3           36s</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查看 Deployment 通过创建新的 ReplicaSet:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl get rs</span><br><span class="line"></span><br><span class="line">NAME                          DESIRED   CURRENT   READY   AGE</span><br><span class="line">nginx-deployment-1564180365   3         3         3       6s</span><br><span class="line">nginx-deployment-2035384211   0         0         0       36s</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查看 Deployment 的 Pod</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl get pods</span><br><span class="line"></span><br><span class="line">NAME                                READY     STATUS    RESTARTS   AGE</span><br><span class="line">nginx-deployment-1564180365-khku8   1/1       Running   0          14s</span><br><span class="line">nginx-deployment-1564180365-nacti   1/1       Running   0          14s</span><br><span class="line">nginx-deployment-1564180365-z9gth   1/1       Running   0          14s</span><br></pre></td></tr></table></figure>
+
+<p>Deployment 可确保在更新时仅关闭一定数量的 Pod。默认情况下，它确保至少所需 Pods 数量的 <strong>75%</strong> 处于运行状态 (最大不可用比例为 25%)。</p>
+<p>Deployment 还确保所创建 Pod 的数量只比期望 Pods 的数量超出一定数值。默认情况下，Deployment 可确保实际启动的 Pod 个数最大为期望值的 125%。</p>
+</li>
+<li><p>获取 Deployment 的更多信息:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl describe deployments</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li><a href="https://kubernetes.io/docs/concepts/workloads/pods/" target="_blank" rel="noopener">Kubernetes Pods</a></li>
+<li><a href="https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/" target="_blank" rel="noopener">Kubernetes ReplicaSets</a></li>
+</ul>
+
+    
+
+    
+
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">kubernetes</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">controllers</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+
+    
+    <p class="article-more-link">
+      <a class="article-more-a" href="/2020/10/27/kubernetes-deployment/">展开全文 >></a>
+    </p>
+    
+
+    
+    <div class="clearfix"></div>
+  </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-opt-cni-is-readonly-directory" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+  
+  
+    <h1 itemprop="name">
+	
+	  <a class="article-title" href="/2020/10/26/opt-cni-is-readonly-directory/" target="_blank">/opt/cni - readonly filesystem</a>
+  
+    </h1>
+  
+
+
+  
+  
+<a href="/2020/10/26/opt-cni-is-readonly-directory/" class="archive-article-date">
+        <time datetime="2020-10-26T03:44:37.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-10-26</time>
+</a>
+
+  
+  
+    
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    <p>在部署 <a href="https://docs.projectcalico.org/getting-started/kubernetes/flannel/flannel" target="_blank" rel="noopener">Canal</a> 时遇到如下错误:</p>
+<ol>
+<li><p>查看 <strong>Pod</strong> 状态:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl get pods --all-namespaces</span><br><span class="line"></span><br><span class="line">NAMESPACE     NAME                                                              READY   STATUS                   RESTARTS   AGE</span><br><span class="line">kube-system   canal-5qk26                                                       0/2     Init:RunContainerError   0          10m</span><br><span class="line">kube-system   kube-proxy-tt2qn                                                  0/1     CrashLoopBackOff         10         11m</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查看 <strong>canal-5qk26</strong> 事件:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl -n kube-system describe pod canal-5qk26</span><br><span class="line"></span><br><span class="line">Events:</span><br><span class="line">  Type     Reason          Age                     From                Message</span><br><span class="line">  ----     ------          ----                    ----                -------</span><br><span class="line">  Normal   Scheduled       6m41s                   default-scheduler   Successfully assigned kube-system/canal-5qk26 to ubuntu-01</span><br><span class="line">  Warning  Failed          6m40s                   kubelet, ubuntu-01  Error: failed to start container <span class="string">"install-cni"</span>: Error response from daemon: can<span class="string">'t join IPC of container 1f3affaa9eba3f1087ac2309f7c4147a54e2cbad09be733e9c394ce7a8ba583b: container 1f3affaa9eba3f1087ac2309f7c4147a54e2cbad09be733e9c394ce7a8ba583b is not running</span></span><br><span class="line"><span class="string">  Warning  Failed          6m39s                   kubelet, ubuntu-01  Error: failed to start container "install-cni": Error response from daemon: cannot join network of a non running container: 1861c340dfadba101b333af1163329a88a8e02fd25e5d657b4e0954acd09d3d5</span></span><br><span class="line"><span class="string">  Warning  Failed          6m37s                   kubelet, ubuntu-01  Error: failed to start container "install-cni": Error response from daemon: error while creating mount source path '</span>/opt/cni/bin<span class="string">': mkdir /opt/cni: read-only file system</span></span><br><span class="line"><span class="string">  Warning  BackOff         6m34s (x3 over 6m38s)   kubelet, ubuntu-01  Back-off restarting failed container</span></span><br><span class="line"><span class="string">  Normal   Pulled          6m33s (x5 over 6m40s)   kubelet, ubuntu-01  Container image "calico/cni:v3.16.4" already present on machine</span></span><br><span class="line"><span class="string">  Normal   Created         6m33s (x5 over 6m40s)   kubelet, ubuntu-01  Created container install-cni</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">  Normal   SandboxChanged  100s (x269 over 6m39s)  kubelet, ubuntu-01  Pod sandbox changed, it will be killed and re-created.</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查看 <strong>kube-proxy-tt2qn</strong> 事件:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl -n kube-system describe pod kube-proxy-tt2qn</span><br><span class="line"></span><br><span class="line">Events:</span><br><span class="line">  Type     Reason          Age                      From                Message</span><br><span class="line">  ----     ------          ----                     ----                -------</span><br><span class="line">  Normal   Scheduled       11m                      default-scheduler   Successfully assigned kube-system/kube-proxy-tt2qn to ubuntu-01</span><br><span class="line">  Normal   Pulled          11m (x2 over 11m)        kubelet, ubuntu-01  Container image <span class="string">"registry.aliyuncs.com/google_containers/kube-proxy:v1.19.3"</span> already present on machine</span><br><span class="line">  Normal   Created         11m (x2 over 11m)        kubelet, ubuntu-01  Created container kube-proxy</span><br><span class="line">  Warning  Failed          11m                      kubelet, ubuntu-01  Error: failed to start container <span class="string">"kube-proxy"</span>: Error response from daemon: cannot join network of a non running container: 119388927b173ad23226c1049db0c1269ada343b133774807a1615cc79442246</span><br><span class="line">  Warning  BackOff         11m (x9 over 11m)        kubelet, ubuntu-01  Back-off restarting failed container</span><br><span class="line">  Normal   SandboxChanged  11m (x10 over 11m)       kubelet, ubuntu-01  Pod sandbox changed, it will be killed and re-created.</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查看 <strong>Worker</strong> 节点上 <strong>Kubelet</strong> 与 <strong>Docker</strong> 日志:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">$ journalctl -f</span><br><span class="line"></span><br><span class="line">  -- Logs begin at Mon 2020-10-19 10:09:50 UTC. --</span><br><span class="line">  Oct 26 02:31:35 ubuntu-01 docker.dockerd[1781]: time=<span class="string">"2020-10-26T02:31:35.429587085Z"</span> level=error msg=<span class="string">"Handler for POST /v1.40/containers/aef879b89cd75d23249e76091a4716c1303855b904979e983920aae02da01d18/start returned error: error while creating mount source path '/opt/cni/bin': mkdir /opt/cni: read-only file system"</span></span><br><span class="line">  Oct 26 02:31:35 ubuntu-01 kubelet[281110]: E1026 02:31:35.474035  281110 remote_runtime.go:248] StartContainer <span class="string">"aef879b89cd75d23249e76091a4716c1303855b904979e983920aae02da01d18"</span> from runtime service failed: rpc error: code = Unknown desc = failed to start container <span class="string">"aef879b89cd75d23249e76091a4716c1303855b904979e983920aae02da01d18"</span>: Error response from daemon: error <span class="keyword">while</span> creating mount <span class="built_in">source</span> path <span class="string">'/opt/cni/bin'</span>: mkdir /opt/cni: <span class="built_in">read</span>-only file system</span><br><span class="line">  Oct 26 02:31:35 ubuntu-01 kubelet[281110]: E1026 02:31:35.474175  281110 pod_workers.go:191] Error syncing pod 5f45d450-c4e9-45dc-b2c6-52a95570ba71 (<span class="string">"canal-5qk26_kube-system(5f45d450-c4e9-45dc-b2c6-52a95570ba71)"</span>), skipping: failed to <span class="string">"StartContainer"</span> <span class="keyword">for</span> <span class="string">"install-cni"</span> with RunContainerError: <span class="string">"failed to start container \"aef879b89cd75d23249e76091a4716c1303855b904979e983920aae02da01d18\": Error response from daemon: error while creating mount source path '/opt/cni/bin': mkdir /opt/cni: read-only file system"</span></span><br><span class="line">  Oct 26 02:31:36 ubuntu-01 audit[315954]: AVC apparmor=<span class="string">"DENIED"</span> operation=<span class="string">"exec"</span> info=<span class="string">"no new privs"</span> error=-1 profile=<span class="string">"snap.docker.dockerd"</span> name=<span class="string">"/pause"</span> pid=315954 comm=<span class="string">"runc:[2:INIT]"</span> requested_mask=<span class="string">"x"</span> denied_mask=<span class="string">"x"</span> fsuid=0 ouid=0 target=<span class="string">"docker-default"</span></span><br><span class="line">  Oct 26 02:31:36 ubuntu-01 kernel: audit: <span class="built_in">type</span>=1400 audit(1603679496.465:6039): apparmor=<span class="string">"DENIED"</span> operation=<span class="string">"exec"</span> info=<span class="string">"no new privs"</span> error=-1 profile=<span class="string">"snap.docker.dockerd"</span> name=<span class="string">"/pause"</span> pid=315954 comm=<span class="string">"runc:[2:INIT]"</span> requested_mask=<span class="string">"x"</span> denied_mask=<span class="string">"x"</span> fsuid=0 ouid=0 target=<span class="string">"docker-default"</span></span><br><span class="line">  Oct 26 02:31:36 ubuntu-01 kubelet[281110]: W1026 02:31:36.635730  281110 cni.go:239] Unable to update cni config: no networks found <span class="keyword">in</span> /etc/cni/net.d</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<p>根据上述日志信息，可以确认根本错误出现在 <strong>Docker</strong> 中:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">error while creating mount source path &#39;&#x2F;opt&#x2F;cni&#x2F;bin&#39;: mkdir &#x2F;opt&#x2F;cni: read-only file system</span><br></pre></td></tr></table></figure>
+
+<p>但宿主机目录 <strong>/opt/cni</strong> 的权限为:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">stat</span> /opt/cni/</span><br><span class="line"></span><br><span class="line">  File: /opt/cni/</span><br><span class="line">  Size: 4096            Blocks: 8          IO Block: 4096   directory</span><br><span class="line">Device: fd00h/64768d    Inode: 917533      Links: 3</span><br><span class="line">Access: (0755/drwxr-xr-x)  Uid: (    0/    root)   Gid: (    0/    root)</span><br><span class="line">Access: 2020-10-26 01:41:07.222221020 +0000</span><br><span class="line">Modify: 2020-10-20 13:00:36.461719609 +0000</span><br><span class="line">Change: 2020-10-20 13:00:36.461719609 +0000</span><br><span class="line"> Birth: -</span><br></pre></td></tr></table></figure>
+
+<p>因此，推测为 <strong>Docker</strong> 服务的问题。最终，通过重启 <strong>Docker</strong> 解决问题:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo systemctl restart docker.service</span><br></pre></td></tr></table></figure>
+
+    
+
+    
+
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">kubernetes</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">faq</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+
+    
+    <p class="article-more-link">
+      <a class="article-more-a" href="/2020/10/26/opt-cni-is-readonly-directory/">展开全文 >></a>
+    </p>
+    
+
+    
+    <div class="clearfix"></div>
+  </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-mpi-operator" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1026,229 +1356,6 @@
 
 
   
-    <article id="post-started-with-mpi" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-  
-  
-    <h1 itemprop="name">
-	
-	  <a class="article-title" href="/2020/10/11/started-with-mpi/" target="_blank">初识 MPI</a>
-  
-    </h1>
-  
-
-
-  
-  
-<a href="/2020/10/11/started-with-mpi/" class="archive-article-date">
-        <time datetime="2020-10-11T04:10:37.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-10-11</time>
-</a>
-
-  
-  
-    
-
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-    <h2 id="消息传递模型"><a href="#消息传递模型" class="headerlink" title="消息传递模型"></a>消息传递模型</h2><p><strong>消息传递模型(Message Passing Model)</strong> 指程序通过在进程间传递消息（消息可以理解成带有一些信息和数据的一个数据结构）来完成某些任务。在实践中，基于此模型，很容易开发 <strong>并发程序</strong>。</p>
-<p>举例来说:</p>
-<ol>
-<li>主进程(manager process) 可以通过向从进程(worker process) 发送一个描述工作的消息的方式，将工作分配给从进程。</li>
-<li>一个并发的排序程序可以在当前进程中对当前进程可见的(我们称作本地的，locally) 数据进行排序，然后把排好序的数据发送到邻居进程上面来进行合并的操作。</li>
-</ol>
-<p>几乎所有的并行程序可以使用消息传递模型来描述。</p>
-<p>之后，业界统一制定了一套消息传递模型的接口标准，即 <strong>Message Passing Interface —— MPI</strong>。</p>
-<h2 id="MPI-基础概念"><a href="#MPI-基础概念" class="headerlink" title="MPI 基础概念"></a>MPI 基础概念</h2><h3 id="Communicator"><a href="#Communicator" class="headerlink" title="Communicator"></a>Communicator</h3><p><strong>通讯器(communicator)</strong> 定义了一组能够互相发消息的进程。</p>
-<h3 id="Rank"><a href="#Rank" class="headerlink" title="Rank"></a>Rank</h3><p>在 <strong>通讯器(communicator)</strong> 中，每个进程会被分配一个序号，称作 <strong>秩(rank)</strong>，进程间显性地通过指定 <strong>rank</strong> 来进行通信。</p>
-<h3 id="Tag"><a href="#Tag" class="headerlink" title="Tag"></a>Tag</h3><p>不同进程之间发送、接收操作是通信的基础。</p>
-<p>作为发送者时，进程可以通过指定另一个进程的 <strong>rank</strong> 和一个独一无二的 <strong>消息标签(tag)</strong> 来发送消息给另一个进程。</p>
-<p>作为接受者时，进程可以发送一个 <strong>接收特定标签标记的消息的请求 (或者忽略标签，接收任何消息)</strong>，然后依次处理接收到的数据。</p>
-<h3 id="Point-to-Point-Communications"><a href="#Point-to-Point-Communications" class="headerlink" title="Point-to-Point Communications"></a>Point-to-Point Communications</h3><p>一个发送者，一个接受者的通信被称作 <strong>点对点(point-to-point) 通信</strong>。</p>
-<h3 id="Collective-Communications"><a href="#Collective-Communications" class="headerlink" title="Collective Communications"></a>Collective Communications</h3><p>在很多情况下，某个进程可能需要跟所有其他进程通信。比如主进程想发一个广播给所有的从进程。在这种情况下，如果通过写代码的方式来完成所有的发送和接收过程会很麻烦。并且，事实上，这种方式往往也不会以最佳方式使用网络。MPI 可以处理各种各样的这些涉及所有进程的 <strong>集体(Collective)通信</strong> 类型。</p>
-<h2 id="使用-MPI"><a href="#使用-MPI" class="headerlink" title="使用 MPI"></a>使用 MPI</h2><p><strong>MPI</strong> 只是一套接口标准，无法直接使用。对此不必担心，业内已经存在很多符合标准的实现。其中 <strong>OpenMPI</strong> 就是最受欢迎的实现之一。因此，之后的内容基于 <strong>OpenMPI</strong> 展开。</p>
-<h3 id="安装-OpenMPI"><a href="#安装-OpenMPI" class="headerlink" title="安装 OpenMPI"></a>安装 OpenMPI</h3><p>从 <a href="https://www.open-mpi.org/software/ompi/v4.0/" target="_blank" rel="noopener">这里</a> 可以找到最新的版本，本文基于版本 <a href="https://download.open-mpi.org/release/open-mpi/v4.0/openmpi-4.0.5.tar.gz" target="_blank" rel="noopener">4.0.5</a>。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># download package</span></span><br><span class="line">$ wget https://download.open-mpi.org/release/open-mpi/v4.0/openmpi-4.0.5.tar.gz</span><br><span class="line"></span><br><span class="line"><span class="comment"># extract files</span></span><br><span class="line">$ tar xzf openmpi-4.0.5.tar.gz</span><br><span class="line"></span><br><span class="line">$ <span class="built_in">cd</span> openmpi-4.0.5</span><br><span class="line"></span><br><span class="line"><span class="comment"># configure project</span></span><br><span class="line">$ mkdir -p build; ./configure --prefix=$(<span class="built_in">pwd</span>)/build</span><br><span class="line"></span><br><span class="line"><span class="comment"># build</span></span><br><span class="line">$ make -j; make -j install</span><br></pre></td></tr></table></figure>
-
-<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
-<li><a href="https://mpitutorial.com/tutorials/mpi-introduction/" target="_blank" rel="noopener">MPI Tutorial Introduction</a></li>
-<li><a href="https://www.open-mpi.org/faq/" target="_blank" rel="noopener">OpenMPI FAQ</a></li>
-<li><a href="https://www.mpi-forum.org/" target="_blank" rel="noopener">MPI Forum</a></li>
-<li><a href="https://www.citutor.org//browse.php" target="_blank" rel="noopener">The “Introduction to MPI” and “Intermediate MPI” tutorials</a></li>
-<li><a href="http://hpc.mediawiki.hull.ac.uk/Applications/OpenMPI" target="_blank" rel="noopener">UNIVERSITY OF HULL HPC: OpenMPI</a></li>
-</ul>
-
-    
-
-    
-
-    
-
-  </div>
-  <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">mpi</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-
-    
-    <p class="article-more-link">
-      <a class="article-more-a" href="/2020/10/11/started-with-mpi/">展开全文 >></a>
-    </p>
-    
-
-    
-    <div class="clearfix"></div>
-  </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-readings-about-training-system" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-  
-  
-    <h1 itemprop="name">
-	
-	  <a class="article-title" href="/2020/10/11/readings-about-training-system/" target="_blank">训练系统相关读物</a>
-  
-    </h1>
-  
-
-
-  
-  
-<a href="/2020/10/11/readings-about-training-system/" class="archive-article-date">
-        <time datetime="2020-10-11T03:44:32.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-10-11</time>
-</a>
-
-  
-  
-    
-
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-    <ul>
-<li><a href="https://images.nvidia.com/events/sc15/pdfs/NCCL-Woolley.pdf" target="_blank" rel="noopener">NCCL: ACCELERATED MULTI-GPU COLLECTIVE COMMUNICATIONS</a></li>
-<li><a href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.95.2490&rep=rep1&type=pdf" target="_blank" rel="noopener">Message Passing, Remote Procedure Calls and Distributed Shared Memory as Communication Paradigms for Distributed Systems</a></li>
-<li><a href="https://zhuanlan.zhihu.com/p/50116885" target="_blank" rel="noopener">分布式训练的方案和效率对比</a></li>
-<li><a href="http://gaocegege.com/Blog/mpi-1" target="_blank" rel="noopener">MPI，OpenMPI 与深度学习</a></li>
-<li><a href="https://mpitutorial.com/tutorials/mpi-introduction/zh_cn/" target="_blank" rel="noopener">MPI 教程介绍</a></li>
-<li><a href="https://www.mpi-forum.org/" target="_blank" rel="noopener">MPI Forum</a></li>
-<li><a href="https://zhuanlan.zhihu.com/p/149771261" target="_blank" rel="noopener">2020 Rethinking GPU 集群上的分布式训练</a></li>
-<li><a href="https://zhuanlan.zhihu.com/p/40578792" target="_blank" rel="noopener">Horovod-基于TensorFlow分布式深度学习框架</a></li>
-<li><a href="https://github.com/horovod/horovod" target="_blank" rel="noopener">Github: Horovod</a></li>
-<li><a href="https://kubernetes.io/docs/tasks/manage-gpus/scheduling-gpus/" target="_blank" rel="noopener">Schedule GPUs</a></li>
-<li><a href="https://kubernetes.io/docs/concepts/extend-kubernetes/compute-storage-net/device-plugins/" target="_blank" rel="noopener">Device Plugins</a></li>
-<li><a href="https://towardsdatascience.com/distributed-deep-learning-training-with-horovod-on-kubernetes-6b28ac1d6b5d" target="_blank" rel="noopener">Distributed Deep Learning Training with Horovod on Kubernetes</a></li>
-<li><a href="https://developer.nvidia.com/kubernetes-gpu" target="_blank" rel="noopener">Kubernetes on NVIDIA GPUs</a></li>
-</ul>
-
-    
-
-    
-
-    
-
-  </div>
-  <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">gpu</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">kubernetes</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">mpi</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">rdma</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-
-    
-    <p class="article-more-link">
-      <a class="article-more-a" href="/2020/10/11/readings-about-training-system/">展开全文 >></a>
-    </p>
-    
-
-    
-    <div class="clearfix"></div>
-  </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <a class="extend prev" rel="prev" href="/page/3/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><a class="page-number" href="/page/6/">6</a><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" href="/page/5/">Next &amp;raquo;</a>
@@ -1382,7 +1489,7 @@
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">gpu</a>
+                <a href="javascript:void(0)" class="js-tag color5">archlinux</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1410,7 +1517,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">archlinux</a>
+                <a href="javascript:void(0)" class="js-tag color4">gpu</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1431,10 +1538,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">networks</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">container orchestration</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1470,19 +1573,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">tls</a>
+                <a href="javascript:void(0)" class="js-tag color4">container orchestration</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">ssl</a>
+                <a href="javascript:void(0)" class="js-tag color4">nfs</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">https</a>
+                <a href="javascript:void(0)" class="js-tag color1">filesystem</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">mutual authentication</a>
+                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">innnodb</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1502,11 +1609,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">innnodb</a>
+                <a href="javascript:void(0)" class="js-tag color1">parallel programming</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1518,15 +1621,19 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">nfs</a>
+                <a href="javascript:void(0)" class="js-tag color4">tls</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">filesystem</a>
+                <a href="javascript:void(0)" class="js-tag color4">ssl</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">parallel programming</a>
+                <a href="javascript:void(0)" class="js-tag color1">https</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">mutual authentication</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1534,19 +1641,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">containerd</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">volume</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">storage</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">mongodb</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1554,15 +1649,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">mpi</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">operator</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">optimization</a>
+                <a href="javascript:void(0)" class="js-tag color3">storage</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1575,6 +1662,22 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">cpu performance</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">mpi</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">operator</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">mongodb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">optimization</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1602,7 +1705,27 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rust</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">async</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">tokio</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">pod</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">containerd</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">pytorch</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1614,10 +1737,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">pytorch</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">network</a>
               </li>
              
@@ -1626,19 +1745,19 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">scheduler</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">kubeadm</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">terminal</a>
+                <a href="javascript:void(0)" class="js-tag color5">scheduler</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">paas</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">terminal</a>
               </li>
              
               <li class="article-tag-list-item">

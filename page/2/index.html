@@ -172,6 +172,267 @@
             
 
   
+    <article id="post-pytorch-fails-without-shm" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+  
+  
+    <h1 itemprop="name">
+	
+	  <a class="article-title" href="/2021/03/05/pytorch-fails-without-shm/" target="_blank">未设置 shm 导致 PyTorch 任务失败</a>
+  
+    </h1>
+  
+
+
+  
+  
+<a href="/2021/03/05/pytorch-fails-without-shm/" class="archive-article-date">
+        <time datetime="2021-03-05T02:01:27.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-03-05</time>
+</a>
+
+  
+  
+    
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    <p>最近，配合研发同学将原来在老集群上直接用 <code>docker</code> 运行的 <code>pytorch</code> 算法迁移到使用 <code>k8s</code> 的新集群上运行。结果，很不幸，研发同学说无法运行。错误日志如下:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-Traceback (most recent call last):</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-  File <span class="string">"/miniconda3/envs/pyasr/lib/python3.7/runpy.py"</span>, line 193, <span class="keyword">in</span> _run_module_as_main</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-<span class="string">"__main__"</span>, mod_spec)</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-  File <span class="string">"/miniconda3/envs/pyasr/lib/python3.7/runpy.py"</span>, line 85, <span class="keyword">in</span> _run_code</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-exec(code, run_globals)</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-  File <span class="string">"/pytorch-asr/egs/chn_40h/extend_code/launch.py"</span>, line 29, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-main()</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-  File <span class="string">"/pytorch-asr/asr/launch.py"</span>, line 10, <span class="keyword">in</span> main</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-launch(args)</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-  File <span class="string">"/pytorch-asr/asr/cli/launch.py"</span>, line 148, <span class="keyword">in</span> launch</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-trainer.train_on(data)</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-  File <span class="string">"/pytorch-asr/asr/trainer/trainer.py"</span>, line 77, <span class="keyword">in</span> train_on</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-self.train_epoch(data[<span class="string">'tr'</span>])</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-  File <span class="string">"/pytorch-asr/asr/trainer/trainer.py"</span>, line 41, <span class="keyword">in</span> train_epoch</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-return self._one_epoch(data_queue, is_training=True)</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-  File <span class="string">"/pytorch-asr/asr/trainer/trainer.py"</span>, line 63, <span class="keyword">in</span> _one_epoch</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-return self.one_epoch(data_queue, is_training)</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-  File <span class="string">"/pytorch-asr/asr/trainer/naive_trainer.py"</span>, line 115, <span class="keyword">in</span> one_epoch</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-for batch_idx, batch <span class="keyword">in</span> enumerate(self.timer[<span class="string">'io'</span>].profile(data_queue)):</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-  File <span class="string">"/pytorch-asr/asr/trainer/common.py"</span>, line 102, <span class="keyword">in</span> profile</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-value = next(iterator)</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-  File <span class="string">"&lt;string&gt;"</span>, line 2, <span class="keyword">in</span> get</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-  File <span class="string">"/miniconda3/envs/pyasr/lib/python3.7/multiprocessing/managers.py"</span>, line 834, <span class="keyword">in</span> _callmethod</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-raise convert_to_error(kind, result)</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-_queue</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-.</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-Empty</span><br><span class="line">11:12:55[asr.utils.bootstrap]-WARNING-Version 0.3.1.dev28</span><br></pre></td></tr></table></figure>
+
+<p>看到这个错误，就挺迷茫的。</p>
+<p>根据错误信息:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-  File <span class="string">"/pytorch-asr/asr/trainer/naive_trainer.py"</span>, line 115, <span class="keyword">in</span> one_epoch</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-for batch_idx, batch <span class="keyword">in</span> enumerate(self.timer[<span class="string">'io'</span>].profile(data_queue)):</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-  File <span class="string">"/pytorch-asr/asr/trainer/common.py"</span>, line 102, <span class="keyword">in</span> profile</span><br><span class="line">10:59:01[asr.utils.bootstrap]-ERROR-value = next(iterator)</span><br></pre></td></tr></table></figure>
+
+<p>推断是读数据的时候出现了问题。虽然看起来与 <code>GPU</code> 没有关系，但是，为了保险起见，依然对比了前后环境的 <code>NVIDIA Driver</code>，<code>CUDA</code> 等版本信息，结果是一致的。而且，<code>NCCL</code> 是在镜像中安装的，不太可能有问题。</p>
+<p>之后，尝试在容器中安装 <code>perf</code>，但是失败了，尝试在容器中使用 <code>strace</code>，提示没有权限。</p>
+<p>正在我继续死磕的时候，研发提供了另一段错误日志:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pytorch-956sg:9319:9379 [0] include/shm.h:48 NCCL WARN Error <span class="keyword">while</span> creating shared memory segment nccl-shm-recv-183375136c5888b6-0-2-3 (size 9637888)</span><br></pre></td></tr></table></figure>
+
+<p>这个错误就很有价值啊，创建共享内存失败。</p>
+<p>此前，反复与研发同学确认过，是否只依赖于外部的 <code>NVIDIA Driver</code> 与 <code>CUDA</code>，得到了肯定的答复。因此，就一直以此为前提进行排查。但现在我产生了怀疑，问研发要来启动命令，隐藏敏感数据后如下:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -dit /data:/data --name asr --ipc=host image:latest /bin/bash</span><br></pre></td></tr></table></figure>
+
+<p>果然就发现了隐藏信息: <strong>–ipc=host</strong> 。</p>
+<p>因此，修改在原有创建任务的 <code>yaml</code> 文件中增加 <code>volume</code>:</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">containers:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">asr</span></span><br><span class="line">      <span class="attr">image:</span> <span class="string">image:latest</span></span><br><span class="line">      <span class="attr">volumeMounts:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">mountPath:</span> <span class="string">/dev/shm</span></span><br><span class="line">          <span class="attr">name:</span> <span class="string">shm</span></span><br><span class="line">  <span class="attr">volumes:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">shm</span></span><br><span class="line">      <span class="attr">emptyDir:</span></span><br><span class="line">         <span class="attr">medium:</span> <span class="string">Memory</span></span><br></pre></td></tr></table></figure>
+
+<p>在容器内，挂载一个 <code>tmpfs</code> 到 <code>/dev/shm</code>。成功解决上述两个问题。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ol>
+<li><p>虽然成功解决了两个问题，但是对于第一个问题还是感到迷惑。虽然，根据答案反推原因，可以查到 <code>DataLoader</code> 在工作的时候会依赖于 <code>shm</code>。但是，查到的错误却不同于第一份错误日志。</p>
+</li>
+<li><p>这次是运气好，遇到了第二个错误明显的提示。否则，可能就需要继续跟 <code>perf</code>，<code>strace</code> 作斗争了，甚至于调试 <code>coredump</code>。</p>
+</li>
+<li><p>在遇到错误二之前，已经决定自己在新集群上使用 <code>docker</code> 运行看看了，其实，这样的话也能发现被隐藏的 <code>--ipc=host</code>。</p>
+</li>
+<li><p>最终要的一点，不要轻易相信他人给定的条件。即使对方不是有意隐瞒，也可能会由于遗忘，或本来就不清楚等各种原因，导致丢失已知条件。</p>
+</li>
+</ol>
+
+    
+
+    
+
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">linux</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">docker</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">k8s</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">pytorch</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+
+    
+    <p class="article-more-link">
+      <a class="article-more-a" href="/2021/03/05/pytorch-fails-without-shm/">展开全文 >></a>
+    </p>
+    
+
+    
+    <div class="clearfix"></div>
+  </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-programming-open-closed-principle" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+  
+  
+    <h1 itemprop="name">
+	
+	  <a class="article-title" href="/2021/02/08/programming-open-closed-principle/" target="_blank">开闭原则</a>
+  
+    </h1>
+  
+
+
+  
+  
+<a href="/2021/02/08/programming-open-closed-principle/" class="archive-article-date">
+        <time datetime="2021-02-08T06:17:10.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-02-08</time>
+</a>
+
+  
+  
+    
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    <h2 id="什么是开闭原则"><a href="#什么是开闭原则" class="headerlink" title="什么是开闭原则"></a>什么是开闭原则</h2><p><strong>需求变化</strong> 是让开发者最为头痛的问题之一。通常在新增一个功能的时候，都会伴随着修改原有的代码。因此，理想情况是在新增功能时尽可能减少对已有代码的改动，避免因改动代码引入新的问题。</p>
+<p>由此产生了一个编码设计原则: 开闭原则 (Open Close Principle)。</p>
+<blockquote>
+<p>Software entities like classes, modules and functions should be <strong>open for extension</strong> but <strong>closed for modifications</strong>.</p>
+</blockquote>
+<h2 id="举个栗子-——-用户注册模块"><a href="#举个栗子-——-用户注册模块" class="headerlink" title="举个栗子 —— 用户注册模块"></a>举个栗子 —— 用户注册模块</h2><h3 id="原始需求"><a href="#原始需求" class="headerlink" title="原始需求"></a>原始需求</h3><p>业务初期，只允许使用邮箱注册，因此，需要实现向邮箱发送验证码的功能。</p>
+<p>定义邮箱发送类，用于发送验证码:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> EmailMessageSender <span class="keyword">struct</span> &#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(e *EmailMessageSender)</span> <span class="title">SendVerificationCode</span><span class="params">(code <span class="keyword">string</span>)</span></span> &#123;</span><br><span class="line">  fmt.Println(<span class="string">"Code: "</span>, code)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>定义服务类，调用邮箱发送类发送消息:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> MessageService <span class="keyword">struct</span> &#123;</span><br><span class="line">  emailSender *EmailMessageSender</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewMessageService</span><span class="params">()</span> *<span class="title">MessageService</span></span> &#123;</span><br><span class="line">  <span class="keyword">return</span> &amp;MessageService&#123;</span><br><span class="line">    emailSender: &amp;EmailMessageSender&#123;&#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *MessageService)</span> <span class="title">SendVerificationCode</span><span class="params">(code <span class="keyword">string</span>)</span></span> &#123;</span><br><span class="line">  s.emailSender.SendVerificationCode(code)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>调用方式为:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">  service := NewMessageService()</span><br><span class="line">  service.SendVerificationCode(<span class="string">"10086"</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="增加需求"><a href="#增加需求" class="headerlink" title="增加需求"></a>增加需求</h3><p>后来业务要求，允许使用手机号注册，通过短信的方式接受验证码。</p>
+<p>因此，增加发送短信类:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> ShortMessageSender <span class="keyword">struct</span> &#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(e *ShortMessageSender)</span> <span class="title">SendVerificationCode</span><span class="params">(code <span class="keyword">string</span>)</span></span> &#123;</span><br><span class="line">  fmt.Println(<span class="string">"Code: "</span>, code)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>同时，需要修改 <code>MessageService</code> 类:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> MessageService <span class="keyword">struct</span> &#123;</span><br><span class="line">  emailSender        *EmailMessageSender</span><br><span class="line">  shortMessageSender *ShortMessageSender</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>还需要通过某种方式制定使用哪种途径发送消息，例如增加一个表示类型的参数:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> MessageSender <span class="keyword">int</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> (</span><br><span class="line">  MessageSenderEmail        MessageSender = <span class="literal">iota</span></span><br><span class="line">  MessageSenderShortMessage</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewMessageService</span><span class="params">(typ MessageSender)</span> *<span class="title">MessageService</span></span> &#123;</span><br><span class="line">  <span class="keyword">switch</span> typ &#123;</span><br><span class="line">    <span class="keyword">case</span> MessageSenderEmail:</span><br><span class="line">      <span class="keyword">return</span> &amp;MessageService&#123;</span><br><span class="line">        emailSender: &amp;EmailMessageSender&#123;&#125;</span><br><span class="line">      &#125;</span><br><span class="line">    <span class="keyword">case</span> MessageSenderShortMessage:</span><br><span class="line">      <span class="keyword">return</span> &amp;MessageService&#123;</span><br><span class="line">        shortMessageSender: &amp;ShortMessageSender&#123;&#125;</span><br><span class="line">      &#125;</span><br><span class="line">    <span class="keyword">default</span>:</span><br><span class="line">      <span class="built_in">panic</span>(fmt.Sprintf(<span class="string">"unknown sender type: %s"</span>, typ))</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *MessageService)</span> <span class="title">SendVerificationCode</span><span class="params">(code <span class="keyword">string</span>)</span></span> &#123;</span><br><span class="line">  <span class="keyword">if</span> s.emailSender != <span class="literal">nil</span> &#123;</span><br><span class="line">    s.emailSender.SendVerificationCode(code)</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> s.shortMessageSender != <span class="literal">nil</span> &#123;</span><br><span class="line">    s.shortMessageSender.SendVerificationCode(code)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>调用方式为:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">  &#123;</span><br><span class="line">    service := NewMessageService(MessageSenderEmail)</span><br><span class="line">    service.SendVerificationCode(<span class="string">"10086"</span>)</span><br><span class="line">  &#125;</span><br><span class="line">  &#123;</span><br><span class="line">    service := NewMessageService(MessageSenderShortMessage)</span><br><span class="line">    service.SendVerificationCode(<span class="string">"10086"</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p>上面的实现方式违背了 <code>OCP</code>: 在增加新类型 <code>ShortMessageSender</code> 的同时，为了能使用这个类，需要同时修改函数 <code>NewMessageService</code> 与函数 <code>MessageService::SendVerificationCode</code>，手动确定使用哪种方式发送消息。</p>
+<p>并且可以确定以后每增加一种发送消息的类型，都需要同时修改这两个函数。</p>
+<h3 id="重构"><a href="#重构" class="headerlink" title="重构"></a>重构</h3><p>首先，可以观察到，无论是通过类型 <code>EmailMessageSender</code> 发送消息，亦或是通过类型 <code>ShortMessageSender</code> 发送消息，二者对于 <code>MessageService</code> 都只是发送消息的一种实现方式，而 <code>MessageService</code> 并不关心具体使用的方式是什么。由此可以考虑将这个功能抽象为一个接口:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Sender <span class="keyword">interface</span> &#123;</span><br><span class="line">  SendVerificationCode(code <span class="keyword">string</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>MessageService</code> 只需要持有这个接口即可:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> MessageService <span class="keyword">struct</span> &#123;</span><br><span class="line">  sender Sender</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewMessageService</span><span class="params">(sender Sender)</span> *<span class="title">MessageService</span></span> &#123;</span><br><span class="line">  <span class="keyword">return</span> &amp;MessageService&#123;</span><br><span class="line">    sender: sender,</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> (s *MessageService) SendVerificationCode(code <span class="keyword">string</span>) &#123;</span><br><span class="line">  s.sender.SendVerificationCode(code)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接下来就是水到渠成的事情，让 <code>EmailMessageSender</code> 与 <code>ShortMessageSender</code> 分别实现接口 <code>Sender</code>:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> EmailMessageSender <span class="keyword">struct</span> &#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(e *EmailMessageSender)</span> <span class="title">SendVerificationCode</span><span class="params">(code <span class="keyword">string</span>)</span></span> &#123;</span><br><span class="line">  fmt.Println(<span class="string">"Code: "</span>, code)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> ShortMessageSender <span class="keyword">struct</span> &#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(e *ShortMessageSender)</span> <span class="title">SendVerificationCode</span><span class="params">(code <span class="keyword">string</span>)</span></span> &#123;</span><br><span class="line">  fmt.Println(<span class="string">"Code: "</span>, code)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最后，调用方式为:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">  &#123;</span><br><span class="line">    service := NewMessageService(&amp;EmailMessageSender&#123;&#125;)</span><br><span class="line">    service.SendVerificationCode(<span class="string">"10086"</span>)</span><br><span class="line">  &#125;</span><br><span class="line">  &#123;</span><br><span class="line">    service := NewMessageService(&amp;ShortMessageSender&#123;&#125;)</span><br><span class="line">    service.SendVerificationCode(<span class="string">"10086"</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用这种方式，若要增加新的发送方式，只需要增加对应的类型，并使其实现接口 <code>Sender</code> 即可，而无需修改除 <code>main</code> 以外的其他函数。达到 <strong>open for extension</strong> but <strong>closed for modifications</strong>。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p><strong>开闭原则</strong> 的目标是指导如何 <strong>提高代码可扩展性</strong>，因此是众多设计模式主要遵从的设计原则。</p>
+<p>熟练使用这项原则，需要开发者具备扩展意识、抽象意识、封装意识等。在写代码之前，要认真思考，未来的需求可能会改变哪里。将可能的变化进行抽象，对外提供不变的接口。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="https://www.oodesign.com/open-close-principle.html" target="_blank" rel="noopener">open close principle</a></li>
+</ul>
+
+    
+
+    
+
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">programming</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+
+    
+    <p class="article-more-link">
+      <a class="article-more-a" href="/2021/02/08/programming-open-closed-principle/">展开全文 >></a>
+    </p>
+    
+
+    
+    <div class="clearfix"></div>
+  </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-programming-single-responsibility-principle" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1044,193 +1305,6 @@
 
 
   
-    <article id="post-set-locale-inside-a-container" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-  
-  
-    <h1 itemprop="name">
-	
-	  <a class="article-title" href="/2020/11/30/set-locale-inside-a-container/" target="_blank">设置容器内的 locale</a>
-  
-    </h1>
-  
-
-
-  
-  
-<a href="/2020/11/30/set-locale-inside-a-container/" class="archive-article-date">
-        <time datetime="2020-11-30T02:22:26.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-11-30</time>
-</a>
-
-  
-  
-    
-
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-    <p>解决办法面向 <strong>Ubuntu/Debian</strong> 系列，<strong>CentOS</strong> 系列方法类似。</p>
-<h2 id="在容器内处理"><a href="#在容器内处理" class="headerlink" title="在容器内处理"></a>在容器内处理</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">apt update --fix-missing</span><br><span class="line">apt install -y locales</span><br><span class="line">sed -i <span class="string">'/en_US.UTF-8/s/^# //g'</span> /etc/locale.gen</span><br><span class="line">locale-gen</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"export LANG=en_US.UTF-8"</span> &gt;&gt; ~/.bashrc</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"export LANGUAGE=en_US.UTF-8"</span> &gt;&gt; ~/.bashrc</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"export LC_ALL=en_US.UTF-8"</span> &gt;&gt; ~/.bashrc</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"set fileencodings=utf-8,ucs-bom,gb18030,gbk,gb2312,cp936"</span> &gt;&gt; ~/.vimrc</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"set termencoding=utf-8"</span> &gt;&gt; ~/.vimrc</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"set encoding=utf-8"</span> &gt;&gt; ~/.vimrc</span><br></pre></td></tr></table></figure>
-
-<h2 id="在-Dockerfile-中处理"><a href="#在-Dockerfile-中处理" class="headerlink" title="在 Dockerfile 中处理"></a>在 Dockerfile 中处理</h2><figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">RUN</span><span class="bash"> apt update --fix-missing \</span></span><br><span class="line"><span class="bash">    &amp;&amp; apt install -y locales \</span></span><br><span class="line"><span class="bash">    &amp;&amp; sed -i <span class="string">'/en_US.UTF-8/s/^# //g'</span> /etc/locale.gen \</span></span><br><span class="line"><span class="bash">    &amp;&amp; locale-gen</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> <span class="built_in">echo</span> <span class="string">"set fileencodings=utf-8,ucs-bom,gb18030,gbk,gb2312,cp936"</span> &gt;&gt; ~/.vimrc \</span></span><br><span class="line"><span class="bash">    &amp;&amp; <span class="built_in">echo</span> <span class="string">"set termencoding=utf-8"</span> &gt;&gt; ~/.vimrc \</span></span><br><span class="line"><span class="bash">    &amp;&amp; <span class="built_in">echo</span> <span class="string">"set encoding=utf-8"</span> &gt;&gt; ~/.vimrc</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">ENV</span> LANG en_US.UTF-<span class="number">8</span></span><br><span class="line"><span class="keyword">ENV</span> LANGUAGE en_US.UTF-<span class="number">8</span></span><br><span class="line"><span class="keyword">ENV</span> LC_ALL en_US.UTF-<span class="number">8</span></span><br></pre></td></tr></table></figure>
-
-    
-
-    
-
-    
-
-  </div>
-  <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">linux</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">container</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-
-    
-    <p class="article-more-link">
-      <a class="article-more-a" href="/2020/11/30/set-locale-inside-a-container/">展开全文 >></a>
-    </p>
-    
-
-    
-    <div class="clearfix"></div>
-  </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-introduction-to-parallel-programming" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-  
-  
-    <h1 itemprop="name">
-	
-	  <a class="article-title" href="/2020/11/21/introduction-to-parallel-programming/" target="_blank">并行程序设计</a>
-  
-    </h1>
-  
-
-
-  
-  
-<a href="/2020/11/21/introduction-to-parallel-programming/" class="archive-article-date">
-        <time datetime="2020-11-21T06:24:38.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-11-21</time>
-</a>
-
-  
-  
-    
-
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-    <h2 id="为什么需要并行程序"><a href="#为什么需要并行程序" class="headerlink" title="为什么需要并行程序"></a>为什么需要并行程序</h2><p>单核心的性能不满足需求。</p>
-<h2 id="如何设计并行程序"><a href="#如何设计并行程序" class="headerlink" title="如何设计并行程序"></a>如何设计并行程序</h2><p>在软件层面，通常的方案的基本思想是将要完成的任务分配给各个处理核心。有两种广泛采用的方法: <strong>任务并行</strong> 和 <strong>数据并行</strong>。</p>
-<p>以如下问题解释说明:</p>
-<p>试卷共计 5 道题目，有 100 名学生参加考试，5 名教师阅卷。</p>
-<h3 id="任务并行"><a href="#任务并行" class="headerlink" title="任务并行"></a>任务并行</h3><p>将待解决的问题所需要执行的各个任务分配到各个核心上执行。</p>
-<p>对应到上述问题中，可以认为每个阅卷教师就是一个处理核心，批改每一道题是一个任务。则将任务分配到核心的含义是: 每一名教师只需要负责批阅固定的一道题目。</p>
-<h3 id="数据并行"><a href="#数据并行" class="headerlink" title="数据并行"></a>数据并行</h3><p>将待解决问题所需要处理的数据分配给各个处理核心，每个处理核心执行相同的操作。</p>
-<p>对应到上述问题中，可以认为每个阅卷教师就是一个处理核心，将试卷 —— 也就是数据分配给教师，教师负责试卷的整个批阅过程。各个老师是做的工作是相同的。</p>
-<h2 id="性能"><a href="#性能" class="headerlink" title="性能"></a>性能</h2><p>如何衡量并行程序的性能指标。</p>
-<h3 id="加速比和效率"><a href="#加速比和效率" class="headerlink" title="加速比和效率"></a>加速比和效率</h3>
-    
-
-    
-
-    
-
-  </div>
-  <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">parallel programming</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-
-    
-    <p class="article-more-link">
-      <a class="article-more-a" href="/2020/11/21/introduction-to-parallel-programming/">展开全文 >></a>
-    </p>
-    
-
-    
-    <div class="clearfix"></div>
-  </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <a class="extend prev" rel="prev" href="/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" href="/page/3/">Next &amp;raquo;</a>
@@ -1364,7 +1438,7 @@
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">gpu</a>
+                <a href="javascript:void(0)" class="js-tag color5">archlinux</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1392,7 +1466,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">archlinux</a>
+                <a href="javascript:void(0)" class="js-tag color4">gpu</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1413,10 +1487,6 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">networks</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">container orchestration</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1452,19 +1522,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">tls</a>
+                <a href="javascript:void(0)" class="js-tag color4">container orchestration</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">ssl</a>
+                <a href="javascript:void(0)" class="js-tag color4">nfs</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">https</a>
+                <a href="javascript:void(0)" class="js-tag color1">filesystem</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">mutual authentication</a>
+                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">innnodb</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1484,11 +1558,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">innnodb</a>
+                <a href="javascript:void(0)" class="js-tag color1">parallel programming</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1500,15 +1570,19 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">nfs</a>
+                <a href="javascript:void(0)" class="js-tag color4">tls</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">filesystem</a>
+                <a href="javascript:void(0)" class="js-tag color4">ssl</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">parallel programming</a>
+                <a href="javascript:void(0)" class="js-tag color1">https</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">mutual authentication</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1516,19 +1590,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">containerd</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">volume</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">storage</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">mongodb</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1536,15 +1598,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">mpi</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">operator</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">optimization</a>
+                <a href="javascript:void(0)" class="js-tag color3">storage</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1557,6 +1611,22 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">cpu performance</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">mpi</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">operator</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">mongodb</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">optimization</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1584,7 +1654,27 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rust</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">async</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">tokio</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">pod</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">containerd</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">pytorch</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1596,10 +1686,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">pytorch</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">network</a>
               </li>
              
@@ -1608,19 +1694,19 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">scheduler</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">kubeadm</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">terminal</a>
+                <a href="javascript:void(0)" class="js-tag color5">scheduler</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">paas</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">terminal</a>
               </li>
              
               <li class="article-tag-list-item">
