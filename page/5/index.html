@@ -172,6 +172,118 @@
             
 
   
+    <article id="post-cannot-connect-to-docker-daemon-on-wsl2" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+  
+  
+    <h1 itemprop="name">
+	
+	  <a class="article-title" href="/2020/10/15/cannot-connect-to-docker-daemon-on-wsl2/" target="_blank">WSL2 中无法连接 Docker 服务</a>
+  
+    </h1>
+  
+
+
+  
+  
+<a href="/2020/10/15/cannot-connect-to-docker-daemon-on-wsl2/" class="archive-article-date">
+        <time datetime="2020-10-15T09:21:20.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-10-15</time>
+</a>
+
+  
+  
+    
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    <p>在 <strong>WSL2</strong> 环境中使用 <strong>Docker</strong> 遇到错误:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ docker ps</span><br><span class="line">Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?</span><br></pre></td></tr></table></figure>
+
+<p>可以通过如下操作解决:</p>
+<ol>
+<li><p>在 <strong>App and features</strong> 中卸载 <strong>Docker</strong> 程序</p>
+</li>
+<li><p>删除如下目录</p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">C:\Program Files\Docker</span><br><span class="line">C:\ProgramData\DockerDesktop</span><br><span class="line">C:\Users\[USERNAME]\.docker</span><br><span class="line">C:\Users\[USERNAME]\AppData\Local\Docker</span><br><span class="line">C:\Users\[USERNAME]\AppData\Roaming\Docker</span><br><span class="line">C:\Users\[USERNAME]\AppData\Roaming\Docker Desktop</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>下载最 <a href="https://docs.docker.com/docker-for-windows/edge-release-notes/" target="_blank" rel="noopener">新版本 <strong>Docker</strong></a></p>
+</li>
+<li><p>启动 <strong>Docker</strong></p>
+</li>
+</ol>
+<p>到此为止，问题应该已经被解决了(至少我解决了)。</p>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li><a href="https://codesthq.com/painless-way-to-wsl-2-with-docker/" target="_blank" rel="noopener">Painless way to WSL 2 with Docker</a></li>
+</ul>
+
+    
+
+    
+
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">windows</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">wsl2</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">docker</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+
+    
+    <p class="article-more-link">
+      <a class="article-more-a" href="/2020/10/15/cannot-connect-to-docker-daemon-on-wsl2/">展开全文 >></a>
+    </p>
+    
+
+    
+    <div class="clearfix"></div>
+  </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-started-with-mpi" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1326,293 +1438,6 @@
 
 
   
-    <article id="post-projected-volumes" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-  
-  
-    <h1 itemprop="name">
-	
-	  <a class="article-title" href="/2020/09/04/projected-volumes/" target="_blank">投射数据卷 (TBC)</a>
-  
-    </h1>
-  
-
-
-  
-  
-<a href="/2020/09/04/projected-volumes/" class="archive-article-date">
-        <time datetime="2020-09-04T00:39:17.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-09-04</time>
-</a>
-
-  
-  
-    
-
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-    <p><strong>投射数据卷</strong> 的官方名称为: <code>projected volume</code>。<code>Project</code> 在这里的意思为 <a href="https://cn.bing.com/dict/search?q=project&qs=n&form=Z9LH5&sp=-1&pq=project&sc=8-7&sk=&cvid=A2B01F96E5A847E7A67FEC9AE0A97060" target="_blank" rel="noopener"><strong>投射</strong></a>。感谢 <code>k8s</code> 帮助我学习英语。</p>
-<p><a href="https://kubernetes.io/docs/concepts/storage/volumes/#projected" target="_blank" rel="noopener">官方定义为</a>:</p>
-<blockquote>
-<p>A projected volume maps several existing volume sources into the same directory.</p>
-</blockquote>
-<p><code>Projected Volumes</code> 存在的意义不是为了存放容器里的数据，也不是用来进行容器和宿主机之间的数据交换。而是为容器提供预先定义好的数据。所以，从容器的角度来看，这些 <code>Volume</code> 里的信息就是仿佛是被 <code>Kubernetes</code> <strong>投射</strong> (Project) 进入容器当中的。到目前为止，Kubernetes 支持的 Projected Volume 一共有四种:</p>
-<ul>
-<li>Secret</li>
-<li>ConfigMap</li>
-<li>Downward API</li>
-<li>ServiceAccountToken。</li>
-</ul>
-<p>下面是官方给出的一个<a href="https://kubernetes.io/docs/concepts/storage/volumes/#example-pod-with-a-secret-a-downward-api-and-a-configmap" target="_blank" rel="noopener">例子</a>:</p>
-<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Pod</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">volume-test</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">containers:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">container-test</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">busybox</span></span><br><span class="line">    <span class="attr">volumeMounts:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">all-in-one</span></span><br><span class="line">      <span class="attr">mountPath:</span> <span class="string">"/projected-volume"</span></span><br><span class="line">      <span class="attr">readOnly:</span> <span class="literal">true</span></span><br><span class="line">  <span class="attr">volumes:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">all-in-one</span></span><br><span class="line">    <span class="attr">projected:</span></span><br><span class="line">      <span class="attr">sources:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">secret:</span></span><br><span class="line">          <span class="attr">name:</span> <span class="string">mysecret</span></span><br><span class="line">          <span class="attr">items:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">key:</span> <span class="string">username</span></span><br><span class="line">              <span class="attr">path:</span> <span class="string">my-group/my-username</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">downwardAPI:</span></span><br><span class="line">          <span class="attr">items:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">path:</span> <span class="string">"labels"</span></span><br><span class="line">              <span class="attr">fieldRef:</span></span><br><span class="line">                <span class="attr">fieldPath:</span> <span class="string">metadata.labels</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">path:</span> <span class="string">"cpu_limit"</span></span><br><span class="line">              <span class="attr">resourceFieldRef:</span></span><br><span class="line">                <span class="attr">containerName:</span> <span class="string">container-test</span></span><br><span class="line">                <span class="attr">resource:</span> <span class="string">limits.cpu</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">configMap:</span></span><br><span class="line">          <span class="attr">name:</span> <span class="string">myconfigmap</span></span><br><span class="line">          <span class="attr">items:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">key:</span> <span class="string">config</span></span><br><span class="line">              <span class="attr">path:</span> <span class="string">my-group/my-config</span></span><br></pre></td></tr></table></figure>
-
-<p>首先，可以看到 <code>volumes</code> 与 <code>containers</code> 是同级的属性字段，同属于 <code>pod</code> 的信息。其次，在上述示例中，使用了三种 <code>Projected Volume</code>。</p>
-<p>在有了初步认识之后，接下来对每一种 <code>Projected Volume</code> 做出更详细的说明。</p>
-<h2 id="Secret"><a href="#Secret" class="headerlink" title="Secret"></a>Secret</h2><p><code>Secret</code> 最常见的用法是保存认证信息，比如数据库等。这些数据会被保存在内部的 <code>ETCD</code> 中，可以通过将 <code>Secret</code> 以 <code>Volume</code> 的形式挂载到 <code>Pod</code> 上的方式，允许 <code>Pod</code> 使用 <code>Secret</code> 中的数据。</p>
-<p>接下来介绍两种创建 <code>Secret</code> 以及使用的方式。</p>
-<h3 id="命令行方式"><a href="#命令行方式" class="headerlink" title="命令行方式"></a>命令行方式</h3><h4 id="通过命令行创建-Secret"><a href="#通过命令行创建-Secret" class="headerlink" title="通过命令行创建 Secret"></a>通过命令行创建 Secret</h4><p>使用如下命令创建两个 <code>Secret</code>:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">'admin'</span> &gt; ./user.txt</span><br><span class="line"><span class="built_in">echo</span> <span class="string">'password'</span> &gt; ./pass.txt</span><br><span class="line"></span><br><span class="line">kubectl create secret generic user --from-file=./user.txt</span><br><span class="line">kubectl create secret generic pass --from-file=./pass.txt</span><br></pre></td></tr></table></figure>
-
-<h4 id="查询-Secret"><a href="#查询-Secret" class="headerlink" title="查询 Secret"></a>查询 Secret</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl get secrets</span><br><span class="line">NAME                  TYPE                                  DATA   AGE</span><br><span class="line">pass                  Opaque                                1      13s</span><br><span class="line">user                  Opaque                                1      18s</span><br></pre></td></tr></table></figure>
-
-<h4 id="在-Pod-中使用-Secret"><a href="#在-Pod-中使用-Secret" class="headerlink" title="在 Pod 中使用 Secret"></a>在 Pod 中使用 Secret</h4><p>生成一个 <code>yaml</code> 文件，引用上面的 <code>Secret</code>:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 生成 yaml，在 volumes.projected 中指定上面的 user 与 pass</span></span><br><span class="line">$ cat &lt;&lt; EOF &gt;&gt; busybox.yaml</span><br><span class="line">apiVersion: v1</span><br><span class="line">kind: Pod</span><br><span class="line">metadata:</span><br><span class="line">  name: <span class="built_in">test</span>-projected-volume</span><br><span class="line">spec:</span><br><span class="line">  containers:</span><br><span class="line">  - name: <span class="built_in">test</span>-secret-volume</span><br><span class="line">    image: busybox</span><br><span class="line">    args:</span><br><span class="line">    - sleep</span><br><span class="line">    - <span class="string">"86400"</span></span><br><span class="line">    volumeMounts:</span><br><span class="line">    - name: mysql-cred</span><br><span class="line">      mountPath: <span class="string">"/projected-volume"</span></span><br><span class="line">      readOnly: <span class="literal">true</span></span><br><span class="line">  volumes:</span><br><span class="line">  - name: mysql-cred</span><br><span class="line">    projected:</span><br><span class="line">      sources:</span><br><span class="line">      - secret:</span><br><span class="line">          name: user</span><br><span class="line">      - secret:</span><br><span class="line">          name: pass</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建 pod</span></span><br><span class="line">$ kubectl apply -f ./busybox.yaml</span><br><span class="line">pod/<span class="built_in">test</span>-projected-volume created</span><br></pre></td></tr></table></figure>
-
-<h4 id="在-Pod-中查看-Secret-数据"><a href="#在-Pod-中查看-Secret-数据" class="headerlink" title="在 Pod 中查看 Secret 数据"></a>在 Pod 中查看 Secret 数据</h4><p>进入到 <code>Pod</code> 中:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl <span class="built_in">exec</span> -ti <span class="built_in">test</span>-projected-volume -- sh</span><br><span class="line">/ <span class="comment">#</span></span><br></pre></td></tr></table></figure>
-
-<p>查看 <code>Secret</code> 数据:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">/ <span class="comment"># ls /projected-volume/</span></span><br><span class="line">user.txt</span><br><span class="line">pass.txt</span><br><span class="line">/ <span class="comment"># cat /projected-volume/user.txt</span></span><br><span class="line">admin</span><br><span class="line">/ <span class="comment"># cat /projected-volume/pass.txt</span></span><br><span class="line">password</span><br></pre></td></tr></table></figure>
-
-<p>可以看到，在 <code>mountPath</code> 指定的路径下面有预先定义好的 <code>Secret</code>，并且文件名就是 <code>--from-file</code> 指定的参数。</p>
-<h3 id="yaml-方式"><a href="#yaml-方式" class="headerlink" title="yaml 方式"></a>yaml 方式</h3><h4 id="通过-yaml-创建-Secret"><a href="#通过-yaml-创建-Secret" class="headerlink" title="通过 yaml 创建 Secret"></a>通过 yaml 创建 Secret</h4><p>创建 <code>Secret</code> 的配置文件:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ cat &lt;&lt; EOF &gt;&gt; secret.yaml</span><br><span class="line">apiVersion: v1</span><br><span class="line">kind: Secret</span><br><span class="line">metadata:</span><br><span class="line">  name: mysecret</span><br><span class="line"><span class="built_in">type</span>: Opaque</span><br><span class="line">data:</span><br><span class="line">  user: YWRtaW4=</span><br><span class="line">  pass: cGFzc3dvcmQ=</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
-
-<p>在 <code>Kubernetes</code> 中创建 <code>Secret</code>:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl apply -f ./secret.yml</span><br><span class="line">secret/mysecret created</span><br></pre></td></tr></table></figure>
-
-<h4 id="查询-Secret-1"><a href="#查询-Secret-1" class="headerlink" title="查询 Secret"></a>查询 Secret</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl get secrets</span><br><span class="line">NAME                  TYPE                                  DATA   AGE</span><br><span class="line">mysecret              Opaque                                2      3m23s</span><br></pre></td></tr></table></figure>
-
-<p>结果与使用命令行的方式有一些区别。</p>
-<h4 id="在-Pod-中使用-Secret-1"><a href="#在-Pod-中使用-Secret-1" class="headerlink" title="在 Pod 中使用 Secret"></a>在 Pod 中使用 Secret</h4><p>生成一个 <code>yaml</code> 文件，引用上面的 <code>Secret</code>，需要注意 <code>secret.name</code> 应使用 <code>mysecret</code>，同时，数量从刚才的 <strong>2个</strong> 变成了 <strong>1个</strong>:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">$ cat &lt;&lt; EOF &gt;&gt; busybox.yaml</span><br><span class="line">apiVersion: v1</span><br><span class="line">kind: Pod</span><br><span class="line">metadata:</span><br><span class="line">  name: <span class="built_in">test</span>-projected-volume</span><br><span class="line">spec:</span><br><span class="line">  containers:</span><br><span class="line">  - name: <span class="built_in">test</span>-secret-volume</span><br><span class="line">    image: busybox</span><br><span class="line">    args:</span><br><span class="line">    - sleep</span><br><span class="line">    - <span class="string">"86400"</span></span><br><span class="line">    volumeMounts:</span><br><span class="line">    - name: mysql-cred</span><br><span class="line">      mountPath: <span class="string">"/projected-volume"</span></span><br><span class="line">      readOnly: <span class="literal">true</span></span><br><span class="line">  volumes:</span><br><span class="line">  - name: mysql-cred</span><br><span class="line">    projected:</span><br><span class="line">      sources:</span><br><span class="line">      - secret:</span><br><span class="line">          name: mysecret</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建 pod</span></span><br><span class="line">$ kubectl apply -f ./busybox.yaml</span><br><span class="line">pod/<span class="built_in">test</span>-projected-volume created</span><br></pre></td></tr></table></figure>
-
-<h4 id="在-Pod-中查看-Secret-数据-1"><a href="#在-Pod-中查看-Secret-数据-1" class="headerlink" title="在 Pod 中查看 Secret 数据"></a>在 Pod 中查看 Secret 数据</h4><p>进入到 <code>Pod</code> 中:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl <span class="built_in">exec</span> -ti <span class="built_in">test</span>-projected-volume -- sh</span><br><span class="line">/ <span class="comment">#</span></span><br></pre></td></tr></table></figure>
-
-<p>查看 <code>Secret</code> 数据:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">/ <span class="comment"># ls /projected-volume/</span></span><br><span class="line">pass  user</span><br><span class="line">/ <span class="comment"># cat /projected-volume/user</span></span><br><span class="line">admin</span><br><span class="line">/ <span class="comment"># cat /projected-volume/pass.txt</span></span><br><span class="line">password</span><br></pre></td></tr></table></figure>
-
-<p>可以看到，在 <code>mountPath</code> 指定的路径下面有预先定义好的 <code>Secret</code>，并且文件名就是创建 <code>Secret</code> 的 <code>yaml</code> 文件中，<code>data</code> 字段的 <code>key</code>，内容为对应 <code>value</code> 经过 <code>base64</code> 解码之后的结果。</p>
-<h2 id="Config-Map"><a href="#Config-Map" class="headerlink" title="Config Map"></a>Config Map</h2><p>与 <code>Secret</code> 相同的是，<code>ConfigMap</code> 也用于保存用户定义的配置信息；不同的是，<code>ConfigMap</code> 中的数据使用保持明文形式。</p>
-<p>比如，原始配置保存在 <code>example/ui.properties</code> 中，通过该文件创建一个 <code>ConfigMap</code>:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># .properties文件的内容</span></span><br><span class="line">$ cat example/ui.properties</span><br><span class="line">color.good=purple</span><br><span class="line">color.bad=yellow</span><br><span class="line">allow.textmode=<span class="literal">true</span></span><br><span class="line">how.nice.to.look=fairlyNice</span><br><span class="line"></span><br><span class="line"><span class="comment"># 从 .properties 文件创建 ConfigMap</span></span><br><span class="line">$ kubectl create configmap ui-config --from-file=example/ui.properties</span><br><span class="line"></span><br><span class="line"><span class="comment"># 以 yaml 格式查看 ConfigMap 里保存的信息(data)</span></span><br><span class="line">$ kubectl get configmaps ui-config -o yaml</span><br><span class="line">apiVersion: v1</span><br><span class="line">data:</span><br><span class="line">  ui.properties: |</span><br><span class="line">    color.good=purple</span><br><span class="line">    color.bad=yellow</span><br><span class="line">    allow.textmode=<span class="literal">true</span></span><br><span class="line">    how.nice.to.look=fairlyNice</span><br><span class="line">kind: ConfigMap</span><br><span class="line">metadata:</span><br><span class="line">  name: ui-config</span><br><span class="line">  ...</span><br></pre></td></tr></table></figure>
-
-<h2 id="Downward-API"><a href="#Downward-API" class="headerlink" title="Downward API"></a>Downward API</h2><blockquote>
-<p>A downwardAPI volume is used to make downward API data available to applications. It mounts a directory and writes the requested data in plain text files.</p>
-</blockquote>
-<p>让 <code>Pod</code> 里的容器能够直接获取到这个 <code>Pod API</code> 对象本身的信息。</p>
-<p><code>Kubernets</code> 提供了两种方式使用 <code>Downward API</code>:</p>
-<ul>
-<li>Environment variables</li>
-<li>Volume File</li>
-</ul>
-<h3 id="使用-Pod-的字段作为环境变量"><a href="#使用-Pod-的字段作为环境变量" class="headerlink" title="使用 Pod 的字段作为环境变量"></a>使用 Pod 的字段作为环境变量</h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Pod</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">dapi-envars-fieldref</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">containers:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">test-container</span></span><br><span class="line">      <span class="attr">image:</span> <span class="string">k8s.gcr.io/busybox</span></span><br><span class="line">      <span class="attr">command:</span> <span class="string">[</span> <span class="string">"sh"</span><span class="string">,</span> <span class="string">"-c"</span><span class="string">]</span></span><br><span class="line">      <span class="attr">args:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">while</span> <span class="literal">true</span><span class="string">;</span> <span class="string">do</span></span><br><span class="line">          <span class="string">echo</span> <span class="string">-en</span> <span class="string">'\n'</span><span class="string">;</span></span><br><span class="line">          <span class="string">printenv</span> <span class="string">MY_NODE_NAME</span> <span class="string">MY_POD_NAME</span> <span class="string">MY_POD_NAMESPACE;</span></span><br><span class="line">          <span class="string">printenv</span> <span class="string">MY_POD_IP</span> <span class="string">MY_POD_SERVICE_ACCOUNT;</span></span><br><span class="line">          <span class="string">sleep</span> <span class="number">10</span><span class="string">;</span></span><br><span class="line">        <span class="string">done;</span></span><br><span class="line">      <span class="attr">env:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">MY_NODE_NAME</span></span><br><span class="line">          <span class="attr">valueFrom:</span></span><br><span class="line">            <span class="attr">fieldRef:</span></span><br><span class="line">              <span class="attr">fieldPath:</span> <span class="string">spec.nodeName</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">MY_POD_NAME</span></span><br><span class="line">          <span class="attr">valueFrom:</span></span><br><span class="line">            <span class="attr">fieldRef:</span></span><br><span class="line">              <span class="attr">fieldPath:</span> <span class="string">metadata.name</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">MY_POD_NAMESPACE</span></span><br><span class="line">          <span class="attr">valueFrom:</span></span><br><span class="line">            <span class="attr">fieldRef:</span></span><br><span class="line">              <span class="attr">fieldPath:</span> <span class="string">metadata.namespace</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">MY_POD_IP</span></span><br><span class="line">          <span class="attr">valueFrom:</span></span><br><span class="line">            <span class="attr">fieldRef:</span></span><br><span class="line">              <span class="attr">fieldPath:</span> <span class="string">status.podIP</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">MY_POD_SERVICE_ACCOUNT</span></span><br><span class="line">          <span class="attr">valueFrom:</span></span><br><span class="line">            <span class="attr">fieldRef:</span></span><br><span class="line">              <span class="attr">fieldPath:</span> <span class="string">spec.serviceAccountName</span></span><br><span class="line">  <span class="attr">restartPolicy:</span> <span class="string">Never</span></span><br></pre></td></tr></table></figure>
-
-<p>上述配置文件中，包含了五个环境变量。字段 <code>env</code> 是 <a href="https://v1-16.docs.kubernetes.io/docs/reference/generated/kubernetes-api/v1.16/#envvar-v1-core" target="_blank" rel="noopener">EnvVars</a> 类型的数组。</p>
-<p><strong>fieldRef</strong> 表示选择 <strong>Pod</strong> 的字段，允许使用:</p>
-<ul>
-<li>metadata.name</li>
-<li>metadata.namespace</li>
-<li>metadata.labels</li>
-<li>metadata.annotations</li>
-<li>spec.nodeName</li>
-<li>spec.serviceAccountName</li>
-<li>status.hostIP</li>
-<li>status.podIP</li>
-</ul>
-<p>由 <code>command</code> 字段与 <code>args</code> 字段可以得知，这个 <code>Pod</code> 的功能为打印在 <code>env</code> 中定义的环境变量。</p>
-<p>创建 <code>Pod</code>:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f https://k8s.io/examples/pods/inject/dapi-envars-pod.yaml</span><br></pre></td></tr></table></figure>
-
-<p>查看 <code>Pod</code> 是否为运行状态:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl get pods</span><br></pre></td></tr></table></figure>
-
-<p>查看日志:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl logs dapi-envars-fieldref</span><br></pre></td></tr></table></figure>
-
-<p>得到如下输出:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">minikube</span><br><span class="line">dapi-envars-fieldref</span><br><span class="line">default</span><br><span class="line">172.17.0.4</span><br><span class="line">default</span><br></pre></td></tr></table></figure>
-
-<h3 id="使用-Container-的字段作为环境变量"><a href="#使用-Container-的字段作为环境变量" class="headerlink" title="使用 Container 的字段作为环境变量"></a>使用 Container 的字段作为环境变量</h3><p>与上面的示例类似，除了可以将 <code>Pod</code> 的字段作为环境变量的值传入 <code>Container</code> 外，同样可以将 <code>Container</code> 的字段作为环境变量的值传入 <code>Container</code> 中。</p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Pod</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">dapi-envars-resourcefieldref</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">containers:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">test-container</span></span><br><span class="line">      <span class="attr">image:</span> <span class="string">k8s.gcr.io/busybox:1.24</span></span><br><span class="line">      <span class="attr">command:</span> <span class="string">[</span> <span class="string">"sh"</span><span class="string">,</span> <span class="string">"-c"</span><span class="string">]</span></span><br><span class="line">      <span class="attr">args:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">while</span> <span class="literal">true</span><span class="string">;</span> <span class="string">do</span></span><br><span class="line">          <span class="string">echo</span> <span class="string">-en</span> <span class="string">'\n'</span><span class="string">;</span></span><br><span class="line">          <span class="string">printenv</span> <span class="string">MY_CPU_REQUEST</span> <span class="string">MY_CPU_LIMIT;</span></span><br><span class="line">          <span class="string">printenv</span> <span class="string">MY_MEM_REQUEST</span> <span class="string">MY_MEM_LIMIT;</span></span><br><span class="line">          <span class="string">sleep</span> <span class="number">10</span><span class="string">;</span></span><br><span class="line">        <span class="string">done;</span></span><br><span class="line">      <span class="attr">resources:</span></span><br><span class="line">        <span class="attr">requests:</span></span><br><span class="line">          <span class="attr">memory:</span> <span class="string">"32Mi"</span></span><br><span class="line">          <span class="attr">cpu:</span> <span class="string">"125m"</span></span><br><span class="line">        <span class="attr">limits:</span></span><br><span class="line">          <span class="attr">memory:</span> <span class="string">"64Mi"</span></span><br><span class="line">          <span class="attr">cpu:</span> <span class="string">"250m"</span></span><br><span class="line">      <span class="attr">env:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">MY_CPU_REQUEST</span></span><br><span class="line">          <span class="attr">valueFrom:</span></span><br><span class="line">            <span class="attr">resourceFieldRef:</span></span><br><span class="line">              <span class="attr">containerName:</span> <span class="string">test-container</span></span><br><span class="line">              <span class="attr">resource:</span> <span class="string">requests.cpu</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">MY_CPU_LIMIT</span></span><br><span class="line">          <span class="attr">valueFrom:</span></span><br><span class="line">            <span class="attr">resourceFieldRef:</span></span><br><span class="line">              <span class="attr">containerName:</span> <span class="string">test-container</span></span><br><span class="line">              <span class="attr">resource:</span> <span class="string">limits.cpu</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">MY_MEM_REQUEST</span></span><br><span class="line">          <span class="attr">valueFrom:</span></span><br><span class="line">            <span class="attr">resourceFieldRef:</span></span><br><span class="line">              <span class="attr">containerName:</span> <span class="string">test-container</span></span><br><span class="line">              <span class="attr">resource:</span> <span class="string">requests.memory</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">MY_MEM_LIMIT</span></span><br><span class="line">          <span class="attr">valueFrom:</span></span><br><span class="line">            <span class="attr">resourceFieldRef:</span></span><br><span class="line">              <span class="attr">containerName:</span> <span class="string">test-container</span></span><br><span class="line">              <span class="attr">resource:</span> <span class="string">limits.memory</span></span><br><span class="line">  <span class="attr">restartPolicy:</span> <span class="string">Never</span></span><br></pre></td></tr></table></figure>
-
-<p><strong>resourceFieldRef</strong> 表示选择 <strong>Container</strong> 的字段，允许使用 <strong>resources.limits</strong> 和 <strong>resources.requests</strong>，具体如下:</p>
-<ul>
-<li>limits.cpu</li>
-<li>limits.memory</li>
-<li>limits.ephemeral-storage</li>
-<li>requests.cpu</li>
-<li>requests.memory</li>
-<li>requests.ephemeral-storage</li>
-</ul>
-<p>创建 <code>Pod</code>:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f https://k8s.io/examples/pods/inject/dapi-envars-container.yaml</span><br></pre></td></tr></table></figure>
-
-<p>查看 <code>Pod</code> 是否为运行状态:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl get pods</span><br></pre></td></tr></table></figure>
-
-<p>查看日志:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl logs dapi-envars-resourcefieldref</span><br></pre></td></tr></table></figure>
-
-<p>得到如下输出:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1</span><br><span class="line">1</span><br><span class="line">33554432</span><br><span class="line">67108864</span><br></pre></td></tr></table></figure>
-
-<h3 id="将-Pod-字段存储在文件中"><a href="#将-Pod-字段存储在文件中" class="headerlink" title="将 Pod 字段存储在文件中"></a>将 Pod 字段存储在文件中</h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Pod</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">kubernetes-downwardapi-volume-example</span></span><br><span class="line">  <span class="attr">labels:</span></span><br><span class="line">    <span class="attr">zone:</span> <span class="string">us-est-coast</span></span><br><span class="line">    <span class="attr">cluster:</span> <span class="string">test-cluster1</span></span><br><span class="line">    <span class="attr">rack:</span> <span class="string">rack-22</span></span><br><span class="line">  <span class="attr">annotations:</span></span><br><span class="line">    <span class="attr">build:</span> <span class="string">two</span></span><br><span class="line">    <span class="attr">builder:</span> <span class="string">john-doe</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">containers:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">client-container</span></span><br><span class="line">      <span class="attr">image:</span> <span class="string">k8s.gcr.io/busybox</span></span><br><span class="line">      <span class="attr">command:</span> <span class="string">["sh",</span> <span class="string">"-c"</span><span class="string">]</span></span><br><span class="line">      <span class="attr">args:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">while</span> <span class="literal">true</span><span class="string">;</span> <span class="string">do</span></span><br><span class="line">          <span class="string">if</span> <span class="string">[[</span> <span class="string">-e</span> <span class="string">/etc/podinfo/labels</span> <span class="string">]];</span> <span class="string">then</span></span><br><span class="line">            <span class="string">echo</span> <span class="string">-en</span> <span class="string">'\n\n'</span><span class="string">;</span> <span class="string">cat</span> <span class="string">/etc/podinfo/labels;</span> <span class="string">fi;</span></span><br><span class="line">          <span class="string">if</span> <span class="string">[[</span> <span class="string">-e</span> <span class="string">/etc/podinfo/annotations</span> <span class="string">]];</span> <span class="string">then</span></span><br><span class="line">            <span class="string">echo</span> <span class="string">-en</span> <span class="string">'\n\n'</span><span class="string">;</span> <span class="string">cat</span> <span class="string">/etc/podinfo/annotations;</span> <span class="string">fi;</span></span><br><span class="line">          <span class="string">sleep</span> <span class="number">5</span><span class="string">;</span></span><br><span class="line">        <span class="string">done;</span></span><br><span class="line">      <span class="attr">volumeMounts:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">podinfo</span></span><br><span class="line">          <span class="attr">mountPath:</span> <span class="string">/etc/podinfo</span></span><br><span class="line">  <span class="attr">volumes:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">podinfo</span></span><br><span class="line">      <span class="attr">downwardAPI:</span></span><br><span class="line">        <span class="attr">items:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">path:</span> <span class="string">"labels"</span></span><br><span class="line">            <span class="attr">fieldRef:</span></span><br><span class="line">              <span class="attr">fieldPath:</span> <span class="string">metadata.labels</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">path:</span> <span class="string">"annotations"</span></span><br><span class="line">            <span class="attr">fieldRef:</span></span><br><span class="line">              <span class="attr">fieldPath:</span> <span class="string">metadata.annotations</span></span><br></pre></td></tr></table></figure>
-
-<p>在这个示例中，为 <code>Pod</code> 定义了 <code>downward API</code> 类型的 <code>Volume</code>，并且将这个 <code>Volume</code> 的挂载点位于 <code>/etc/podinfo</code>。</p>
-<p><code>downwardAPI</code> 的 <code>item</code> 属性为 <a href="https://v1-16.docs.kubernetes.io/docs/reference/generated/kubernetes-api/v1.16/#downwardapivolumefile-v1-core" target="_blank" rel="noopener">DownwardAPIVolumeFile</a> 类型的数组。具体属性为:</p>
-<table>
-<thead>
-<tr>
-<th align="left">Field</th>
-<th align="left">Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">fieldRef</td>
-<td align="left"><a href="https://v1-16.docs.kubernetes.io/docs/reference/generated/kubernetes-api/v1.16/#objectfieldselector-v1-core" target="_blank" rel="noopener">ObjectFieldSelector</a></td>
-<td align="left">必须: 从 annotations, labels, name and namespace 之中选择 <code>Pod</code> 的一个字段</td>
-</tr>
-<tr>
-<td align="left">mode</td>
-<td align="left">integer</td>
-<td align="left">可选:文件属性，取值范围 [0, 0777]。缺省使用默认值。可能与其他影响改文件的参数产生冲突</td>
-</tr>
-<tr>
-<td align="left">path</td>
-<td align="left">string</td>
-<td align="left">必须: 文件相对路径，要求必须是相对路径，且不能包含 <strong>..</strong></td>
-</tr>
-<tr>
-<td align="left">resourceFieldRef</td>
-<td align="left"><a href="https://v1-16.docs.kubernetes.io/docs/reference/generated/kubernetes-api/v1.16/#resourcefieldselector-v1-core" target="_blank" rel="noopener">ResourceFieldSelector</a></td>
-<td align="left">只支持 <code>Container</code> 的 <code>resources.limit</code> 与 <code>resources.requests</code></td>
-</tr>
-</tbody></table>
-<p>创建 <code>Pod</code>:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f https://k8s.io/examples/pods/inject/dapi-volume.yaml</span><br></pre></td></tr></table></figure>
-
-<p>查看 <code>Pod</code> 是否为运行状态:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl get pods</span><br></pre></td></tr></table></figure>
-
-<p>查看日志:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl logs kubernetes-downwardapi-volume-example</span><br></pre></td></tr></table></figure>
-
-<p>得到如下输出:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">cluster=<span class="string">"test-cluster1"</span></span><br><span class="line">rack=<span class="string">"rack-22"</span></span><br><span class="line">zone=<span class="string">"us-est-coast"</span></span><br><span class="line"></span><br><span class="line">build=<span class="string">"two"</span></span><br><span class="line">builder=<span class="string">"john-doe"</span></span><br></pre></td></tr></table></figure>
-
-<p>进入到 <code>Pod</code> 中:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl <span class="built_in">exec</span> -it kubernetes-downwardapi-volume-example -- sh</span><br></pre></td></tr></table></figure>
-
-<p>查看 <code>Volume</code> 文件:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/<span class="comment"># cat /etc/podinfo/labels</span></span><br></pre></td></tr></table></figure>
-
-<p>得到如下内容:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cluster=<span class="string">"test-cluster1"</span></span><br><span class="line">rack=<span class="string">"rack-22"</span></span><br><span class="line">zone=<span class="string">"us-est-coast"</span></span><br></pre></td></tr></table></figure>
-
-<p>类似地，查看 <code>annotations</code>:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/<span class="comment"># cat /etc/podinfo/annotations</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="将-Container-字段存储在文件中"><a href="#将-Container-字段存储在文件中" class="headerlink" title="将 Container 字段存储在文件中"></a>将 Container 字段存储在文件中</h3><p>同样可以将 <code>Container</code> 的字段写入到文件中，并以 <code>Volume</code> 的形式挂载到 <code>Container</code> 中</p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Pod</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">kubernetes-downwardapi-volume-example-2</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">containers:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">client-container</span></span><br><span class="line">      <span class="attr">image:</span> <span class="string">k8s.gcr.io/busybox:1.24</span></span><br><span class="line">      <span class="attr">command:</span> <span class="string">["sh",</span> <span class="string">"-c"</span><span class="string">]</span></span><br><span class="line">      <span class="attr">args:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">while</span> <span class="literal">true</span><span class="string">;</span> <span class="string">do</span></span><br><span class="line">          <span class="string">echo</span> <span class="string">-en</span> <span class="string">'\n'</span><span class="string">;</span></span><br><span class="line">          <span class="string">if</span> <span class="string">[[</span> <span class="string">-e</span> <span class="string">/etc/podinfo/cpu_limit</span> <span class="string">]];</span> <span class="string">then</span></span><br><span class="line">            <span class="string">echo</span> <span class="string">-en</span> <span class="string">'\n'</span><span class="string">;</span> <span class="string">cat</span> <span class="string">/etc/podinfo/cpu_limit;</span> <span class="string">fi;</span></span><br><span class="line">          <span class="string">if</span> <span class="string">[[</span> <span class="string">-e</span> <span class="string">/etc/podinfo/cpu_request</span> <span class="string">]];</span> <span class="string">then</span></span><br><span class="line">            <span class="string">echo</span> <span class="string">-en</span> <span class="string">'\n'</span><span class="string">;</span> <span class="string">cat</span> <span class="string">/etc/podinfo/cpu_request;</span> <span class="string">fi;</span></span><br><span class="line">          <span class="string">if</span> <span class="string">[[</span> <span class="string">-e</span> <span class="string">/etc/podinfo/mem_limit</span> <span class="string">]];</span> <span class="string">then</span></span><br><span class="line">            <span class="string">echo</span> <span class="string">-en</span> <span class="string">'\n'</span><span class="string">;</span> <span class="string">cat</span> <span class="string">/etc/podinfo/mem_limit;</span> <span class="string">fi;</span></span><br><span class="line">          <span class="string">if</span> <span class="string">[[</span> <span class="string">-e</span> <span class="string">/etc/podinfo/mem_request</span> <span class="string">]];</span> <span class="string">then</span></span><br><span class="line">            <span class="string">echo</span> <span class="string">-en</span> <span class="string">'\n'</span><span class="string">;</span> <span class="string">cat</span> <span class="string">/etc/podinfo/mem_request;</span> <span class="string">fi;</span></span><br><span class="line">          <span class="string">sleep</span> <span class="number">5</span><span class="string">;</span></span><br><span class="line">        <span class="string">done;</span></span><br><span class="line">      <span class="attr">resources:</span></span><br><span class="line">        <span class="attr">requests:</span></span><br><span class="line">          <span class="attr">memory:</span> <span class="string">"32Mi"</span></span><br><span class="line">          <span class="attr">cpu:</span> <span class="string">"125m"</span></span><br><span class="line">        <span class="attr">limits:</span></span><br><span class="line">          <span class="attr">memory:</span> <span class="string">"64Mi"</span></span><br><span class="line">          <span class="attr">cpu:</span> <span class="string">"250m"</span></span><br><span class="line">      <span class="attr">volumeMounts:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">podinfo</span></span><br><span class="line">          <span class="attr">mountPath:</span> <span class="string">/etc/podinfo</span></span><br><span class="line">  <span class="attr">volumes:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">podinfo</span></span><br><span class="line">      <span class="attr">downwardAPI:</span></span><br><span class="line">        <span class="attr">items:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">path:</span> <span class="string">"cpu_limit"</span></span><br><span class="line">            <span class="attr">resourceFieldRef:</span></span><br><span class="line">              <span class="attr">containerName:</span> <span class="string">client-container</span></span><br><span class="line">              <span class="attr">resource:</span> <span class="string">limits.cpu</span></span><br><span class="line">              <span class="attr">divisor:</span> <span class="string">1m</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">path:</span> <span class="string">"cpu_request"</span></span><br><span class="line">            <span class="attr">resourceFieldRef:</span></span><br><span class="line">              <span class="attr">containerName:</span> <span class="string">client-container</span></span><br><span class="line">              <span class="attr">resource:</span> <span class="string">requests.cpu</span></span><br><span class="line">              <span class="attr">divisor:</span> <span class="string">1m</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">path:</span> <span class="string">"mem_limit"</span></span><br><span class="line">            <span class="attr">resourceFieldRef:</span></span><br><span class="line">              <span class="attr">containerName:</span> <span class="string">client-container</span></span><br><span class="line">              <span class="attr">resource:</span> <span class="string">limits.memory</span></span><br><span class="line">              <span class="attr">divisor:</span> <span class="string">1Mi</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">path:</span> <span class="string">"mem_request"</span></span><br><span class="line">            <span class="attr">resourceFieldRef:</span></span><br><span class="line">              <span class="attr">containerName:</span> <span class="string">client-container</span></span><br><span class="line">              <span class="attr">resource:</span> <span class="string">requests.memory</span></span><br><span class="line">              <span class="attr">divisor:</span> <span class="string">1Mi</span></span><br></pre></td></tr></table></figure>
-
-<p>创建 <code>Pod</code>:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f https://k8s.io/examples/pods/inject/dapi-volume-resources.yaml</span><br></pre></td></tr></table></figure>
-
-<p>进入到 <code>Pod</code> 中:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl <span class="built_in">exec</span> -it kubernetes-downwardapi-volume-example-2 -- sh</span><br></pre></td></tr></table></figure>
-
-<p>查看 <code>Volume</code> 文件:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/<span class="comment"># cat /etc/podinfo/cpu_limit</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
-<li><a href="https://kubernetes.io/docs/concepts/storage/volumes/#projected" target="_blank" rel="noopener">Projected Volumes</a></li>
-<li><a href="https://kubernetes.io/docs/tasks/configure-pod-container/configure-projected-volume-storage/" target="_blank" rel="noopener">Configure a Pod to Use a Projected Volume for Storage</a></li>
-<li><a href="https://v1-16.docs.kubernetes.io/docs/concepts/storage/volumes/#downwardapi" target="_blank" rel="noopener">Donwload API</a></li>
-<li><a href="https://v1-16.docs.kubernetes.io/docs/tasks/inject-data-application/downward-api-volume-expose-pod-information/" target="_blank" rel="noopener">Expose Pod Information to Containers Through Files</a></li>
-<li><a href="https://v1-16.docs.kubernetes.io/docs/tasks/inject-data-application/environment-variable-expose-pod-information/#use-pod-fields-as-values-for-environment-variables" target="_blank" rel="noopener">Use Pod fields as values for environment variables</a></li>
-<li><a href="https://v1-16.docs.kubernetes.io/docs/tasks/inject-data-application/downward-api-volume-expose-pod-information/#store-pod-fields" target="_blank" rel="noopener">Store Pod fields</a></li>
-<li><a href="https://v1-16.docs.kubernetes.io/docs/reference/generated/kubernetes-api/v1.16/#envvar-v1-core" target="_blank" rel="noopener">Kubernetes API: EnvVar v1 core</a></li>
-<li><a href="https://v1-16.docs.kubernetes.io/docs/reference/generated/kubernetes-api/v1.16/#envvarsource-v1-core" target="_blank" rel="noopener">Kubernetes API: EnvVarSource v1 core</a></li>
-</ul>
-
-    
-
-    
-
-    
-
-  </div>
-  <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">k8s</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">pod</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-
-    
-    <p class="article-more-link">
-      <a class="article-more-a" href="/2020/09/04/projected-volumes/">展开全文 >></a>
-    </p>
-    
-
-    
-    <div class="clearfix"></div>
-  </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <a class="extend prev" rel="prev" href="/page/4/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" href="/page/6/">Next &amp;raquo;</a>
@@ -1746,10 +1571,6 @@
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">archlinux</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">data structure</a>
               </li>
              
@@ -1766,15 +1587,19 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">archlinux</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">gpu</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">hard drive</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">gpu</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1802,6 +1627,10 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">container orchestration</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">I/O</a>
               </li>
              
@@ -1826,11 +1655,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">git</a>
+                <a href="javascript:void(0)" class="js-tag color5">hexo</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">container orchestration</a>
+                <a href="javascript:void(0)" class="js-tag color4">rss</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">git</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1842,22 +1675,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">innnodb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">hexo</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">rss</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">nvidia</a>
               </li>
              
@@ -1866,15 +1683,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">parallel programming</a>
+                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">network programming</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">io</a>
+                <a href="javascript:void(0)" class="js-tag color3">innnodb</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1894,6 +1707,18 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">parallel programming</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">network programming</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">io</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">controllers</a>
               </li>
              
@@ -1902,11 +1727,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">linux performance</a>
+                <a href="javascript:void(0)" class="js-tag color3">storage</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">storage</a>
+                <a href="javascript:void(0)" class="js-tag color3">linux performance</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1918,7 +1743,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">cpu performance</a>
+                <a href="javascript:void(0)" class="js-tag color3">mongodb</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1930,7 +1755,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">mongodb</a>
+                <a href="javascript:void(0)" class="js-tag color1">containerd</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">cpu performance</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1946,7 +1775,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">faq</a>
+                <a href="javascript:void(0)" class="js-tag color4">k8s</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1954,11 +1783,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">k8s</a>
+                <a href="javascript:void(0)" class="js-tag color4">faq</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">programming</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">pytorch</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rdma</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">pod</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1974,22 +1815,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">pod</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">containerd</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">pytorch</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rdma</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">scheduling</a>
               </li>
              
@@ -1998,11 +1823,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">volcano</a>
+                <a href="javascript:void(0)" class="js-tag color3">kubeadm</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">kubeadm</a>
+                <a href="javascript:void(0)" class="js-tag color3">volcano</a>
               </li>
              
               <li class="article-tag-list-item">

@@ -172,6 +172,126 @@
             
 
   
+    <article id="post-tokio-main-macro" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+  
+  
+    <h1 itemprop="name">
+	
+	  <a class="article-title" href="/2021/05/30/tokio-main-macro/" target="_blank">tokio-main-macro</a>
+  
+    </h1>
+  
+
+
+  
+  
+<a href="/2021/05/30/tokio-main-macro/" class="archive-article-date">
+        <time datetime="2021-05-30T03:28:19.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-05-30</time>
+</a>
+
+  
+  
+    
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    <p>在各种讲解 <code>async</code> 编程的的文章中，其使用的示例代码基本都类似于:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> tokio::net::TcpListener;</span><br><span class="line"><span class="keyword">use</span> tokio::io::&#123;AsyncReadExt, AsyncWriteExt&#125;;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[tokio::main]</span></span><br><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>() -&gt; <span class="built_in">Result</span>&lt;(), <span class="built_in">Box</span>&lt;<span class="keyword">dyn</span> std::error::Error&gt;&gt; &#123;</span><br><span class="line">    <span class="keyword">let</span> listener = TcpListener::bind(<span class="string">"127.0.0.1:8080"</span>).<span class="keyword">await</span>?;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">loop</span> &#123;</span><br><span class="line">        <span class="keyword">let</span> (<span class="keyword">mut</span> socket, _) = listener.accept().<span class="keyword">await</span>?;</span><br><span class="line"></span><br><span class="line">        tokio::spawn(<span class="keyword">async</span> <span class="keyword">move</span> &#123;</span><br><span class="line">            <span class="keyword">let</span> <span class="keyword">mut</span> buf = [<span class="number">0</span>; <span class="number">1024</span>];</span><br><span class="line"></span><br><span class="line">            <span class="comment">// In a loop, read data from the socket and write the data back.</span></span><br><span class="line">            <span class="keyword">loop</span> &#123;</span><br><span class="line">                <span class="keyword">let</span> n = <span class="keyword">match</span> socket.read(&amp;<span class="keyword">mut</span> buf).<span class="keyword">await</span> &#123;</span><br><span class="line">                    <span class="comment">// socket closed</span></span><br><span class="line">                    <span class="literal">Ok</span>(n) <span class="keyword">if</span> n == <span class="number">0</span> =&gt; <span class="keyword">return</span>,</span><br><span class="line">                    <span class="literal">Ok</span>(n) =&gt; n,</span><br><span class="line">                    <span class="literal">Err</span>(e) =&gt; &#123;</span><br><span class="line">                        eprintln!(<span class="string">"failed to read from socket; err = &#123;:?&#125;"</span>, e);</span><br><span class="line">                        <span class="keyword">return</span>;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;;</span><br><span class="line"></span><br><span class="line">                <span class="comment">// Write the data back</span></span><br><span class="line">                <span class="keyword">if</span> <span class="keyword">let</span> <span class="literal">Err</span>(e) = socket.write_all(&amp;buf[<span class="number">0</span>..n]).<span class="keyword">await</span> &#123;</span><br><span class="line">                    eprintln!(<span class="string">"failed to write to socket; err = &#123;:?&#125;"</span>, e);</span><br><span class="line">                    <span class="keyword">return</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用 <code>#[tokio::main]</code> 宏将 <code>async fn main</code> 函数转换成普通的 <code>fn main</code> 函数。但是却很少有文章说明更多关于 <code>#[tokio::main]</code> 的内容。</p>
+<p>以下内容均来自官方<a href="https://docs.rs/tokio/1.6.1/tokio/attr.main.html" target="_blank" rel="noopener">文档</a>。</p>
+<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>在官方文档中说明了几点:</p>
+<ul>
+<li>方便为被标记的 <code>async</code> 函数创建响应的运行时，而无需开发者直接操作 <code>tokio::runtime::Runtime</code> 或者 <code>tokio::runtime::Builder</code>。</li>
+<li>仅限于面向不需要复杂设置与功能的 <code>async</code> 函数，否则仍建议直接使用 <code>tokio::runtime::Builder</code> 配置。</li>
+<li>除用于 <code>async fn main</code> 函数之外，同样可用于其他任何函数(之后称作<strong>一般函数</strong>)。在配合一般函数使用时，每次进行函数调用时均会启动一个<strong>新</strong>的 <code>tokio::runtime::Runtime</code>，且函数的行为等同于同步函数。推荐对于需要被经常调用的函数<strong>复用</strong>由 <code>tokio::runtime::Builder</code> 创建的 <code>tokio::runtime::Runtime</code>。</li>
+</ul>
+<h2 id="常用配置"><a href="#常用配置" class="headerlink" title="常用配置"></a>常用配置</h2><h3 id="Multi-threaded-runtime"><a href="#Multi-threaded-runtime" class="headerlink" title="Multi-threaded runtime"></a>Multi-threaded runtime</h3><p>要使用 <code>Multi-threaded runtime</code> 功能，需要在 <code>Cargo.toml</code> 中启用 <code>rt-multi-thread</code> 功能:</p>
+<figure class="highlight toml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">tokio</span> = &#123; version = <span class="string">"1.6"</span>, features = [<span class="string">"macros"</span>, <span class="string">"rt-multi-thread"</span>] &#125;</span><br></pre></td></tr></table></figure>
+
+<p>在启用 <code>rt-multi-thread</code> 功能后，默认工作线程数量为系统的 <code>cpu</code> 数量:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#[tokio::main]</span></span><br><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>() &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"Hello world"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>等价于:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>() &#123;</span><br><span class="line">    tokio::runtime::Builder::new_multi_thread()</span><br><span class="line">        .enable_all()</span><br><span class="line">        .build()</span><br><span class="line">        .unwrap()</span><br><span class="line">        .block_on(<span class="keyword">async</span> &#123;</span><br><span class="line">            <span class="built_in">println!</span>(<span class="string">"Hello world"</span>);</span><br><span class="line">        &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>也可以通过配置 <code>worker_thread</code> 选项来指定工作线程的数量:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#[tokio::main(worker_threads = 2)]</span></span><br><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>() &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"Hello world"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>等价于:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>() &#123;</span><br><span class="line">    tokio::runtime::Builder::new_multi_thread()</span><br><span class="line">        .worker_threads(<span class="number">2</span>)</span><br><span class="line">        .enable_all()</span><br><span class="line">        .build()</span><br><span class="line">        .unwrap()</span><br><span class="line">        .block_on(<span class="keyword">async</span> &#123;</span><br><span class="line">            <span class="built_in">println!</span>(<span class="string">"Hello world"</span>);</span><br><span class="line">        &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Current-thread-runtime"><a href="#Current-thread-runtime" class="headerlink" title="Current thread runtime"></a>Current thread runtime</h3><p>另一种是只是用单线程的模式:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#[tokio::main(flavor = <span class="meta-string">"current_thread"</span>)]</span></span><br><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>() &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"Hello world"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>等价于:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>() &#123;</span><br><span class="line">    tokio::runtime::Builder::new_current_thread()</span><br><span class="line">        .enable_all()</span><br><span class="line">        .build()</span><br><span class="line">        .unwrap()</span><br><span class="line">        .block_on(<span class="keyword">async</span> &#123;</span><br><span class="line">            <span class="built_in">println!</span>(<span class="string">"Hello world"</span>);</span><br><span class="line">        &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+    
+
+    
+
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">rust</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">tokio</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+
+    
+    <p class="article-more-link">
+      <a class="article-more-a" href="/2021/05/30/tokio-main-macro/">展开全文 >></a>
+    </p>
+    
+
+    
+    <div class="clearfix"></div>
+  </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-run-async-block-in-non-async-function" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1216,226 +1336,6 @@ pub fn current() -&gt; Self {
 
 
   
-    <article id="post-innodb-introduction" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-  
-  
-    <h1 itemprop="name">
-	
-	  <a class="article-title" href="/2021/03/08/innodb-introduction/" target="_blank">InnoDB 入门</a>
-  
-    </h1>
-  
-
-
-  
-  
-<a href="/2021/03/08/innodb-introduction/" class="archive-article-date">
-        <time datetime="2021-03-08T05:27:56.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-03-08</time>
-</a>
-
-  
-  
-    
-
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-    <p><code>InnoDB</code> 是一种平衡可靠性与性能的通用存储引擎。在 <code>MySQL 8.0</code> 中，通过 <code>CREATE TABLE</code> 语句创建表时，如若未通过 <code>ENGINE</code> 子句指定引擎，将采用 <code>InnoDB</code> 作为默认的存储引擎。</p>
-<h2 id="InnoDB-的关键优势"><a href="#InnoDB-的关键优势" class="headerlink" title="InnoDB 的关键优势"></a>InnoDB 的关键优势</h2><ul>
-<li><code>InnoDB</code> 的 <code>DML</code> 操作遵循 <code>ACID</code> 模型，且具有提交、回滚、错误恢复等事务的功能与能力，保障用户数据安全。</li>
-<li>行级锁定和 <code>Oracle</code> 风格的 <strong>一致性读取</strong> 提高了多用户使用时的并发性与性能。</li>
-<li><code>InnoDB</code> 表将数据存放在磁盘上，基于 <strong>主键</strong> 来优化查询。每个 <code>InnoDB</code> 表都有一个称为 <strong>聚集索引</strong> 的主键索引，使用该索引组织数据可以将查找主键的 <code>I/O</code> 最小化。</li>
-<li>为了维护数据完整性，<code>InnoDB</code> 支持外键约束。当使用外键时，<code>InnoDB</code> 会检查插入、更新和删除等语句，来确保它们不会导致相关表之间的数据不一致。</li>
-</ul>
-<h3 id="InnoDB-功能列表"><a href="#InnoDB-功能列表" class="headerlink" title="InnoDB 功能列表"></a>InnoDB 功能列表</h3><table>
-<thead>
-<tr>
-<th align="left">Feature</th>
-<th align="left">Support</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">B-tree indexes</td>
-<td align="left">Yes</td>
-</tr>
-<tr>
-<td align="left">Backup/point-in-time recovery (在服务端实现，而非存储引擎。)</td>
-<td align="left">Yes</td>
-</tr>
-<tr>
-<td align="left">Cluster database support</td>
-<td align="left">No</td>
-</tr>
-<tr>
-<td align="left">Clustered indexes</td>
-<td align="left">Yes</td>
-</tr>
-<tr>
-<td align="left">Compressed data</td>
-<td align="left">Yes</td>
-</tr>
-<tr>
-<td align="left">Data caches</td>
-<td align="left">Yes</td>
-</tr>
-<tr>
-<td align="left">Encrypted data</td>
-<td align="left">Yes (在服务器端通过加密功能实现;在MySQL 5.7和更高版本中，支持数据静止加密。)</td>
-</tr>
-<tr>
-<td align="left">Foreign key support</td>
-<td align="left">Yes</td>
-</tr>
-<tr>
-<td align="left">Full-text search indexes</td>
-<td align="left">Yes (在MySQL 5.6和更高版本中支持全文索引。)</td>
-</tr>
-<tr>
-<td align="left">Geospatial data type support</td>
-<td align="left">Yes</td>
-</tr>
-<tr>
-<td align="left">Geospatial indexing support</td>
-<td align="left">Yes (MySQL 5.7和更高版本中提供了对地理空间索引的支持。)</td>
-</tr>
-<tr>
-<td align="left">Hash indexes</td>
-<td align="left">No (InnoDB内部利用哈希索引来实现自适应哈希索引特性。)</td>
-</tr>
-<tr>
-<td align="left">Index caches</td>
-<td align="left">Yes</td>
-</tr>
-<tr>
-<td align="left">Locking granularity</td>
-<td align="left">Row</td>
-</tr>
-<tr>
-<td align="left">MVCC</td>
-<td align="left">Yes</td>
-</tr>
-<tr>
-<td align="left">Replication support (在服务端实现，而非存储引擎。)</td>
-<td align="left">Yes</td>
-</tr>
-<tr>
-<td align="left">Storage limits</td>
-<td align="left">64TB</td>
-</tr>
-<tr>
-<td align="left">T-tree indexes</td>
-<td align="left">No</td>
-</tr>
-<tr>
-<td align="left">Transactions</td>
-<td align="left">Yes</td>
-</tr>
-<tr>
-<td align="left">Update statistics for data dictionary</td>
-<td align="left">Yes</td>
-</tr>
-</tbody></table>
-<h2 id="使用-InnoDB-的优势"><a href="#使用-InnoDB-的优势" class="headerlink" title="使用 InnoDB 的优势"></a>使用 InnoDB 的优势</h2><p>使用 <code>InnoDB</code> 有如下优势:</p>
-<ul>
-<li>如果服务器由于硬件或软件问题而意外退出，无论崩溃时数据库内部遇到什么问题，在重新启动数据库后都不需要做任何特殊的操作。<code>InnoDB</code> 会恢复崩溃前已经确定的更改，并撤销正在进行但未提交的更改，允许用户重新启动并从停止的地方继续。</li>
-<li><code>InnoDB</code> 存储引擎维护其内部的缓冲池，当数据被访问时，该缓冲池会在内存中缓存表和索引数据。频繁被使用到的数据将直接从内存中处理。多种类型的信息都可以通过使用该缓存来提高处理速度。在专用的数据库服务器上，通常会将高达 <code>80%</code> 的物理内存分配给缓冲池使用。</li>
-<li>可以设置外键，保证多个相关数据表之间的数据完整性。</li>
-<li>如果磁盘或内存中的数据损坏，<strong>校验和</strong> 机制会在使问题假数据之前向用户发出警告。变量 <code>innodb_checksum_algorithm</code> 定义了 <code>InnoDB</code> 使用了何种校验和算法。</li>
-<li>在 <code>WHERE</code>、<code>ORDER BY</code>、<code>GROUP BY</code> 等子句与 <code>JOIN</code> 操作中使用主键时，<code>InnoDB</code> 将自动优化涉及这些列的操作，使这些操作的执行速度非常快。</li>
-<li>更改缓冲(change buffering) 这一自动极致会对插入，更新和删除进行优化。 <code>InnoDB</code> 不仅允许对同一表的并发读写访问，而且会缓存被更改数据，使磁盘 <code>I/O</code> 流水线化。</li>
-<li>性能优势并不仅限于哪些需要很长时间查询的大表。当表中的某些被反复访问时，<code>InnoDB</code> 会通过自适应哈希索引( Adaptive Hash Index) 处理，加快查询速度，达到类似使用哈希表查找的效果。</li>
-<li>允许压缩表和关联索引。</li>
-<li>加密数据。</li>
-<li>在线创建和删除索引，执行其他 <code>DDL</code> 操作对性能和可用性有较小的影响。</li>
-<li>截断每个表文件的表空间的速度非常快，被释放的磁盘空间不仅可以供 <code>InnoDB</code> 使用，操作系统同样可以重用。</li>
-<li>表数据的存储布局对于使用动态(DYNAMIC) 行格式的 <code>BLOB</code> 和长文本字段更有效。</li>
-<li>可以通过查询 <code>INFORMATION_SCHEMA</code> 表来监视存储引擎的内部工作。</li>
-<li>可以通过查询 <code>performance_schema</code> 表来监控存储引擎的性能详情。</li>
-<li>可以混合使用 <code>InnoDB</code> 表和使用其他 <code>MySQL</code> 存储引擎的表，即使是在同一个语句中。例如，可以使用 <code>JOIN</code> 操作在单个查询中组合来自 <code>InnoDB</code> 和内存表的数据。</li>
-<li><code>InnoDB</code> 的设计目标是在处理大数据量时的提高 <code>CPU</code> 效率并达到最高性能。</li>
-<li><code>InnoDB</code> 表可以处理大量数据，即使在文件大小被限制为 <code>2GB</code> 的操作系统上。</li>
-</ul>
-<h2 id="InnoDB-表的最佳实践"><a href="#InnoDB-表的最佳实践" class="headerlink" title="InnoDB 表的最佳实践"></a>InnoDB 表的最佳实践</h2><p>在使用 <code>InnoDB</code> 的表时有如下最佳实践:</p>
-<ul>
-<li>使用查询最频繁的一列或多列作为表的主键，如果没有明显的主键，则使用自动递增 <code>ID</code>。</li>
-<li>使用 <code>JOIN</code> 操作根据相同的 <code>ID</code> 值从多个表中从多个表中获取数据。在 <code>JOIN</code> 的列上定义外键约束，并为这些列声明相同的数据类型。外键约束可以确保被引用的列上是有索引的，这也可以提高性能。同时，外键约束可以将删除和更新的结果在所有收到影响的表上生效，保证当父表中没有相应的 <code>ID</code> 时，不会将数据插入到子表中。</li>
-<li>关闭自动提交可以提高性能 (受到存储设备写入速度的限制)。</li>
-<li>使用 <code>START TRANSACTION</code> 和 <code>COMMIT</code> 语句，将一组相关的 <code>DML</code> 操作，以事务的形式执行。事务的范围过小会导致频繁提交，范围过大会导致提交间隔太久。</li>
-<li>禁止使用 <code>LOCK TABLES</code> 语句。<code>InnoDB</code> 可以同时处理多个会话对同一个表的读写，而不会牺牲可靠性和高性能。要获得对一组行的独占写访问，请使用 <code>SELECT ... FOR UPDATE</code> 只锁定要更新的行。</li>
-<li>启用变量 <code>innodb_file_per_table</code>，或者使用通用表空间(general tablespaces) 将表的数据和索引放到单独的文件中，不建议使用 system 表空间(system tablespace)。默认启用变量 <code>innodb_file_per_table</code>。</li>
-<li>压缩 <code>InnoDB</code> 表数据，在某些场景可以提升读写性能。</li>
-<li>使用 <code>--sql_mode=NO_ENGINE_SUBSTITUTION</code> 参数启动服务，可避免使用禁止的引擎创建表。</li>
-</ul>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
-<li><a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-introduction.html" target="_blank" rel="noopener">Introduction to InnoDB</a></li>
-<li><a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-benefits.html" target="_blank" rel="noopener">Benefits of Using InnoDB Tables</a></li>
-<li><a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-best-practices.html" target="_blank" rel="noopener">Best Practices for InnoDB Tables</a></li>
-</ul>
-
-    
-
-    
-
-    
-
-  </div>
-  <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">mysql</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">innnodb</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-
-    
-    <p class="article-more-link">
-      <a class="article-more-a" href="/2021/03/08/innodb-introduction/">展开全文 >></a>
-    </p>
-    
-
-    
-    <div class="clearfix"></div>
-  </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" href="/page/2/">Next &amp;raquo;</a>
@@ -1569,10 +1469,6 @@ pub fn current() -&gt; Self {
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">archlinux</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">data structure</a>
               </li>
              
@@ -1589,15 +1485,19 @@ pub fn current() -&gt; Self {
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">archlinux</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">gpu</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">hard drive</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">gpu</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1625,6 +1525,10 @@ pub fn current() -&gt; Self {
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">container orchestration</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">I/O</a>
               </li>
              
@@ -1649,11 +1553,15 @@ pub fn current() -&gt; Self {
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">git</a>
+                <a href="javascript:void(0)" class="js-tag color5">hexo</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">container orchestration</a>
+                <a href="javascript:void(0)" class="js-tag color4">rss</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">git</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1665,22 +1573,6 @@ pub fn current() -&gt; Self {
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">innnodb</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">hexo</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">rss</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">nvidia</a>
               </li>
              
@@ -1689,15 +1581,11 @@ pub fn current() -&gt; Self {
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">parallel programming</a>
+                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">network programming</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">io</a>
+                <a href="javascript:void(0)" class="js-tag color3">innnodb</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1717,6 +1605,18 @@ pub fn current() -&gt; Self {
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">parallel programming</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">network programming</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">io</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">controllers</a>
               </li>
              
@@ -1725,11 +1625,11 @@ pub fn current() -&gt; Self {
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">linux performance</a>
+                <a href="javascript:void(0)" class="js-tag color3">storage</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">storage</a>
+                <a href="javascript:void(0)" class="js-tag color3">linux performance</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1741,7 +1641,7 @@ pub fn current() -&gt; Self {
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">cpu performance</a>
+                <a href="javascript:void(0)" class="js-tag color3">mongodb</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1753,7 +1653,11 @@ pub fn current() -&gt; Self {
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">mongodb</a>
+                <a href="javascript:void(0)" class="js-tag color1">containerd</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">cpu performance</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1769,7 +1673,7 @@ pub fn current() -&gt; Self {
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">faq</a>
+                <a href="javascript:void(0)" class="js-tag color4">k8s</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1777,11 +1681,23 @@ pub fn current() -&gt; Self {
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">k8s</a>
+                <a href="javascript:void(0)" class="js-tag color4">faq</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">programming</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">pytorch</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rdma</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">pod</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1797,22 +1713,6 @@ pub fn current() -&gt; Self {
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">pod</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">containerd</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">pytorch</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rdma</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">scheduling</a>
               </li>
              
@@ -1821,11 +1721,11 @@ pub fn current() -&gt; Self {
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">volcano</a>
+                <a href="javascript:void(0)" class="js-tag color3">kubeadm</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">kubeadm</a>
+                <a href="javascript:void(0)" class="js-tag color3">volcano</a>
               </li>
              
               <li class="article-tag-list-item">
