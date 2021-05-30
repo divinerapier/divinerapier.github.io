@@ -172,6 +172,149 @@
             
 
   
+    <article id="post-tokio-stream-01" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+  
+  
+    <h1 itemprop="name">
+	
+	  <a class="article-title" href="/2021/05/30/tokio-stream-01/" target="_blank">tokio stream</a>
+  
+    </h1>
+  
+
+
+  
+  
+<a href="/2021/05/30/tokio-stream-01/" class="archive-article-date">
+        <time datetime="2021-05-30T09:15:46.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-05-30</time>
+</a>
+
+  
+  
+    
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    <p>如下所示代码，<code>sleep</code> 代替实际可能遇到的其他 <code>async</code> 函数，即希望通过使用 <code>async</code> 配合 <code>adaptor</code> 的组合处理 <code>iterator</code>。显然，如下代码无法通过编译，因为不允许在 <code>non-async</code> 代码块中使用 <code>.await</code>。而且，也不允许传入 <code>async</code> 函数给 <code>fold</code>。可以尝试的一种方法是通过 <code>futures::executor::block_on</code> 将 <code>async</code> 函数转换为 <code>non-async</code> 函数，但这个方法看起来有些蠢笨。好在，在 <code>async</code> 环境中存在 <code>stream</code> 可以使用。</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::time::Duration;</span><br><span class="line"></span><br><span class="line"><span class="keyword">use</span> futures::StreamExt;</span><br><span class="line"><span class="keyword">use</span> tokio::time::sleep;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[tokio::main(flavor = <span class="meta-string">"multi_thread"</span>, worker_threads = 2)]</span></span><br><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut</span> handles = <span class="built_in">vec!</span>[];</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> index <span class="keyword">in</span> <span class="number">0</span>..<span class="number">16</span> &#123;</span><br><span class="line">        <span class="keyword">let</span> h = tokio::spawn(<span class="keyword">async</span> <span class="keyword">move</span> &#123;</span><br><span class="line">            <span class="built_in">println!</span>(<span class="string">"start index: &#123;&#125;"</span>, index);</span><br><span class="line">            <span class="keyword">let</span> res = (<span class="number">0u128</span>..<span class="number">1000</span>).fold(<span class="number">0u128</span>, |a, b| &#123;</span><br><span class="line">                sleep(Duration::from_micros(<span class="number">1</span>)).<span class="keyword">await</span>;</span><br><span class="line">                a + b * b</span><br><span class="line">            &#125;);</span><br><span class="line">            <span class="built_in">println!</span>(<span class="string">"finish index: &#123;&#125; res: &#123;&#125;"</span>, index, res);</span><br><span class="line">        &#125;);</span><br><span class="line">        handles.push(h);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> h <span class="keyword">in</span> handles &#123;</span><br><span class="line">        <span class="keyword">let</span> _res = h.<span class="keyword">await</span>.unwrap();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Stream"><a href="#Stream" class="headerlink" title="Stream"></a>Stream</h2><p>根据<a href="https://doc.rust-lang.org/std/stream/index.html" target="_blank" rel="noopener">文档</a>:</p>
+<blockquote>
+<p>If futures are asynchronous values, then streams are asynchronous iterators. If you’ve found yourself with an asynchronous collection of some kind, and needed to perform an operation on the elements of said collection, you’ll quickly run into ‘streams’. Streams are heavily used in idiomatic asynchronous Rust code, so it’s worth becoming familiar with them.</p>
+</blockquote>
+<p>核心内容: <code>stream</code> 就是 <code>async</code> 编程中的 <code>iterator</code>。</p>
+<h3 id="Iterator-gt-Stream"><a href="#Iterator-gt-Stream" class="headerlink" title="Iterator -&gt; Stream"></a>Iterator -&gt; Stream</h3><p><code>crate futures</code> 提供的函数 <code>futures::stream::iter</code> 可以将一个 <code>iterator</code> 转换为 <code>stream</code>:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// Converts an `Iterator` into a `Stream` which is always ready</span></span><br><span class="line"><span class="comment">/// to yield the next value.</span></span><br><span class="line"><span class="comment">///</span></span><br><span class="line"><span class="comment">/// Iterators in Rust don't express the ability to block, so this adapter</span></span><br><span class="line"><span class="comment">/// simply always calls `iter.next()` and returns that.</span></span><br><span class="line"><span class="keyword">pub</span> <span class="function"><span class="keyword">fn</span> <span class="title">iter</span></span>&lt;I&gt;(i: I) -&gt; Iter&lt;I::IntoIter&gt;</span><br><span class="line"><span class="keyword">where</span></span><br><span class="line">    I: <span class="built_in">IntoIterator</span>,</span><br><span class="line">&#123;</span><br><span class="line">    assert_stream::&lt;I::Item, _&gt;(Iter &#123; iter: i.into_iter() &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>例如:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">fn</span> <span class="title">foo</span></span>() &#123;</span><br><span class="line">  futures::executor::block_on(<span class="keyword">async</span> &#123;</span><br><span class="line">    <span class="keyword">use</span> futures::stream::&#123;<span class="keyword">self</span>, StreamExt&#125;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> stream = stream::iter(<span class="built_in">vec!</span>[<span class="number">17</span>, <span class="number">19</span>]);</span><br><span class="line">    <span class="built_in">assert_eq!</span>(<span class="built_in">vec!</span>[<span class="number">17</span>, <span class="number">19</span>], stream.collect::&lt;<span class="built_in">Vec</span>&lt;<span class="built_in">i32</span>&gt;&gt;().<span class="keyword">await</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="使用-Stream-重构"><a href="#使用-Stream-重构" class="headerlink" title="使用 Stream 重构"></a>使用 Stream 重构</h2><p>整个重构的核心就是 <code>futures::stream::iter</code> 函数。</p>
+<p><code>main</code> 函数为:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::time::Duration;</span><br><span class="line"></span><br><span class="line"><span class="keyword">use</span> futures::StreamExt;</span><br><span class="line"><span class="keyword">use</span> tokio::time::sleep;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[tokio::main(flavor = <span class="meta-string">"multi_thread"</span>, worker_threads = 2)]</span></span><br><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> start = std::time::Instant::now();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// for_loop().await</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// for_each().await;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// map().await;</span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"elapsed: &#123;&#125;"</span>, start.elapsed().as_secs_f64());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>各种重构代码分别位于 <code>for_loop</code>, <code>for_each</code>, <code>map</code> 中。</p>
+<h3 id="使用-for-loop"><a href="#使用-for-loop" class="headerlink" title="使用 for-loop"></a>使用 for-loop</h3><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">fn</span> <span class="title">for_loop</span></span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut</span> handles = <span class="built_in">vec!</span>[];</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> index <span class="keyword">in</span> <span class="number">0</span>..<span class="number">16</span> &#123;</span><br><span class="line">        <span class="keyword">let</span> h = tokio::spawn(<span class="keyword">async</span> <span class="keyword">move</span> &#123;</span><br><span class="line">            <span class="built_in">println!</span>(<span class="string">"start index: &#123;&#125;"</span>, index);</span><br><span class="line">            sleep(Duration::from_secs(<span class="number">1</span>)).<span class="keyword">await</span>;</span><br><span class="line">            <span class="keyword">let</span> res = futures::stream::iter(<span class="number">0u128</span>..<span class="number">1000</span>).fold(<span class="number">0u128</span>, |a, b| <span class="keyword">async</span> <span class="keyword">move</span> &#123;</span><br><span class="line">                sleep(Duration::from_nanos(<span class="number">1</span>)).<span class="keyword">await</span>;</span><br><span class="line">                a + b * b</span><br><span class="line">            &#125;);</span><br><span class="line">            (index, res)</span><br><span class="line">        &#125;);</span><br><span class="line">        handles.push(h);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> h <span class="keyword">in</span> handles &#123;</span><br><span class="line">        <span class="keyword">let</span> res = h.<span class="keyword">await</span>.unwrap();</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">"index: &#123;&#125;. result: &#123;&#125;"</span>, res.<span class="number">0</span>, res.<span class="number">1</span>.<span class="keyword">await</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>输出为:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">start index: 0</span><br><span class="line">start index: 1</span><br><span class="line">start index: 2</span><br><span class="line">start index: 3</span><br><span class="line">start index: 4</span><br><span class="line">start index: 5</span><br><span class="line">start index: 6</span><br><span class="line">start index: 7</span><br><span class="line">start index: 8</span><br><span class="line">start index: 9</span><br><span class="line">start index: 10</span><br><span class="line">start index: 11</span><br><span class="line">start index: 12</span><br><span class="line">start index: 13</span><br><span class="line">start index: 14</span><br><span class="line">start index: 15</span><br><span class="line">index: 0. result: 332833500</span><br><span class="line">index: 1. result: 332833500</span><br><span class="line">index: 2. result: 332833500</span><br><span class="line">index: 3. result: 332833500</span><br><span class="line">index: 4. result: 332833500</span><br><span class="line">index: 5. result: 332833500</span><br><span class="line">index: 6. result: 332833500</span><br><span class="line">index: 7. result: 332833500</span><br><span class="line">index: 8. result: 332833500</span><br><span class="line">index: 9. result: 332833500</span><br><span class="line">index: 10. result: 332833500</span><br><span class="line">index: 11. result: 332833500</span><br><span class="line">index: 12. result: 332833500</span><br><span class="line">index: 13. result: 332833500</span><br><span class="line">index: 14. result: 332833500</span><br><span class="line">index: 15. result: 332833500</span><br><span class="line">elapsed: 20.4097263</span><br></pre></td></tr></table></figure>
+
+<h3 id="使用-for-each"><a href="#使用-for-each" class="headerlink" title="使用 for-each"></a>使用 for-each</h3><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">fn</span> <span class="title">for_each</span></span>() &#123;</span><br><span class="line">    futures::stream::iter(<span class="number">0</span>..<span class="number">16</span>)</span><br><span class="line">        .for_each(|index| <span class="keyword">async</span> <span class="keyword">move</span> &#123;</span><br><span class="line">            tokio::spawn(<span class="keyword">async</span> <span class="keyword">move</span> &#123;</span><br><span class="line">                <span class="built_in">println!</span>(<span class="string">"start index: &#123;&#125;"</span>, index);</span><br><span class="line">                sleep(Duration::from_secs(<span class="number">1</span>)).<span class="keyword">await</span>;</span><br><span class="line">                <span class="keyword">let</span> res = futures::stream::iter(<span class="number">0u128</span>..<span class="number">1000</span>).fold(<span class="number">0u128</span>, |a, b| <span class="keyword">async</span> <span class="keyword">move</span> &#123;</span><br><span class="line">                    sleep(Duration::from_nanos(<span class="number">1</span>)).<span class="keyword">await</span>;</span><br><span class="line">                    a + b * b</span><br><span class="line">                &#125;);</span><br><span class="line">                <span class="built_in">println!</span>(<span class="string">"finish index: &#123;&#125; res: &#123;&#125;"</span>, index, res.<span class="keyword">await</span>);</span><br><span class="line">            &#125;)</span><br><span class="line">            .<span class="keyword">await</span>;</span><br><span class="line">        &#125;)</span><br><span class="line">        .<span class="keyword">await</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>输出为:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">start index: 0</span><br><span class="line">finish index: 0 res: 332833500</span><br><span class="line">start index: 1</span><br><span class="line">finish index: 1 res: 332833500</span><br><span class="line">start index: 2</span><br><span class="line">finish index: 2 res: 332833500</span><br><span class="line">start index: 3</span><br><span class="line">finish index: 3 res: 332833500</span><br><span class="line">start index: 4</span><br><span class="line">finish index: 4 res: 332833500</span><br><span class="line">start index: 5</span><br><span class="line">finish index: 5 res: 332833500</span><br><span class="line">start index: 6</span><br><span class="line">finish index: 6 res: 332833500</span><br><span class="line">start index: 7</span><br><span class="line">finish index: 7 res: 332833500</span><br><span class="line">start index: 8</span><br><span class="line">finish index: 8 res: 332833500</span><br><span class="line">start index: 9</span><br><span class="line">finish index: 9 res: 332833500</span><br><span class="line">start index: 10</span><br><span class="line">finish index: 10 res: 332833500</span><br><span class="line">start index: 11</span><br><span class="line">finish index: 11 res: 332833500</span><br><span class="line">start index: 12</span><br><span class="line">finish index: 12 res: 332833500</span><br><span class="line">start index: 13</span><br><span class="line">finish index: 13 res: 332833500</span><br><span class="line">start index: 14</span><br><span class="line">finish index: 14 res: 332833500</span><br><span class="line">start index: 15</span><br><span class="line">finish index: 15 res: 332833500</span><br><span class="line">elapsed: 35.0121356</span><br></pre></td></tr></table></figure>
+
+<h3 id="使用-map"><a href="#使用-map" class="headerlink" title="使用 map"></a>使用 map</h3><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">fn</span> <span class="title">map</span></span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> handles = futures::stream::iter(<span class="number">0</span>..<span class="number">16</span>)</span><br><span class="line">        .map(|index| <span class="keyword">async</span> <span class="keyword">move</span> &#123;</span><br><span class="line">            tokio::spawn(<span class="keyword">async</span> <span class="keyword">move</span> &#123;</span><br><span class="line">                <span class="built_in">println!</span>(<span class="string">"start index: &#123;&#125;"</span>, index);</span><br><span class="line">                sleep(Duration::from_secs(<span class="number">1</span>)).<span class="keyword">await</span>;</span><br><span class="line">                <span class="keyword">let</span> res = futures::stream::iter(<span class="number">0u128</span>..<span class="number">1000</span>).fold(<span class="number">0u128</span>, |a, b| <span class="keyword">async</span> <span class="keyword">move</span> &#123;</span><br><span class="line">                    sleep(Duration::from_nanos(<span class="number">1</span>)).<span class="keyword">await</span>;</span><br><span class="line">                    a + b * b</span><br><span class="line">                &#125;);</span><br><span class="line">                <span class="built_in">println!</span>(<span class="string">"finish index: &#123;&#125; res: &#123;&#125;"</span>, index, res.<span class="keyword">await</span>);</span><br><span class="line">            &#125;).<span class="keyword">await</span></span><br><span class="line">        &#125;).collect::&lt;<span class="built_in">Vec</span>&lt;_&gt;&gt;().<span class="keyword">await</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">async</span> &#123;</span><br><span class="line">        <span class="keyword">for</span> h <span class="keyword">in</span> handles &#123;</span><br><span class="line">            <span class="keyword">let</span> a = h.<span class="keyword">await</span>.unwrap();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;.<span class="keyword">await</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">start index: 0</span><br><span class="line">finish index: 0 res: 332833500</span><br><span class="line">start index: 1</span><br><span class="line">finish index: 1 res: 332833500</span><br><span class="line">start index: 2</span><br><span class="line">finish index: 2 res: 332833500</span><br><span class="line">start index: 3</span><br><span class="line">finish index: 3 res: 332833500</span><br><span class="line">start index: 4</span><br><span class="line">finish index: 4 res: 332833500</span><br><span class="line">start index: 5</span><br><span class="line">finish index: 5 res: 332833500</span><br><span class="line">start index: 6</span><br><span class="line">finish index: 6 res: 332833500</span><br><span class="line">start index: 7</span><br><span class="line">finish index: 7 res: 332833500</span><br><span class="line">start index: 8</span><br><span class="line">finish index: 8 res: 332833500</span><br><span class="line">start index: 9</span><br><span class="line">finish index: 9 res: 332833500</span><br><span class="line">start index: 10</span><br><span class="line">finish index: 10 res: 332833500</span><br><span class="line">start index: 11</span><br><span class="line">finish index: 11 res: 332833500</span><br><span class="line">start index: 12</span><br><span class="line">finish index: 12 res: 332833500</span><br><span class="line">start index: 13</span><br><span class="line">finish index: 13 res: 332833500</span><br><span class="line">start index: 14</span><br><span class="line">finish index: 14 res: 332833500</span><br><span class="line">start index: 15</span><br><span class="line">finish index: 15 res: 332833500</span><br><span class="line">elapsed: 34.9667163</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">fn</span> <span class="title">map</span></span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> handles = futures::stream::iter(<span class="number">0</span>..<span class="number">16</span>)</span><br><span class="line">        .map(|index| <span class="keyword">async</span> <span class="keyword">move</span> &#123;</span><br><span class="line">            tokio::spawn(<span class="keyword">async</span> <span class="keyword">move</span> &#123;</span><br><span class="line">                <span class="built_in">println!</span>(<span class="string">"start index: &#123;&#125;"</span>, index);</span><br><span class="line">                sleep(Duration::from_secs(<span class="number">1</span>)).<span class="keyword">await</span>;</span><br><span class="line">                <span class="keyword">let</span> res = futures::stream::iter(<span class="number">0u128</span>..<span class="number">1000</span>).fold(<span class="number">0u128</span>, |a, b| <span class="keyword">async</span> <span class="keyword">move</span> &#123;</span><br><span class="line">                    sleep(Duration::from_nanos(<span class="number">1</span>)).<span class="keyword">await</span>;</span><br><span class="line">                    a + b * b</span><br><span class="line">                &#125;);</span><br><span class="line">                <span class="built_in">println!</span>(<span class="string">"finish index: &#123;&#125; res: &#123;&#125;"</span>, index, res.<span class="keyword">await</span>);</span><br><span class="line">            &#125;)</span><br><span class="line">        &#125;).collect::&lt;<span class="built_in">Vec</span>&lt;_&gt;&gt;().<span class="keyword">await</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">async</span> &#123;</span><br><span class="line">        <span class="keyword">for</span> h <span class="keyword">in</span> handles &#123;</span><br><span class="line">            <span class="keyword">let</span> a = h.<span class="keyword">await</span>.<span class="keyword">await</span>.unwrap();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;.<span class="keyword">await</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">start index: 0</span><br><span class="line">finish index: 0 res: 332833500</span><br><span class="line">start index: 1</span><br><span class="line">finish index: 1 res: 332833500</span><br><span class="line">start index: 2</span><br><span class="line">finish index: 2 res: 332833500</span><br><span class="line">start index: 3</span><br><span class="line">finish index: 3 res: 332833500</span><br><span class="line">start index: 4</span><br><span class="line">finish index: 4 res: 332833500</span><br><span class="line">start index: 5</span><br><span class="line">finish index: 5 res: 332833500</span><br><span class="line">start index: 6</span><br><span class="line">finish index: 6 res: 332833500</span><br><span class="line">start index: 7</span><br><span class="line">finish index: 7 res: 332833500</span><br><span class="line">start index: 8</span><br><span class="line">finish index: 8 res: 332833500</span><br><span class="line">start index: 9</span><br><span class="line">finish index: 9 res: 332833500</span><br><span class="line">start index: 10</span><br><span class="line">finish index: 10 res: 332833500</span><br><span class="line">start index: 11</span><br><span class="line">finish index: 11 res: 332833500</span><br><span class="line">start index: 12</span><br><span class="line">finish index: 12 res: 332833500</span><br><span class="line">start index: 13</span><br><span class="line">finish index: 13 res: 332833500</span><br><span class="line">start index: 14</span><br><span class="line">finish index: 14 res: 332833500</span><br><span class="line">start index: 15</span><br><span class="line">finish index: 15 res: 332833500</span><br><span class="line">elapsed: 35.0125656</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">fn</span> <span class="title">map</span></span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> handles = futures::stream::iter(<span class="number">0</span>..<span class="number">16</span>)</span><br><span class="line">        .map(|index| <span class="keyword">async</span> <span class="keyword">move</span> &#123;</span><br><span class="line">            <span class="keyword">let</span> h =tokio::spawn(<span class="keyword">async</span> <span class="keyword">move</span> &#123;</span><br><span class="line">                <span class="built_in">println!</span>(<span class="string">"start index: &#123;&#125;"</span>, index);</span><br><span class="line">                sleep(Duration::from_secs(<span class="number">1</span>)).<span class="keyword">await</span>;</span><br><span class="line">                <span class="keyword">let</span> res = futures::stream::iter(<span class="number">0u128</span>..<span class="number">1000</span>).fold(<span class="number">0u128</span>, |a, b| <span class="keyword">async</span> <span class="keyword">move</span> &#123;</span><br><span class="line">                    sleep(Duration::from_nanos(<span class="number">1</span>)).<span class="keyword">await</span>;</span><br><span class="line">                    a + b * b</span><br><span class="line">                &#125;);</span><br><span class="line">                (index, res)</span><br><span class="line">            &#125;);</span><br><span class="line">            h</span><br><span class="line">        &#125;)</span><br><span class="line">        .collect::&lt;<span class="built_in">Vec</span>&lt;_&gt;&gt;()</span><br><span class="line">        .<span class="keyword">await</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">async</span> &#123;</span><br><span class="line">        <span class="keyword">for</span> h <span class="keyword">in</span> handles &#123;</span><br><span class="line">            <span class="keyword">let</span> a = h.<span class="keyword">await</span>.<span class="keyword">await</span>.unwrap();</span><br><span class="line">            <span class="built_in">println!</span>(<span class="string">"finish index: &#123;&#125; res: &#123;&#125;"</span>, a.<span class="number">0</span>, a.<span class="number">1</span>.<span class="keyword">await</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    .<span class="keyword">await</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">start index: 0</span><br><span class="line">finish index: 0 res: 332833500</span><br><span class="line">start index: 1</span><br><span class="line">finish index: 1 res: 332833500</span><br><span class="line">start index: 2</span><br><span class="line">finish index: 2 res: 332833500</span><br><span class="line">start index: 3</span><br><span class="line">finish index: 3 res: 332833500</span><br><span class="line">start index: 4</span><br><span class="line">finish index: 4 res: 332833500</span><br><span class="line">start index: 5</span><br><span class="line">finish index: 5 res: 332833500</span><br><span class="line">start index: 6</span><br><span class="line">finish index: 6 res: 332833500</span><br><span class="line">start index: 7</span><br><span class="line">finish index: 7 res: 332833500</span><br><span class="line">start index: 8</span><br><span class="line">finish index: 8 res: 332833500</span><br><span class="line">start index: 9</span><br><span class="line">finish index: 9 res: 332833500</span><br><span class="line">start index: 10</span><br><span class="line">finish index: 10 res: 332833500</span><br><span class="line">start index: 11</span><br><span class="line">finish index: 11 res: 332833500</span><br><span class="line">start index: 12</span><br><span class="line">finish index: 12 res: 332833500</span><br><span class="line">start index: 13</span><br><span class="line">finish index: 13 res: 332833500</span><br><span class="line">start index: 14</span><br><span class="line">finish index: 14 res: 332833500</span><br><span class="line">start index: 15</span><br><span class="line">finish index: 15 res: 332833500</span><br><span class="line">elapsed: 35.442368</span><br></pre></td></tr></table></figure>
+
+<p>具体的时间差异以后再来分析。</p>
+
+    
+
+    
+
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">rust</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">async</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">tokio</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">stream</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">iterator</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+
+    
+    <p class="article-more-link">
+      <a class="article-more-a" href="/2021/05/30/tokio-stream-01/">展开全文 >></a>
+    </p>
+    
+
+    
+    <div class="clearfix"></div>
+  </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-tokio-main-macro" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1223,98 +1366,9 @@
 
 
   
-    <article id="post-pod-stuck-in-terminating-state" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-  
-  
-    <h1 itemprop="name">
-	
-	  <a class="article-title" href="/2021/03/12/pod-stuck-in-terminating-state/" target="_blank">Pod 持续处于 Terminating 状态</a>
-  
-    </h1>
-  
-
-
-  
-  
-<a href="/2021/03/12/pod-stuck-in-terminating-state/" class="archive-article-date">
-        <time datetime="2021-03-12T02:11:34.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-03-12</time>
-</a>
-
-  
-  
-    
-
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-    <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>当删除 <code>Pod</code> 时</p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
-<li><a href="https://containersolutions.github.io/runbooks/posts/kubernetes/pod-stuck-in-terminating-state/" target="_blank" rel="noopener">pod stuck in terminating state</a></li>
-</ul>
-
-    
-
-    
-
-    
-
-  </div>
-  <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">kubernetes</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-
-    
-    <p class="article-more-link">
-      <a class="article-more-a" href="/2021/03/12/pod-stuck-in-terminating-state/">展开全文 >></a>
-    </p>
-    
-
-    
-    <div class="clearfix"></div>
-  </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
-      <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" href="/page/2/">Next &amp;raquo;</a>
+      <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><a class="extend next" rel="next" href="/page/2/">Next &amp;raquo;</a>
     </nav>
   
 
@@ -1445,6 +1499,10 @@
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">gpu</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
@@ -1485,14 +1543,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">container orchestration</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">kubernetes</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">ubuntu</a>
               </li>
              
@@ -1501,7 +1551,19 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">gpu</a>
+                <a href="javascript:void(0)" class="js-tag color4">container orchestration</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">kubernetes</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">I/O</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">principles of i/o hardware</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1521,14 +1583,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">I/O</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">principles of i/o hardware</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">hexo</a>
               </li>
              
@@ -1537,11 +1591,23 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">git</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">nfs</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">filesystem</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">nvidia</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">cuda</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1581,18 +1647,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">git</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">nvidia</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">cuda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">controllers</a>
               </li>
              
@@ -1605,23 +1659,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">storage</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">linux performance</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">mongodb</a>
+                <a href="javascript:void(0)" class="js-tag color3">storage</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">mpi</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">operator</a>
+                <a href="javascript:void(0)" class="js-tag color1">cpu performance</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1633,11 +1679,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">cpu performance</a>
+                <a href="javascript:void(0)" class="js-tag color4">mpi</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">operator</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">mongodb</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">optimization</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">faq</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1649,15 +1707,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">faq</a>
+                <a href="javascript:void(0)" class="js-tag color3">select statements</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">k8s</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">select statements</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1666,6 +1720,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">pod</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rdma</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1681,10 +1739,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rdma</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">pytorch</a>
               </li>
              
@@ -1697,6 +1751,14 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">stream</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">iterator</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">kubeadm</a>
               </li>
              
@@ -1705,15 +1767,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">paas</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">where clause</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">scheduler</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">paas</a>
               </li>
              
               <li class="article-tag-list-item">

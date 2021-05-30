@@ -172,6 +172,148 @@
             
 
   
+    <article id="post-windows-terminal" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+  
+  
+    <h1 itemprop="name">
+	
+	  <a class="article-title" href="/2020/09/05/windows-terminal/" target="_blank">Windows Terminal</a>
+  
+    </h1>
+  
+
+
+  
+  
+<a href="/2020/09/05/windows-terminal/" class="archive-article-date">
+        <time datetime="2020-09-05T01:41:34.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-09-05</time>
+</a>
+
+  
+  
+    
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    <p><a href="https://docs.microsoft.com/en-us/windows/terminal/" target="_blank" rel="noopener"><code>Windows Terminal</code></a> 是继 <code>WSL</code> 之后出品的又一个开发者友好的现代化应用程序。在支持原有的 <code>CMD</code>、<code>Powershell</code> 之外，还支持 <code>WSL</code> 子系统。其主要特性包括: 多 <code>tab</code>，多 <code>panes</code>，支持显示 <code>Unicode</code> 与 <code>UTF-8</code> 字符，使用 <code>GPU</code> 加速的文本渲染引擎，内置 <code>SSH</code> 客户端，更允许用户自定义主题及文本样式，颜色，背景，快捷键等。</p>
+<p>更多内容请阅读<a href="https://docs.microsoft.com/en-us/windows/terminal/" target="_blank" rel="noopener">官方文档</a>。</p>
+<h2 id="我的配置文件"><a href="#我的配置文件" class="headerlink" title="我的配置文件"></a>我的配置文件</h2><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"$schema"</span>: <span class="string">"https://aka.ms/terminal-profiles-schema"</span>,</span><br><span class="line">    <span class="attr">"defaultProfile"</span>: <span class="string">"&#123;a5a97cb8-8961-5535-816d-772efe0c6a3f&#125;"</span>,</span><br><span class="line">    <span class="attr">"copyOnSelect"</span>: <span class="literal">false</span>,</span><br><span class="line">    <span class="attr">"copyFormatting"</span>: <span class="literal">false</span>,</span><br><span class="line">    <span class="attr">"theme"</span>: <span class="string">"dark"</span>,</span><br><span class="line">    <span class="attr">"tabWidthMode"</span>: <span class="string">"titleLength"</span>,</span><br><span class="line">    <span class="attr">"profiles"</span>: &#123;</span><br><span class="line">        <span class="attr">"defaults"</span>: &#123;</span><br><span class="line">            <span class="attr">"colorScheme"</span>: <span class="string">"Dracula"</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">"list"</span>: [</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="attr">"guid"</span>: <span class="string">"&#123;61c54bbd-c2c6-5271-96e7-009a87ff44bf&#125;"</span>,</span><br><span class="line">                <span class="attr">"name"</span>: <span class="string">"Windows PowerShell"</span>,</span><br><span class="line">                <span class="attr">"commandline"</span>: <span class="string">"powershell.exe"</span>,</span><br><span class="line">                <span class="attr">"hidden"</span>: <span class="literal">false</span></span><br><span class="line">            &#125;,</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="attr">"guid"</span>: <span class="string">"&#123;0caa0dad-35be-5f56-a8ff-afceeeaa6101&#125;"</span>,</span><br><span class="line">                <span class="attr">"name"</span>: <span class="string">"Command Prompt"</span>,</span><br><span class="line">                <span class="attr">"commandline"</span>: <span class="string">"cmd.exe"</span>,</span><br><span class="line">                <span class="attr">"hidden"</span>: <span class="literal">true</span></span><br><span class="line">            &#125;,</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="attr">"guid"</span>: <span class="string">"&#123;a5a97cb8-8961-5535-816d-772efe0c6a3f&#125;"</span>,</span><br><span class="line">                <span class="attr">"hidden"</span>: <span class="literal">false</span>,</span><br><span class="line">                <span class="attr">"name"</span>: <span class="string">"Arch"</span>,</span><br><span class="line">                <span class="attr">"tabTitle"</span>: <span class="string">"Arch"</span>,</span><br><span class="line">                <span class="attr">"suppressApplicationTitle"</span>: <span class="literal">true</span>,</span><br><span class="line">                <span class="attr">"antialiasingMode"</span>: <span class="string">"cleartype"</span>, <span class="comment">// "grayscale"、"cleartype"、"aliased"</span></span><br><span class="line">                <span class="attr">"icon"</span>: <span class="string">"ms-appdata:///roaming/archlinux-512.webp"</span>,</span><br><span class="line">                <span class="attr">"source"</span>: <span class="string">"Windows.Terminal.Wsl"</span>,</span><br><span class="line">                <span class="attr">"acrylicOpacity"</span>: <span class="number">0.8</span>,</span><br><span class="line">                <span class="attr">"useAcrylic"</span>: <span class="literal">true</span></span><br><span class="line">            &#125;</span><br><span class="line">        ]</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">"schemes"</span>: [</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="attr">"name"</span>: <span class="string">"Dracula"</span>,</span><br><span class="line">            <span class="attr">"cursorColor"</span>: <span class="string">"#F8F8F2"</span>,</span><br><span class="line">            <span class="attr">"selectionBackground"</span>: <span class="string">"#44475A"</span>,</span><br><span class="line">            <span class="attr">"background"</span>: <span class="string">"#282A36"</span>,</span><br><span class="line">            <span class="attr">"foreground"</span>: <span class="string">"#F8F8F2"</span>,</span><br><span class="line">            <span class="attr">"black"</span>: <span class="string">"#21222C"</span>,</span><br><span class="line">            <span class="attr">"blue"</span>: <span class="string">"#BD93F9"</span>,</span><br><span class="line">            <span class="attr">"cyan"</span>: <span class="string">"#8BE9FD"</span>,</span><br><span class="line">            <span class="attr">"green"</span>: <span class="string">"#50FA7B"</span>,</span><br><span class="line">            <span class="attr">"purple"</span>: <span class="string">"#FF79C6"</span>,</span><br><span class="line">            <span class="attr">"red"</span>: <span class="string">"#FF5555"</span>,</span><br><span class="line">            <span class="attr">"white"</span>: <span class="string">"#F8F8F2"</span>,</span><br><span class="line">            <span class="attr">"yellow"</span>: <span class="string">"#F1FA8C"</span>,</span><br><span class="line">            <span class="attr">"brightBlack"</span>: <span class="string">"#6272A4"</span>,</span><br><span class="line">            <span class="attr">"brightBlue"</span>: <span class="string">"#D6ACFF"</span>,</span><br><span class="line">            <span class="attr">"brightCyan"</span>: <span class="string">"#A4FFFF"</span>,</span><br><span class="line">            <span class="attr">"brightGreen"</span>: <span class="string">"#69FF94"</span>,</span><br><span class="line">            <span class="attr">"brightPurple"</span>: <span class="string">"#FF92DF"</span>,</span><br><span class="line">            <span class="attr">"brightRed"</span>: <span class="string">"#FF6E6E"</span>,</span><br><span class="line">            <span class="attr">"brightWhite"</span>: <span class="string">"#FFFFFF"</span>,</span><br><span class="line">            <span class="attr">"brightYellow"</span>: <span class="string">"#FFFFA5"</span></span><br><span class="line">        &#125;</span><br><span class="line">    ],</span><br><span class="line">    <span class="attr">"keybindings"</span>: [</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="attr">"command"</span>: &#123;</span><br><span class="line">                <span class="attr">"action"</span>: <span class="string">"copy"</span>,</span><br><span class="line">                <span class="attr">"singleLine"</span>: <span class="literal">false</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">"keys"</span>: <span class="string">"ctrl+c"</span></span><br><span class="line">        &#125;,</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="attr">"command"</span>: <span class="string">"paste"</span>,</span><br><span class="line">            <span class="attr">"keys"</span>: <span class="string">"ctrl+v"</span></span><br><span class="line">        &#125;,</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="attr">"command"</span>: <span class="string">"find"</span>,</span><br><span class="line">            <span class="attr">"keys"</span>: <span class="string">"ctrl+shift+f"</span></span><br><span class="line">        &#125;,</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="attr">"command"</span>: &#123;</span><br><span class="line">                <span class="attr">"action"</span>: <span class="string">"splitPane"</span>,</span><br><span class="line">                <span class="attr">"split"</span>: <span class="string">"auto"</span>,</span><br><span class="line">                <span class="attr">"splitMode"</span>: <span class="string">"duplicate"</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">"keys"</span>: <span class="string">"alt+shift+d"</span></span><br><span class="line">        &#125;,</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="attr">"command"</span>: &#123;</span><br><span class="line">                <span class="attr">"action"</span>: <span class="string">"splitPane"</span>,</span><br><span class="line">                <span class="attr">"split"</span>: <span class="string">"horizontal"</span>,</span><br><span class="line">                <span class="attr">"splitMode"</span>: <span class="string">"duplicate"</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">"keys"</span>: <span class="string">"alt+shift+-"</span></span><br><span class="line">        &#125;,</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="attr">"command"</span>: &#123;</span><br><span class="line">                <span class="attr">"action"</span>: <span class="string">"splitPane"</span>,</span><br><span class="line">                <span class="attr">"split"</span>: <span class="string">"vertical"</span>,</span><br><span class="line">                <span class="attr">"splitMode"</span>: <span class="string">"duplicate"</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">"keys"</span>: <span class="string">"alt+shift+|"</span></span><br><span class="line">        &#125;</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="全局设置"><a href="#全局设置" class="headerlink" title="全局设置"></a>全局设置</h2><ul>
+<li><a href="https://docs.microsoft.com/en-us/windows/terminal/customize-settings/global-settings#default-profile" target="_blank" rel="noopener"><strong>defaultProfile</strong></a>: 默认使用的终端配置，可以是 <code>profiles.list</code> 中的某一个。</li>
+<li><a href="https://docs.microsoft.com/en-us/windows/terminal/customize-settings/global-settings#darklight-theme" target="_blank" rel="noopener"><strong>theme</strong></a>: 窗体配色，可以是 <code>system</code>, <code>dark</code>, <code>light</code></li>
+<li><a href="https://docs.microsoft.com/en-us/windows/terminal/customize-settings/global-settings#tab-width-mode" target="_blank" rel="noopener"><strong>tabWidthMode</strong></a>: <code>tab</code> 显示长度，可以是 <code>equal</code>, <code>titleLength</code>, <code>compact</code></li>
+</ul>
+<h2 id="配置终端"><a href="#配置终端" class="headerlink" title="配置终端"></a>配置终端</h2><p><code>profiles</code> 用于配置具体的终端，其包含如下两部分:</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"profiles"</span>: &#123;</span><br><span class="line">        <span class="attr">"defaults"</span>: &#123;</span><br><span class="line">            <span class="comment">// SETTINGS TO APPLY TO ALL PROFILES</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">"list"</span>: [</span><br><span class="line">            <span class="comment">// PROFILE OBJECTS</span></span><br><span class="line">        ]</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="默认终端配置"><a href="#默认终端配置" class="headerlink" title="默认终端配置"></a>默认终端配置</h3><ul>
+<li><p><strong>profiles.defaults</strong>: 中的配置对所有的终端有效。</p>
+</li>
+<li><p><strong>profiles.list</strong>: 包含所有可用的终端，配置只对当前终端。</p>
+</li>
+<li><p><strong>guid</strong>: 配置文件可将 <code>GUID</code> 用作唯一标识符。 若要将某个配置文件设置为默认配置文件，则需要 <code>defaultProfile</code> 全局设置的 <code>GUID</code>，为必填项</p>
+</li>
+<li><p><strong>colorScheme</strong>: 终端使用的配色方案，需要在 <code>schemes</code> 中目标配色方案</p>
+</li>
+<li><p><strong>hidden</strong>: 在下拉列表中是否隐藏，默认为 <code>false</code></p>
+</li>
+<li><p><strong>name</strong>: “在下拉列表中显示的名字</p>
+</li>
+<li><p><strong>tabTitle</strong>: 在 <code>tab</code> 上显示的名字，会覆盖 <strong>name</strong>，需要与 <strong>suppressApplicationTitle</strong> 一起使用才会生效。若要了解如何使 shell 设置标题，请访问<a href="https://docs.microsoft.com/en-us/windows/terminal/tutorials/tab-title" target="_blank" rel="noopener">tab title tutorial</a></p>
+</li>
+<li><p><strong>suppressApplicationTitle</strong>: 设置为 <strong>true</strong> 时，<strong>tabTitle</strong> 会替代 <code>tab</code> 的默认标题，并将禁止应用程序的任何标题更改消息。 如果未设置 <strong>tabTitle</strong>，将改为使用 <strong>name</strong></p>
+</li>
+<li><p><strong>antialiasingMode</strong>: 抗锯齿模式，可以为 <strong>grayscale</strong>、<strong>cleartype</strong>、<strong>aliased</strong></p>
+</li>
+<li><p><strong>icon</strong>: 显示图标，”ms-appdata:///roaming/archlinux-512.webp”</p>
+</li>
+<li><p><strong>acrylicOpacity</strong>: 窗口透明度，<strong>[0, 1]</strong> 之内的浮点数，需要配合 <strong>useAcrylic</strong> 一起使用</p>
+</li>
+<li><p><strong>useAcrylic</strong>: 是否是否透明效果</p>
+</li>
+<li><p><strong>startingDirectory</strong>: 起始目录位置，比如 <code>\\\\wsl$\\Ubuntu-20.04\\home\\alice</code></p>
+</li>
+</ul>
+<h4 id="ms-appdata-在什么位置"><a href="#ms-appdata-在什么位置" class="headerlink" title="ms-appdata 在什么位置"></a>ms-appdata 在什么位置</h4><p><code>Windows Terminal</code> 是一个 <code>UWP</code> 应用(如果是在应用商店下载的话)，会有属于自己的 <strong>appdata</strong> 目录，位于:</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">%LOCALAPPDATA%\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\RoamingState</span><br></pre></td></tr></table></figure>
+
+<p>在文件管理器中打开这个目录放入数据，<code>Windows Terminal</code> 即可通过 <code>ms-appdata:\\\</code> 的方式获取到。</p>
+<h2 id="配色方案"><a href="#配色方案" class="headerlink" title="配色方案"></a>配色方案</h2><p>可以在 <strong>themes</strong> 定义一系列的配色方案，要求每个配色方案要有一个唯一的 <strong>name</strong>。除 <strong>name</strong> 以外，每个设置都接受十六进制格式 (<strong>#rgb</strong> 或 <strong>#rrggbb</strong>) 的字符串形式的颜色。 <strong>cursorColor</strong> 和 <strong>selectionBackground</strong> 设置是可选的。</p>
+<p>如果要在一个命令行配置文件中设置配色方案，请添加 <strong>colorScheme</strong> 属性，并将配色方案的 <strong>name</strong> 作为值。</p>
+<h2 id="自定义快捷键"><a href="#自定义快捷键" class="headerlink" title="自定义快捷键"></a>自定义快捷键</h2><p>内容太多，请查看<a href="https://docs.microsoft.com/en-us/windows/terminal/customize-settings/key-bindings" target="_blank" rel="noopener">官方文档</a>。</p>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li><a href="https://docs.microsoft.com/en-us/windows/terminal/" target="_blank" rel="noopener">Windows Terminal</a></li>
+<li><a href="https://www.howtogeek.com/426346/how-to-customize-the-new-windows-terminal-app/" target="_blank" rel="noopener">How to Customize the New Windows Terminal App</a></li>
+<li><a href="https://docs.microsoft.com/en-us/windows/terminal/customize-settings/key-bindings" target="_blank" rel="noopener">Custom key bindings in Windows Terminal</a></li>
+<li><a href="https://draculatheme.com/windows-terminal/" target="_blank" rel="noopener">draculatheme</a></li>
+</ul>
+
+    
+
+    
+
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">windows</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">terminal</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+
+    
+    <p class="article-more-link">
+      <a class="article-more-a" href="/2020/09/05/windows-terminal/">展开全文 >></a>
+    </p>
+    
+
+    
+    <div class="clearfix"></div>
+  </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-projected-volumes" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1575,233 +1717,9 @@
 
 
   
-    <article id="post-docker-image" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-  
-  
-    <h1 itemprop="name">
-	
-	  <a class="article-title" href="/2020/08/20/docker-image/" target="_blank">容器 - 深入理解镜像</a>
-  
-    </h1>
-  
-
-
-  
-  
-<a href="/2020/08/20/docker-image/" class="archive-article-date">
-        <time datetime="2020-08-20T01:50:18.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-20</time>
-</a>
-
-  
-  
-    
-
-  
-  </header>
-  
-  <div class="article-entry" itemprop="articleBody">
-    
-    <p><code>Namespace</code> 与 <code>Cgroup</code> 技术是容器技术的核心点，但 <code>Docker</code> 项目的成功关键点却要归功于 <code>Docker Image</code> 的发明。在 <code>Cloud Foundry</code> 时代，<strong>上云</strong> 的过程需要经过多次 <strong>玄学调参</strong> 才能解决由于本地环境与云主机的差异性所导致的问题。<code>Docker</code> 则通过 <code>Mount Namespace</code> 与 <code>UnionFS</code> 技术，成功的解决了这个问题。</p>
-<h2 id="Mount-Namespace"><a href="#Mount-Namespace" class="headerlink" title="Mount Namespace"></a>Mount Namespace</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">$ man mount_namespace</span><br><span class="line">MOUNT_NAMESPACES(7)                 Linux Programmer<span class="string">'s Manual                 MOUNT_NAMESPACES(7)</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">NAME</span></span><br><span class="line"><span class="string">       mount_namespaces - overview of Linux mount namespaces</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">DESCRIPTION</span></span><br><span class="line"><span class="string">       For an overview of namespaces, see namespaces(7).</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">       Mount namespaces provide isolation of the list of mount points seen by the processes in each</span></span><br><span class="line"><span class="string">       namespace instance. Thus, the processes in each of the mount namespace instances will see</span></span><br><span class="line"><span class="string">       distinct single-directory hierarchies.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">       The views provided by the /proc/[pid]/mounts, /proc/[pid]/mountinfo, and /proc/[pid]/mountstats</span></span><br><span class="line"><span class="string">       files (all described in proc(5)) correspond to the mount namespace in which the process with</span></span><br><span class="line"><span class="string">       the PID [pid] resides. (All of the processes that reside in the same mount namespace will see</span></span><br><span class="line"><span class="string">       the same view in these files.)</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">       A new mount namespace is created using either clone(2) or unshare(2) with the CLONE_NEWNS flag.</span></span><br><span class="line"><span class="string">       When a new mount namespace is created, its mount point list is initialized as follows:</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">       * If the namespace is created using clone(2), the mount point list of the child'</span>s namespace is</span><br><span class="line">         a copy of the mount point list <span class="keyword">in</span> the parent<span class="string">'s namespace.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">       * If the namespace is created using unshare(2), the mount point list of the new namespace is a</span></span><br><span class="line"><span class="string">         copy of the mount point list in the caller'</span>s previous mount namespace.</span><br><span class="line"></span><br><span class="line">       Subsequent modifications to the mount point list (mount(2) and umount(2)) <span class="keyword">in</span> either mount</span><br><span class="line">       namespace will not (by default) affect the mount point list seen <span class="keyword">in</span> the other namespace (but</span><br><span class="line">       see the following discussion of shared subtrees).</span><br></pre></td></tr></table></figure>
-
-<p>简单来说，<code>Mount Namepace</code> 为进程提供独立的文件系统视图，即可以将进程的文件系统挂载到指定挂载点，从而是进程只能看到 <code>Mount Namespace</code> 中的文件系统。</p>
-<p>接下来，还是通过代码展示。</p>
-<h3 id="Mount-Namespace-开发"><a href="#Mount-Namespace-开发" class="headerlink" title="Mount Namespace 开发"></a>Mount Namespace 开发</h3><p>下面的代码，使用 <code>Mount Namespace</code> 的方式通过 <code>clone(2)</code> 系统调用，创建一个新的进程。在该进程中执行 <code>/bin/bash</code> 程序。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _GNU_SOURCE</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/mount.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/wait.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sched.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;signal.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> STACK_SIZE (1024 * 1024)</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">char</span> container_stack[STACK_SIZE];</span><br><span class="line"></span><br><span class="line"><span class="keyword">char</span> *<span class="keyword">const</span> container_args[] = &#123;</span><br><span class="line">        <span class="string">"/bin/bash"</span>,</span><br><span class="line">        <span class="literal">NULL</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">container_main</span><span class="params">(<span class="keyword">void</span> *arg)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"Container - inside the container!\n"</span>);</span><br><span class="line">    execv(container_args[<span class="number">0</span>], container_args);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"Something's wrong!\n"</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"Parent - start a container!\n"</span>);</span><br><span class="line">    <span class="keyword">int</span> container_pid = clone(container_main, container_stack + STACK_SIZE, CLONE_NEWNS | SIGCHLD, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="keyword">if</span> (container_pid &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        perror(<span class="string">"failed to create a new process"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    waitpid(container_pid, <span class="literal">NULL</span>, <span class="number">0</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"Parent - container stopped!\n"</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>编译并运行程序:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ gcc main.c -o mn; sudo ./mn</span><br><span class="line">Parent - start a container!</span><br><span class="line">Container - inside the container!</span><br><span class="line">[root@zephyrus 01-mount-namespace]<span class="comment">#</span></span><br></pre></td></tr></table></figure>
-
-<p>如此，就成功的进入到了容器环境内。</p>
-<p><em>注意</em>: 是要使用 <code>root</code> 权限执行这个程序。</p>
-<p>然后，在容器内执行 <code>df -h</code> 指令:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">[root@zephyrus 01-mount-namespace]<span class="comment"># df -h</span></span><br><span class="line">Filesystem      Size  Used Avail Use% Mounted on</span><br><span class="line">/dev/sdd        251G   39G  200G  17% /</span><br><span class="line">tools           931G  362G  570G  39% /init</span><br><span class="line">none            2.0G     0  2.0G   0% /dev</span><br><span class="line">tmpfs           2.0G     0  2.0G   0% /sys/fs/cgroup</span><br><span class="line">none            2.0G  8.0K  2.0G   1% /run</span><br><span class="line">none            2.0G     0  2.0G   0% /run/lock</span><br><span class="line">none            2.0G     0  2.0G   0% /run/shm</span><br><span class="line">none            2.0G     0  2.0G   0% /run/user</span><br><span class="line">tmpfs           2.0G     0  2.0G   0% /mnt/wsl</span><br><span class="line">/dev/sdc        251G   11G  228G   5% /mnt/wsl/docker-desktop-data/isocache</span><br><span class="line">none            2.0G   12K  2.0G   1% /mnt/wsl/docker-desktop/shared-sockets/host-services</span><br><span class="line">/dev/sdb        251G  117M  239G   1% /mnt/wsl/docker-desktop/docker-desktop-proxy</span><br><span class="line">/dev/loop0      231M  231M     0 100% /mnt/wsl/docker-desktop/cli-tools</span><br><span class="line">C:\             931G  362G  570G  39% /mnt/c</span><br></pre></td></tr></table></figure>
-
-<p>会发现，解决与在宿主机上执行该命令的结果是相同的。这个结果很不好，甚至可以说很危险。因为，不但容器可以看到宿主机上的文件，甚至于还拥有 <code>root</code> 权限。接下来，尝试通过在容器中设置挂载点的方式解决这个问题。</p>
-<h3 id="Mount-Namespace-指定挂载点"><a href="#Mount-Namespace-指定挂载点" class="headerlink" title="Mount Namespace 指定挂载点"></a>Mount Namespace 指定挂载点</h3><p>修改 <code>container_main</code> 函数:</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">container_main</span><span class="params">(<span class="keyword">void</span> *arg)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"Container - inside the container!\n"</span>);</span><br><span class="line">    mount(<span class="string">"none"</span>, <span class="string">"/tmp"</span>, <span class="string">"tmpfs"</span>, <span class="number">0</span>, <span class="string">""</span>);</span><br><span class="line">    execv(container_args[<span class="number">0</span>], container_args);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"Something's wrong!\n"</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>使用 <code>mount(2)</code> 系统调用，在容器进程中，增加一个挂载点。</p>
-<p>使用 <code>ls</code> 指令确认 <code>/tmp</code> 目录为空目录，说明挂载成功:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ls /tmp</span><br></pre></td></tr></table></figure>
-
-<p>之后，在确认一下系统的文件系统:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 在原来的文件系统基础之上会多出一个</span></span><br><span class="line">[root@zephyrus 01-mount-namespace]<span class="comment"># df -h</span></span><br><span class="line">Filesystem      Size  Used Avail Use% Mounted on</span><br><span class="line">none            2.0G     0  2.0G   0% /tmp</span><br><span class="line"></span><br><span class="line">[root@zephyrus 01-mount-namespace]<span class="comment"># mount -l | grep tmpfs</span></span><br><span class="line">none on /tmp <span class="built_in">type</span> tmpfs (rw,relatime)</span><br></pre></td></tr></table></figure>
-
-<p>这些都可以说明，已经成功在容器内挂载了一个文件系统。而且，在宿主机上是无法看到这个挂载点的。到目前为止，一切都是按照预期发展的。</p>
-<h3 id="Mount-Namespace-挂载根目录"><a href="#Mount-Namespace-挂载根目录" class="headerlink" title="Mount Namespace 挂载根目录"></a>Mount Namespace 挂载根目录</h3><p>既然可以在容器内部挂载 <code>/tmp</code>，那么现在来尝试挂载 <code>/</code>。</p>
-<p>首先，准备一下必要的环境:</p>
-<ul>
-<li><strong>bash</strong>: 作为容器的第一个进程，允许在容器执行其他指令</li>
-<li><strong>ls</strong>: 观察容器内的文件系统是否符合预期</li>
-<li><strong>lib</strong>: 存放 <code>bash</code> 与 <code>ls</code> 必须的动态链接库</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#/bin/bash</span></span><br><span class="line"></span><br><span class="line">T=root</span><br><span class="line">mkdir -p <span class="variable">$&#123;T&#125;</span>/&#123;bin,etc,lib,usr&#125;</span><br><span class="line">cp -v /bin/&#123;bash,ls&#125; <span class="variable">$&#123;T&#125;</span>/bin</span><br><span class="line">cp -v /etc/profile <span class="variable">$&#123;T&#125;</span>/etc/profile</span><br><span class="line"></span><br><span class="line">list=$(ldd /bin/ls | egrep -o <span class="string">'/lib.*\.[0-9]'</span>)</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> $(<span class="built_in">echo</span> <span class="variable">$list</span> | awk -F <span class="string">'\n'</span> <span class="string">'&#123;print $1&#125;'</span>); <span class="keyword">do</span></span><br><span class="line">  mkdir -p $(dirname <span class="string">"<span class="variable">$&#123;T&#125;</span><span class="variable">$&#123;i&#125;</span>"</span>) &amp;&amp; cp -v <span class="string">"<span class="variable">$i</span>"</span> <span class="string">"<span class="variable">$&#123;T&#125;</span><span class="variable">$&#123;i&#125;</span>"</span>;</span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"></span><br><span class="line">list=$(ldd /bin/bash | egrep -o <span class="string">'/lib.*\.[0-9]'</span>)</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> $(<span class="built_in">echo</span> <span class="variable">$list</span> | awk -F <span class="string">'\n'</span> <span class="string">'&#123;print $1&#125;'</span>); <span class="keyword">do</span></span><br><span class="line">  mkdir -p $(dirname <span class="string">"<span class="variable">$&#123;T&#125;</span><span class="variable">$&#123;i&#125;</span>"</span>) &amp;&amp; cp -v <span class="string">"<span class="variable">$i</span>"</span> <span class="string">"<span class="variable">$&#123;T&#125;</span><span class="variable">$&#123;i&#125;</span>"</span>;</span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
-
-<p>与上一个实验不同的是，现在期望容器内的文件系统与宿主机独立。即，使用不同的根目录。因此，在代码层面需要将之前的 <code>mount(2)</code> 系统调用，改变为 <code>chroot(2)</code> 系统调用。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">$ man 2 chroot</span><br><span class="line">CHROOT(2)                           Linux Programmer<span class="string">'s Manual                           CHROOT(2)</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">NAME</span></span><br><span class="line"><span class="string">       chroot - change root directory</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">SYNOPSIS</span></span><br><span class="line"><span class="string">       #include &lt;unistd.h&gt;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">       int chroot(const char *path);</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">DESCRIPTION</span></span><br><span class="line"><span class="string">       chroot() changes the root directory of the calling process to that specified in path. This</span></span><br><span class="line"><span class="string">       directory will be used for pathnames beginning with /. The root directory is inherited by</span></span><br><span class="line"><span class="string">       all children of the calling process.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">       Only a privileged process (Linux: one with the CAP_SYS_CHROOT capability in its user namespace)</span></span><br><span class="line"><span class="string">       may call chroot().</span></span><br></pre></td></tr></table></figure>
-
-<p>最终，函数 <code>container_main</code> 的代码为:</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">container_main</span><span class="params">(<span class="keyword">void</span> *arg)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"Container - inside the container!\n"</span>);</span><br><span class="line">    <span class="keyword">int</span> rev = chroot(<span class="string">"./root"</span>);</span><br><span class="line">    <span class="keyword">if</span> (<span class="number">0</span> != rev) &#123;</span><br><span class="line">        perror(<span class="string">"failed to chroot"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">2</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    rev = chdir(<span class="string">"/"</span>);</span><br><span class="line">    <span class="keyword">if</span> (<span class="number">0</span> != rev) &#123;</span><br><span class="line">        perror(<span class="string">"failed to chdir"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">3</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    rev = execv(container_args[<span class="number">0</span>], container_args);</span><br><span class="line">    <span class="keyword">if</span> (<span class="number">0</span> != rev) &#123;</span><br><span class="line">        perror(<span class="string">"failed to exec"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">5</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"Something's wrong!\n"</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>与之前一样，编译并执行程序，即可进入到容器内部:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ gcc main.c -o mn; sudo ./mn</span><br><span class="line">Parent - start a container!</span><br><span class="line">Container - inside the container!</span><br><span class="line">bash-4.4<span class="comment">#</span></span><br></pre></td></tr></table></figure>
-
-<p>然后，执行 <code>ls</code> 可以看到根目录 <code>/</code> 的文件就是之前在 <code>root</code> 目录预先准备好的文件:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">bash-4.4<span class="comment"># ls /</span></span><br><span class="line">bin  etc  lib  lib64  usr</span><br><span class="line">bash-4.4<span class="comment"># ls /bin</span></span><br><span class="line">bash  ls</span><br><span class="line">bash-4.4<span class="comment">#</span></span><br></pre></td></tr></table></figure>
-
-<p>综上所述，如果在 <code>root</code> 目录中保存的是一个完成的操作系统，那么，就可以实现容器内的进程就可以使用内部的 <code>/bin</code>，<code>/lib</code> 的系统环境，从而与宿主机，与其他容器相互隔离的目的。</p>
-<h3 id="备注"><a href="#备注" class="headerlink" title="备注"></a>备注</h3><p>挂载 <code>tmpfs</code> 实验的运行环境为:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">$ cat /etc/os-release</span><br><span class="line">NAME=<span class="string">"Arch Linux"</span></span><br><span class="line">PRETTY_NAME=<span class="string">"Arch Linux"</span></span><br><span class="line">ID=arch</span><br><span class="line">BUILD_ID=rolling</span><br><span class="line">ANSI_COLOR=<span class="string">"38;2;23;147;209"</span></span><br><span class="line">HOME_URL=<span class="string">"https://www.archlinux.org/"</span></span><br><span class="line">DOCUMENTATION_URL=<span class="string">"https://wiki.archlinux.org/"</span></span><br><span class="line">SUPPORT_URL=<span class="string">"https://bbs.archlinux.org/"</span></span><br><span class="line">BUG_REPORT_URL=<span class="string">"https://bugs.archlinux.org/"</span></span><br><span class="line">LOGO=archlinux</span><br><span class="line"></span><br><span class="line">$ uname -r</span><br><span class="line">4.19.104-microsoft-standard</span><br></pre></td></tr></table></figure>
-
-<p><code>chroot</code> 实验的运行环境为:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">$ cat /etc/os-release</span><br><span class="line">NAME=<span class="string">"Ubuntu"</span></span><br><span class="line">VERSION=<span class="string">"18.04.4 LTS (Bionic Beaver)"</span></span><br><span class="line">ID=ubuntu</span><br><span class="line">ID_LIKE=debian</span><br><span class="line">PRETTY_NAME=<span class="string">"Ubuntu 18.04.4 LTS"</span></span><br><span class="line">VERSION_ID=<span class="string">"18.04"</span></span><br><span class="line">HOME_URL=<span class="string">"https://www.ubuntu.com/"</span></span><br><span class="line">SUPPORT_URL=<span class="string">"https://help.ubuntu.com/"</span></span><br><span class="line">BUG_REPORT_URL=<span class="string">"https://bugs.launchpad.net/ubuntu/"</span></span><br><span class="line">PRIVACY_POLICY_URL=<span class="string">"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"</span></span><br><span class="line">VERSION_CODENAME=bionic</span><br><span class="line">UBUNTU_CODENAME=bionic</span><br><span class="line"></span><br><span class="line">$ uname -r</span><br><span class="line">4.15.0-112-generic</span><br></pre></td></tr></table></figure>
-
-<h2 id="UnionFS"><a href="#UnionFS" class="headerlink" title="UnionFS"></a>UnionFS</h2><p>在 <code>Cloud Foundry</code> 时代，上云过程繁琐的根本原因在于: 本地环境与云主机环境不一致。</p>
-<p>在狭义上，软件的依赖指编程时所使用的第三方库；广义上，依赖不止包括编程使用的第三方库，操作系统同样也是软件的依赖。</p>
-<p>通过上面对 <code>Mount Namespace</code> 技术简单的实验，已经验证了在容器内打包一个完整的操作系统作为容器的 <code>rootfs</code> 是可行的。到目前为止，从技术的角度而言，已经解决了容器隔离的问题。但从使用角度，或者说用户体验的角度而言，每次构建一个容器，都要打包一份操作系统文件，似乎实在是不便于使用。</p>
-<p>比如，开发者使用 <code>Ubuntu</code> 操作系统的 <code>ISO</code> 制作了一个 <code>rootfs</code>，并依次为基础，安装 <code>Java</code> 环境，进而部署 <code>Java</code> 应用。如果，另一个开发者也有同样的需求，或者同一开发者需要部署另一个 <code>Java</code> 应用，显然，最理想情况是能够复用之前已经安装了 <code>Java</code> 的 <code>rootfs</code> 环境，而不是重复一遍流程。</p>
-<p>直观的解决办法，构建 <code>rootfs</code> 时，每执行一个有意义的操作之后，都生成一个新的 <code>rootfs</code>。之后，就可以选择一个合适的 <code>rootfs</code> 作为基础，添加新的操作构建目标 <code>rootfs</code>。</p>
-<p>但这个方案并不完美，如果每次构建过程都产生一个新的 <code>rootfs</code>，最后将会导致系统内有极其多的 <code>rootfs</code>。</p>
-<p>幸运的是，这个问题并不难解决。将问题一般化，基于既有 <code>A</code>，每一种操作 <code>F</code> 都可以产生唯一结果 <code>B</code>。并且，<code>B</code> 可以作为下一轮的输入。结果发现，这像极了 <code>git</code> 和区块链。</p>
-<p><code>Docker</code> 在设计 <code>Docker</code> 镜像时也是使用了类似的方法。他们引入了层 <code>(layer)</code> 概念。用户制作镜像的每一步操作，都会生成一个层，将 <code>rootfs</code> 从全量保存，改为了增量保存。</p>
-<h3 id="什么是-UnionFS"><a href="#什么是-UnionFS" class="headerlink" title="什么是 UnionFS"></a>什么是 UnionFS</h3><p><code>Docker</code> 镜像的这种实现方式，依赖于一种叫做 <code>UnionFS</code> 的文件系统。</p>
-<p>简单来讲，<a href="https://de.wikipedia.org/wiki/UnionFS" target="_blank" rel="noopener">UnionFS</a> 允许将多个设备文件或目录挂载到同一个目录上，将多个设备的内容作为整体对外展示，或者将一个设备文件挂载到一个已有的目录上。</p>
-<p>比如，在 <code>Ubuntu 18.04</code> 上:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 准备测试目录</span></span><br><span class="line">$ mkdir -p A/&#123;a,x&#125;</span><br><span class="line">$ mkdir -p B/&#123;b,x&#125;</span><br><span class="line">$ rm -rf C &amp;&amp; mkdir -p C</span><br></pre></td></tr></table></figure>
-
-<p>使用联合挂载的方式，将这两个目录挂载到一个公共的目录 <code>C</code> 上:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo mount -t aufs -o <span class="built_in">dirs</span>=./A:./B none ./C</span><br></pre></td></tr></table></figure>
-
-<p>这时可以看到目录 <code>A</code> 与目录 <code>B</code> 被合并到了目录 <code>C</code> 中</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ tree C</span><br><span class="line">C</span><br><span class="line">├── a</span><br><span class="line">├── b</span><br><span class="line">└── x</span><br><span class="line"></span><br><span class="line">3 directories, 0 files</span><br></pre></td></tr></table></figure>
-
-<p>此时，如果修改 <code>C</code> 也会反应到对应的 <code>A</code> 或 <code>B</code> 中。</p>
-<p><code>Docker</code> 支持多种<a href="https://docs.docker.com/storage/storagedriver/select-storage-driver/" target="_blank" rel="noopener">存储驱动</a>，但目前默认使用的驱动为 <code>overlay2</code>。</p>
-<h3 id="Overlay2"><a href="#Overlay2" class="headerlink" title="Overlay2"></a>Overlay2</h3><p>接下来通过一个例子来探索 <code>overlay2</code>。</p>
-<p>首先，启动一个容器:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ docker run -d ubuntu:latest sleep 3600000</span><br></pre></td></tr></table></figure>
-
-<p>这个命令的含义是，使用 <code>ubuntu:latest</code> 这个 <code>Docker</code> 镜像来运行一个容器。然后，使用命令查看镜像的细节:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">$ docker image inspect ubuntu:latest</span><br><span class="line">...</span><br><span class="line">        <span class="string">"GraphDriver"</span>: &#123;</span><br><span class="line">            <span class="string">"Data"</span>: &#123;</span><br><span class="line">                <span class="string">"LowerDir"</span>: <span class="string">"/var/lib/docker/overlay2/f34511250966eebf394cfcd377e3f3b3e226910881a87b14a9a9743bcbd30c05/diff:/var/lib/docker/overlay2/268f8bdf24c70efcb96bcfedbc22458b36d532bd1a9494f8a5989069eb849802/diff:/var/lib/docker/overlay2/286b92fb4ca407b7475db92eec9dccbd7bc279b968e9f7ca61deb13a9eee9c02/diff"</span>,</span><br><span class="line">                <span class="string">"MergedDir"</span>: <span class="string">"/var/lib/docker/overlay2/df8d02faf11610c87d3ed7c92b5201902b87c468061bb495597fb2ce8d68d90e/merged"</span>,</span><br><span class="line">                <span class="string">"UpperDir"</span>: <span class="string">"/var/lib/docker/overlay2/df8d02faf11610c87d3ed7c92b5201902b87c468061bb495597fb2ce8d68d90e/diff"</span>,</span><br><span class="line">                <span class="string">"WorkDir"</span>: <span class="string">"/var/lib/docker/overlay2/df8d02faf11610c87d3ed7c92b5201902b87c468061bb495597fb2ce8d68d90e/work"</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="string">"Name"</span>: <span class="string">"overlay2"</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="string">"RootFS"</span>: &#123;</span><br><span class="line">            <span class="string">"Type"</span>: <span class="string">"layers"</span>,</span><br><span class="line">            <span class="string">"Layers"</span>: [</span><br><span class="line">                <span class="string">"sha256:e1c75a5e0bfa094c407e411eb6cc8a159ee8b060cbd0398f1693978b4af9af10"</span>,</span><br><span class="line">                <span class="string">"sha256:9e97312b63ff63ad98bb1f3f688fdff0721ce5111e7475b02ab652f10a4ff97d"</span>,</span><br><span class="line">                <span class="string">"sha256:ec1817c93e7c08d27bfee063f0f1349185a558b87b2d806768af0a8fbbf5bc11"</span>,</span><br><span class="line">                <span class="string">"sha256:05f3b67ed530c5b55f6140dfcdfb9746cdae7b76600de13275197d009086bb3d"</span></span><br><span class="line">            ]</span><br><span class="line">        &#125;,</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li><code>RootFS</code>: 由于 <code>Docker</code> 的镜像为分层结构，制作镜像的每一步，都是一个层。因此，一个完整的 <code>Docker</code> 镜像包括 <code>image</code> 和 <code>layer</code>。为了解决空间，提高效率等目的， <code>Docker</code> 构建镜像时，使用了 <code>COW</code> 技术，即 <code>layer</code> 在 <code>image</code> 之间是被共享的。一个 <code>Image</code> 是由多个有先后逻辑顺序的 <code>Layer</code> 所构成，也就是 <code>RootFS</code> 中的 <code>Layer</code> ，上面是底层，下面是顶层。这个信息保存在 <code>/var/lib/docker/image/overlay2/imagedb/content/sha256/&lt;image_id&gt;</code> 文件中。</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ ll /var/lib/docker/image/overlay2/layerdb/sha256/</span><br><span class="line">drwx------ 2 root root 4096 Aug 16 13:48 27d46ebb54384edbc8c807984f9eb065321912422b0e6c49d6a9cd8c8b7d8ffc</span><br><span class="line">drwx------ 2 root root 4096 Aug 16 13:48 8a8d1f0b34041a66f09e49bdc03e75c2190f606b0db7e08b75eb6747f7b49e11</span><br><span class="line">drwx------ 2 root root 4096 Aug 16 13:48 e1c75a5e0bfa094c407e411eb6cc8a159ee8b060cbd0398f1693978b4af9af10</span><br><span class="line">drwx------ 2 root root 4096 Aug 16 13:48 f1b8f74eff975ae600be0345aaac8f0a3d16680c2531ffc72f77c5e17cbfeeee</span><br></pre></td></tr></table></figure>
-
-<p>结果在 <code>RootFS.Layers</code> 中只找到了 <code>e1c75a5e0bfa094c407e411eb6cc8a159ee8b060cbd0398f1693978b4af9af10</code>。这是为 <code>Docker</code> 使用了 <code>ChainID</code> 的方式去保存其他的 <code>layer</code> 。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">echo</span> -n <span class="string">"sha256:e1c75a5e0bfa094c407e411eb6cc8a159ee8b060cbd0398f1693978b4af9af10 sha256:9e97312b63ff63ad98bb1f3f688fdff0721ce5111e7475b02ab652f10a4ff97d"</span> | sha256sum -</span><br><span class="line">27d46ebb54384edbc8c807984f9eb065321912422b0e6c49d6a9cd8c8b7d8ffc  -</span><br><span class="line"></span><br><span class="line">$ <span class="built_in">echo</span> -n <span class="string">"sha256:27d46ebb54384edbc8c807984f9eb065321912422b0e6c49d6a9cd8c8b7d8ffc sha256:ec1817c93e7c08d27bfee063f0f1349185a558b87b2d806768af0a8fbbf5bc11"</span> | sha256sum -</span><br><span class="line">f1b8f74eff975ae600be0345aaac8f0a3d16680c2531ffc72f77c5e17cbfeeee  -</span><br><span class="line"></span><br><span class="line">$ <span class="built_in">echo</span> -n <span class="string">"sha256:f1b8f74eff975ae600be0345aaac8f0a3d16680c2531ffc72f77c5e17cbfeeee sha256:05f3b67ed530c5b55f6140dfcdfb9746cdae7b76600de13275197d009086bb3d"</span> | sha256sum -</span><br><span class="line">8a8d1f0b34041a66f09e49bdc03e75c2190f606b0db7e08b75eb6747f7b49e11  -</span><br></pre></td></tr></table></figure>
-
-<p>如此就找到了所有的 <code>layer</code>。</p>
-<p>但是，上面的文件保存的只有元数据 <code>(metadata )</code>，还需要找到真实的 <code>rootfs</code> 保存的位置:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ cat /var/lib/docker/image/overlay2/layerdb/sha256/e1c75a5e0bfa094c407e411eb6cc8a159ee8b060cbd0398f1693978b4af9af10/cache-id</span><br><span class="line">286b92fb4ca407b7475db92eec9dccbd7bc279b968e9f7ca61deb13a9eee9c02</span><br></pre></td></tr></table></figure>
-
-<p><code>overlay2</code> 的所有 <code>rootfs</code> 都保存在 <code>/var/lib/docker/overlay2</code> 中，具体到上面的 <code>layer: e1c75a5e0bfa094c407e411eb6cc8a159ee8b060cbd0398f1693978b4af9af10</code> 的 <code>rootfs</code> 的位置就是 <code>/var/lib/docker/overlay2/286b92fb4ca407b7475db92eec9dccbd7bc279b968e9f7ca61deb13a9eee9c02</code>。</p>
-<p>以此类推，可以找到上述的四个 <code>layer</code> 的 <code>rootfs</code>:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$ cat /var/lib/docker/image/overlay2/layerdb/sha256/27d46ebb54384edbc8c807984f9eb065321912422b0e6c49d6a9cd8c8b7d8ffc/cache-id</span><br><span class="line">268f8bdf24c70efcb96bcfedbc22458b36d532bd1a9494f8a5989069eb849802</span><br><span class="line"></span><br><span class="line">$ cat /var/lib/docker/image/overlay2/layerdb/sha256/f1b8f74eff975ae600be0345aaac8f0a3d16680c2531ffc72f77c5e17cbfeeee/cache-id</span><br><span class="line">f34511250966eebf394cfcd377e3f3b3e226910881a87b14a9a9743bcbd30c05</span><br><span class="line"></span><br><span class="line">$ cat /var/lib/docker/image/overlay2/layerdb/sha256/8a8d1f0b34041a66f09e49bdc03e75c2190f606b0db7e08b75eb6747f7b49e11/cache-id</span><br><span class="line">df8d02faf11610c87d3ed7c92b5201902b87c468061bb495597fb2ce8d68d90e</span><br></pre></td></tr></table></figure>
-
-<p>将他们通过 <code>Union mount</code> 的方式挂载到某个目录，就能得到容器完整的 <code>rootfs</code> 了。而且，可以观察出，上面得到的结果就是 <code>GraphDriver</code> 中的结果。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">$ ls /var/lib/docker/overlay2/286b92fb4ca407b7475db92eec9dccbd7bc279b968e9f7ca61deb13a9eee9c02</span><br><span class="line">committed  diff  link</span><br><span class="line"></span><br><span class="line">$ ls /var/lib/docker/overlay2/268f8bdf24c70efcb96bcfedbc22458b36d532bd1a9494f8a5989069eb849802</span><br><span class="line">committed  diff  link  lower  work</span><br><span class="line"></span><br><span class="line">$ ls /var/lib/docker/overlay2/f34511250966eebf394cfcd377e3f3b3e226910881a87b14a9a9743bcbd30c05</span><br><span class="line">committed  diff  link  lower  work</span><br><span class="line"></span><br><span class="line">$ ls /var/lib/docker/overlay2/df8d02faf11610c87d3ed7c92b5201902b87c468061bb495597fb2ce8d68d90e</span><br><span class="line">committed  diff  link  lower  work</span><br></pre></td></tr></table></figure>
-
-<p>除了最底层 <code>286b92fb4ca407b7475db92eec9dccbd7bc279b968e9f7ca61deb13a9eee9c02</code> 之外，其他各上层的 <code>rootfs</code> 中都存在 <code>lower</code> 目录，这是保存各自的底层 <code>(文档中表述为 parent)</code>。比如对于倒数第二层 <code>268f8bdf24c70efcb96bcfedbc22458b36d532bd1a9494f8a5989069eb849802</code></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ cat /var/lib/docker/overlay2/268f8bdf24c70efcb96bcfedbc22458b36d532bd1a9494f8a5989069eb849802/lower</span><br><span class="line">l/QEYZLDRIUA2DNUJIGGVCZYDVRM</span><br><span class="line"></span><br><span class="line">$ ls -l /var/lib/docker/overlay2/l/QEYZLDRIUA2DNUJIGGVCZYDVRM</span><br><span class="line">/var/lib/docker/overlay2/l/QEYZLDRIUA2DNUJIGGVCZYDVRM -&gt; ../286b92fb4ca407b7475db92eec9dccbd7bc279b968e9f7ca61deb13a9eee9c02/diff</span><br></pre></td></tr></table></figure>
-
-<p>最后，根据当前的 <code>lower</code> 可以得到底层的 <code>diff</code> 。</p>
-<p>通过上述操作，将 <code>lower</code> 与 <code>diff</code> 关联起来了:</p>
-<ul>
-<li><code>lower</code>: 可理解为当前的镜像层，对于当前层而言，是只读的</li>
-<li><code>diff</code>: 是容器可读可写层，初始为空，容器内有文件被修改时，这个文件夹就会有对应的变化，也就是所谓的 <code>COW</code></li>
-</ul>
-<p>使用如下方式验证:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">$ docker ps -a</span><br><span class="line">CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES</span><br><span class="line">7baea70ac0a0        ubuntu:latest       <span class="string">"sleep 3600000"</span>     2 hours ago         Up 2 hours                              vigorous_poitras</span><br><span class="line"></span><br><span class="line">$ docker inspect 7baea70ac0a0</span><br><span class="line">...</span><br><span class="line">        <span class="string">"GraphDriver"</span>: &#123;</span><br><span class="line">            <span class="string">"Data"</span>: &#123;</span><br><span class="line">                <span class="string">"LowerDir"</span>: <span class="string">"/var/lib/docker/overlay2/9667b87c5a650e82e2a27a6420813fd8b7891a0e37b13558448e6f82a2e7a877-init/diff:/var/lib/docker/overlay2/df8d02faf11610c87d3ed7c92b5201902b87c468061bb495597fb2ce8d68d90e/diff:/var/lib/docker/overlay2/f34511250966eebf394cfcd377e3f3b3e226910881a87b14a9a9743bcbd30c05/diff:/var/lib/docker/overlay2/268f8bdf24c70efcb96bcfedbc22458b36d532bd1a9494f8a5989069eb849802/diff:/var/lib/docker/overlay2/286b92fb4ca407b7475db92eec9dccbd7bc279b968e9f7ca61deb13a9eee9c02/diff"</span>,</span><br><span class="line">                <span class="string">"MergedDir"</span>: <span class="string">"/var/lib/docker/overlay2/9667b87c5a650e82e2a27a6420813fd8b7891a0e37b13558448e6f82a2e7a877/merged"</span>,</span><br><span class="line">                <span class="string">"UpperDir"</span>: <span class="string">"/var/lib/docker/overlay2/9667b87c5a650e82e2a27a6420813fd8b7891a0e37b13558448e6f82a2e7a877/diff"</span>,</span><br><span class="line">                <span class="string">"WorkDir"</span>: <span class="string">"/var/lib/docker/overlay2/9667b87c5a650e82e2a27a6420813fd8b7891a0e37b13558448e6f82a2e7a877/work"</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="string">"Name"</span>: <span class="string">"overlay2"</span></span><br><span class="line">        &#125;,</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">$ docker <span class="built_in">exec</span> -ti 7baea70ac0a0 bash</span><br><span class="line">touch ~/a.txt</span><br></pre></td></tr></table></figure>
-
-<p>然后在另一个终端:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">$ tree /var/lib/docker/overlay2/9667b87c5a650e82e2a27a6420813fd8b7891a0e37b13558448e6f82a2e7a877</span><br><span class="line">├── diff</span><br><span class="line">│   └── root</span><br><span class="line">│       └── a.txt</span><br><span class="line">├── link</span><br><span class="line">├── lower</span><br><span class="line">├── merged</span><br><span class="line">└── work</span><br><span class="line">    └── work</span><br></pre></td></tr></table></figure>
-
-<p>在 <code>diff</code> 中多出了文件 <code>root/a.txt</code>。</p>
-<p>此外，很容易发现还有一个以 <code>-init</code> 结尾的文件，这同样是一个层，夹在只读层和读写层之间。<code>Init</code> 层是 <code>Docker</code> 项目单独生成的一个内部层，专门用来存放 <code>/etc/hosts</code>、 <code>/etc/resolv.conf</code> 等信息。</p>
-<p>需要这样一层的原因是，这些文件本来属于只读的 <code>Ubuntu</code> 镜像的一部分，但是用户往往需要在启动容器时写入一些指定的值比如 <code>hostname</code>，所以就需要在可读写层对它们进行修改。</p>
-<p>可是，这些修改往往只对当前的容器有效，我们并不希望执行 <code>docker commit</code> 时，把这些信息连同可读写层一起提交掉。</p>
-<p>所以， <code>Docker</code> 做法是，在修改了这些文件之后，以一个单独的层挂载了出来。而用户执行 <code>docker commit</code> 只会提交可读写层，所以是不包含这些内容的。</p>
-<p>最终，这几个层都被联合挂载，表现为一个完整的 <code>Ubuntu</code> 操作系统供容器使用。</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p><code>Mount Namespace</code> 技术为容器提供了独立 <code>rootfs</code> 的能力，使容器在本地环境，测试环境，云环境之间具备了真正的 <strong>一致性</strong>。</p>
-<p><code>UnionFS</code> 为 <code>Docker</code> 镜像提供了快速迭代，分层下载，复用已有镜像等能力。</p>
-<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><p><a href="https://coolshell.cn/articles/17061.html" target="_blank" rel="noopener">DOCKER基础技术：AUFS</a><br><a href="https://blog.csdn.net/ra681t58cjxsgckj31/article/details/104707642" target="_blank" rel="noopener">一文读懂容器三大核心技术——Namespace，Cgroup和UnionFS</a><br><a href="https://docs.docker.com/storage/storagedriver/select-storage-driver/" target="_blank" rel="noopener">Docker storage drivers</a></p>
-
-    
-
-    
-
-    
-
-  </div>
-  <div class="article-info article-info-index">
-    
-    
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">container</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">docker image</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">mount namespace</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">unionfs</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-    
-
-    
-    <p class="article-more-link">
-      <a class="article-more-a" href="/2020/08/20/docker-image/">展开全文 >></a>
-    </p>
-    
-
-    
-    <div class="clearfix"></div>
-  </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/page/5/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" href="/page/7/">Next &amp;raquo;</a>
+      <a class="extend prev" rel="prev" href="/page/5/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><a class="page-number" href="/page/8/">8</a><a class="extend next" rel="next" href="/page/7/">Next &amp;raquo;</a>
     </nav>
   
 
@@ -1932,6 +1850,10 @@
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">gpu</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">linux</a>
               </li>
              
@@ -1972,14 +1894,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">container orchestration</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">kubernetes</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">ubuntu</a>
               </li>
              
@@ -1988,7 +1902,19 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">gpu</a>
+                <a href="javascript:void(0)" class="js-tag color4">container orchestration</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">kubernetes</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">I/O</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">principles of i/o hardware</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2008,14 +1934,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">I/O</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">principles of i/o hardware</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">hexo</a>
               </li>
              
@@ -2024,11 +1942,23 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">git</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">nfs</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">filesystem</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">nvidia</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">cuda</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2068,18 +1998,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">git</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">nvidia</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">cuda</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">controllers</a>
               </li>
              
@@ -2092,23 +2010,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">storage</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">linux performance</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">mongodb</a>
+                <a href="javascript:void(0)" class="js-tag color3">storage</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">mpi</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">operator</a>
+                <a href="javascript:void(0)" class="js-tag color1">cpu performance</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2120,11 +2030,23 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">cpu performance</a>
+                <a href="javascript:void(0)" class="js-tag color4">mpi</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">operator</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">mongodb</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">optimization</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">faq</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2136,15 +2058,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">faq</a>
+                <a href="javascript:void(0)" class="js-tag color3">select statements</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">k8s</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">select statements</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2153,6 +2071,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">pod</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">rdma</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2168,10 +2090,6 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">rdma</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">pytorch</a>
               </li>
              
@@ -2184,6 +2102,14 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">stream</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">iterator</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">kubeadm</a>
               </li>
              
@@ -2192,15 +2118,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">paas</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">where clause</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">scheduler</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">paas</a>
               </li>
              
               <li class="article-tag-list-item">
