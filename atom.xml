@@ -6,7 +6,7 @@
   <link href="http://divinerapier.github.io/atom.xml" rel="self"/>
   
   <link href="http://divinerapier.github.io/"/>
-  <updated>2021-05-30T10:45:42.247Z</updated>
+  <updated>2021-07-10T03:53:38.160Z</updated>
   <id>http://divinerapier.github.io/</id>
   
   <author>
@@ -15,6 +15,31 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Arch Linux 安装 fakeroot</title>
+    <link href="http://divinerapier.github.io/2021/07/10/archlinux-base-devel/"/>
+    <id>http://divinerapier.github.io/2021/07/10/archlinux-base-devel/</id>
+    <published>2021-07-10T03:47:19.000Z</published>
+    <updated>2021-07-10T03:53:38.160Z</updated>
+    
+    <content type="html"><![CDATA[<p>在安装 <code>kodi-standalone-service</code> 时遇到错误:</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">yay -S kodi-standalone-service</span><br><span class="line">...</span><br><span class="line">==&gt; ERROR: Cannot find the fakeroot binary.</span><br><span class="line">error making: kodi-standalone-service</span><br></pre></td></tr></table></figure><p>错误原因为: <strong>Cannot find the fakeroot binary.</strong></p><p>有两种方式解决:</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo pacman -S fakeroot</span><br></pre></td></tr></table></figure><p>或者</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo pacman -S base-devel</span><br></pre></td></tr></table></figure>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;p&gt;在安装 &lt;code&gt;kodi-standalone-service&lt;/code&gt; 时遇到错误:&lt;/p&gt;
+&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;</summary>
+      
+    
+    
+    
+    
+    <category term="linux" scheme="http://divinerapier.github.io/tags/linux/"/>
+    
+    <category term="arch" scheme="http://divinerapier.github.io/tags/arch/"/>
+    
+  </entry>
   
   <entry>
     <title>tokio stream</title>
@@ -475,30 +500,6 @@
     
     
     <category term="archlinux" scheme="http://divinerapier.github.io/tags/archlinux/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>安装 NVIDIA Driver 和 CUDA</title>
-    <link href="http://divinerapier.github.io/2020/12/08/install-nvidia-driver-and-cuda/"/>
-    <id>http://divinerapier.github.io/2020/12/08/install-nvidia-driver-and-cuda/</id>
-    <published>2020-12-08T02:46:02.000Z</published>
-    <updated>2021-04-01T10:09:48.251Z</updated>
-    
-    <content type="html"><![CDATA[<h2 id="系统环境"><a href="#系统环境" class="headerlink" title="系统环境"></a>系统环境</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">$ /home/sihao$ cat /etc/os-release</span><br><span class="line"></span><br><span class="line">NAME=<span class="string">"Ubuntu"</span></span><br><span class="line">VERSION=<span class="string">"18.04.4 LTS (Bionic Beaver)"</span></span><br><span class="line">ID=ubuntu</span><br><span class="line">ID_LIKE=debian</span><br><span class="line">PRETTY_NAME=<span class="string">"Ubuntu 18.04.4 LTS"</span></span><br><span class="line">VERSION_ID=<span class="string">"18.04"</span></span><br><span class="line">HOME_URL=<span class="string">"https://www.ubuntu.com/"</span></span><br><span class="line">SUPPORT_URL=<span class="string">"https://help.ubuntu.com/"</span></span><br><span class="line">BUG_REPORT_URL=<span class="string">"https://bugs.launchpad.net/ubuntu/"</span></span><br><span class="line">PRIVACY_POLICY_URL=<span class="string">"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"</span></span><br><span class="line">VERSION_CODENAME=bionic</span><br><span class="line">UBUNTU_CODENAME=bionic</span><br></pre></td></tr></table></figure><p><strong>GPU: GTX 2080Ti</strong>。</p><h2 id="下载安装程序"><a href="#下载安装程序" class="headerlink" title="下载安装程序"></a>下载安装程序</h2><p><strong>cuda</strong> 版本为 <a href="https://developer.nvidia.com/cuda-10.0-download-archive?target_os=Linux&target_arch=x86_64&target_distro=Ubuntu&target_version=1804&target_type=runfilelocal" target="_blank" rel="noopener">cuda10.0</a></p><p><strong>NVIDIA Driver</strong> 版本为 440.82</p><h2 id="安装-CUDA"><a href="#安装-CUDA" class="headerlink" title="安装 CUDA"></a>安装 CUDA</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo sh cuda_10.0.130_410.48_linux.run</span><br></pre></td></tr></table></figure><h3 id="配置环境"><a href="#配置环境" class="headerlink" title="配置环境"></a>配置环境</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sudo ln -s /usr/<span class="built_in">local</span>/cuda-10.0 /usr/<span class="built_in">local</span>/cuda</span><br><span class="line"><span class="built_in">export</span> PATH=<span class="string">"/usr/local/cuda/bin:<span class="variable">$PATH</span>"</span></span><br><span class="line"><span class="built_in">export</span> LD_LIBRARY_PATH=<span class="string">"/usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64:<span class="variable">$LD_LIBRARY_PATH</span>"</span></span><br><span class="line">sudo <span class="built_in">echo</span> <span class="string">"/usr/local/cuda/lib64"</span> &gt;&gt; /etc/ld.so.conf</span><br><span class="line">sudo ldconfig</span><br></pre></td></tr></table></figure><h2 id="安装-NVIDIA-Driver"><a href="#安装-NVIDIA-Driver" class="headerlink" title="安装 NVIDIA Driver"></a>安装 NVIDIA Driver</h2><h3 id="卸载已有-NVIDIA-Driver"><a href="#卸载已有-NVIDIA-Driver" class="headerlink" title="卸载已有 NVIDIA Driver"></a>卸载已有 NVIDIA Driver</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo /usr/bin/nvidia-uninstall</span><br><span class="line">sudo reboot</span><br></pre></td></tr></table></figure><h3 id="安装新-NVIDIA-Driver"><a href="#安装新-NVIDIA-Driver" class="headerlink" title="安装新 NVIDIA Driver"></a>安装新 NVIDIA Driver</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo sh NVIDIA-Linux-x86_64-440.82.run</span><br></pre></td></tr></table></figure><h3 id="验证"><a href="#验证" class="headerlink" title="验证"></a>验证</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nvidia-smi</span><br></pre></td></tr></table></figure><h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><p><a href="https://forums.developer.nvidia.com/t/libcublas-so-10-0-cannot-be-found/69629" target="_blank" rel="noopener">libcublas-so-10-0-cannot-be-found</a></p>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;h2 id=&quot;系统环境&quot;&gt;&lt;a href=&quot;#系统环境&quot; class=&quot;headerlink&quot; title=&quot;系统环境&quot;&gt;&lt;/a&gt;系统环境&lt;/h2&gt;&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre</summary>
-      
-    
-    
-    
-    
-    <category term="nvidia" scheme="http://divinerapier.github.io/tags/nvidia/"/>
-    
-    <category term="cuda" scheme="http://divinerapier.github.io/tags/cuda/"/>
     
   </entry>
   
